@@ -14,18 +14,26 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
   int _index = 0;
   static const _items = [
     (
-      'Objectif:\nexcellence',
-      'Methode, regularite et ambition a chaque session.',
+      'Ta réussite,\nton combat',
+      'EduQuest est fait pour ceux qui refusent la médiocrité. '
+          'Des cours solides, des exercices ciblés, un suivi rigoureux '
+          '— ici, chaque effort te rapproche de l\'excellence.',
       Icons.trending_up_rounded,
     ),
     (
-      'Rythme, focus,\nresultats',
-      'Cours, QCM, exercices et corriges pour maitriser.',
+      'Tout est là.\nÀ toi de jouer.',
+      'Cours structurés, QCM chronométrés, corrigés '
+          'détaillés, épreuves d\'examen réelles. '
+          'Chaque outil est pensé pour transformer '
+          'ton travail en résultats le jour J.',
       Icons.bolt_rounded,
     ),
     (
-      'Meme hors\nligne',
-      'En ville ou en deplacement, ta progression continue.',
+      'Même sans\nconnexion',
+      'Le réseau coupe ? Ça arrive. '
+          'Télécharge tes contenus et continue à avancer. '
+          'Ton ambition ne s\'arrête pas '
+          'là où le wifi s\'arrête.',
       Icons.wifi_off_rounded,
     ),
   ];
@@ -43,127 +51,120 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(children: [
-            const SizedBox(height: 24),
-            Expanded(
-              child: PageView.builder(
-                controller: _ctrl,
-                itemCount: _items.length,
-                onPageChanged: (i) => setState(() => _index = i),
-                itemBuilder: (_, i) {
-                  final item = _items[i];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Spacer(flex: 2),
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: s.primary.withValues(alpha: .1),
-                          borderRadius: BorderRadius.circular(
-                            AppRadius.s,
+          child: Column(
+            children: [
+              const SizedBox(height: 24),
+              Expanded(
+                child: PageView.builder(
+                  controller: _ctrl,
+                  itemCount: _items.length,
+                  onPageChanged: (i) => setState(() => _index = i),
+                  itemBuilder: (_, i) {
+                    final item = _items[i];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Spacer(flex: 2),
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: s.primary.withValues(alpha: .1),
+                            borderRadius: BorderRadius.circular(AppRadius.s),
+                          ),
+                          child: Icon(item.$3, color: s.primary, size: 28),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          item.$1,
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                            letterSpacing: -0.5,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        child: Icon(
-                          item.$3,
-                          color: s.primary,
-                          size: 28,
+                        const SizedBox(height: 12),
+                        Text(
+                          item.$2,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 16,
+                            height: 1.5,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        item.$1,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          height: 1.15,
-                          letterSpacing: -0.5,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        item.$2,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 16,
-                          height: 1.5,
-                        ),
-                      ),
-                      const Spacer(flex: 3),
-                    ],
-                  );
-                },
-              ),
-            ),
-            Row(
-              children: List.generate(
-                _items.length,
-                (i) => AnimatedContainer(
-                  duration: AppMotion.normal,
-                  width: i == _index ? 24 : 6,
-                  height: 6,
-                  margin: const EdgeInsets.only(right: 6),
-                  decoration: BoxDecoration(
-                    color: i == _index
-                        ? s.primary
-                        : AppColors.textTertiary.withValues(alpha: .3),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
+                        const Spacer(flex: 3),
+                      ],
+                    );
+                  },
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'En continuant, tu acceptes nos conditions.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textTertiary,
-                fontSize: 12,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          const LegalDocumentPage(docType: 'terms'),
+              Row(
+                children: List.generate(
+                  _items.length,
+                  (i) => AnimatedContainer(
+                    duration: AppMotion.normal,
+                    width: i == _index ? 24 : 6,
+                    height: 6,
+                    margin: const EdgeInsets.only(right: 6),
+                    decoration: BoxDecoration(
+                      color: i == _index
+                          ? s.primary
+                          : AppColors.textTertiary.withValues(alpha: .3),
+                      borderRadius: BorderRadius.circular(3),
                     ),
                   ),
-                  style: TextButton.styleFrom(
-                    textStyle: const TextStyle(fontSize: 12),
-                  ),
-                  child: const Text('Conditions'),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          const LegalDocumentPage(docType: 'privacy'),
-                    ),
-                  ),
-                  style: TextButton.styleFrom(
-                    textStyle: const TextStyle(fontSize: 12),
-                  ),
-                  child: const Text('Confidentialite'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: widget.onContinue,
-                child: const Text('Commencer'),
               ),
-            ),
-            const SizedBox(height: 24),
-          ]),
+              const SizedBox(height: 24),
+              Text(
+                'En continuant, tu acceptes nos conditions.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const LegalDocumentPage(docType: 'terms'),
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 12),
+                    ),
+                    child: const Text('Conditions'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const LegalDocumentPage(docType: 'privacy'),
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 12),
+                    ),
+                    child: const Text('Confidentialite'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: widget.onContinue,
+                  child: const Text('Commencer'),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );

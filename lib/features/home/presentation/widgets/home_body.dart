@@ -4,6 +4,7 @@ import 'package:eduquest/features/gamification/domain/gamification_state.dart';
 import 'package:eduquest/features/gamification/presentation/widgets/gamification_panel.dart';
 import 'package:eduquest/features/home/presentation/widgets/access_banner.dart';
 import 'package:eduquest/features/home/presentation/widgets/action_tile.dart';
+import 'package:eduquest/features/home/presentation/widgets/motivational_quote.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -90,6 +91,7 @@ class HomeBody extends StatelessWidget {
           actionIcon: Icons.shopping_cart_checkout_rounded,
           onAction: onBuyTicket,
         ),
+        const MotivationalQuote(),
       ],
     );
   }
