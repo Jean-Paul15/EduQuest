@@ -1,0 +1,171 @@
+import 'package:eduquest/features/legal/presentation/legal_document_page.dart';
+import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:flutter/material.dart';
+
+class OnboardingIntroPage extends StatefulWidget {
+  const OnboardingIntroPage({super.key, required this.onContinue});
+  final Future<void> Function() onContinue;
+  @override
+  State<OnboardingIntroPage> createState() => _OnboardingIntroPageState();
+}
+
+class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
+  final _ctrl = PageController();
+  int _index = 0;
+  static const _items = [
+    (
+      'Objectif:\nexcellence',
+      'Methode, regularite et ambition a chaque session.',
+      Icons.trending_up_rounded,
+    ),
+    (
+      'Rythme, focus,\nresultats',
+      'Cours, QCM, exercices et corriges pour maitriser.',
+      Icons.bolt_rounded,
+    ),
+    (
+      'Meme hors\nligne',
+      'En ville ou en deplacement, ta progression continue.',
+      Icons.wifi_off_rounded,
+    ),
+  ];
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(children: [
+            const SizedBox(height: 24),
+            Expanded(
+              child: PageView.builder(
+                controller: _ctrl,
+                itemCount: _items.length,
+                onPageChanged: (i) => setState(() => _index = i),
+                itemBuilder: (_, i) {
+                  final item = _items[i];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Spacer(flex: 2),
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: s.primary.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(
+                            AppRadius.s,
+                          ),
+                        ),
+                        child: Icon(
+                          item.$3,
+                          color: s.primary,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        item.$1,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          height: 1.15,
+                          letterSpacing: -0.5,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        item.$2,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                      ),
+                      const Spacer(flex: 3),
+                    ],
+                  );
+                },
+              ),
+            ),
+            Row(
+              children: List.generate(
+                _items.length,
+                (i) => AnimatedContainer(
+                  duration: AppMotion.normal,
+                  width: i == _index ? 24 : 6,
+                  height: 6,
+                  margin: const EdgeInsets.only(right: 6),
+                  decoration: BoxDecoration(
+                    color: i == _index
+                        ? s.primary
+                        : AppColors.textTertiary.withValues(alpha: .3),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'En continuant, tu acceptes nos conditions.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textTertiary,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const LegalDocumentPage(docType: 'terms'),
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                  child: const Text('Conditions'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const LegalDocumentPage(docType: 'privacy'),
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                  child: const Text('Confidentialite'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: widget.onContinue,
+                child: const Text('Commencer'),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ]),
+        ),
+      ),
+    );
+  }
+}

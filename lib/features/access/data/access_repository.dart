@@ -1,0 +1,76 @@
+import 'package:eduquest/shared/config/env.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class AccessState {
+  final String tier;
+  final DateTime? expiresAt;
+  final bool hasAccess;
+
+  const AccessState({
+    required this.tier,
+    required this.hasAccess,
+    required this.expiresAt,
+  });
+}
+
+class AccessRepository {
+  Future<AccessState> resolveAccess() async {
+    if (!Env.hasSupabase) {
+      return const AccessState(tier: 'FREE', hasAccess: true, expiresAt: null);
+    }
+    final client = Supabase.instance.client;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) {
+      return const AccessState(tier: 'ANON', hasAccess: false, expiresAt: null);
+    }
+    try {
+      final data = await client.rpc('resolve_access_scope');
+      final tierRpc = (data as Map)['tier']?.toString() ?? 'UNKNOWN';
+      final expiresRaw = data['expires_at']?.toString();
+      final rpcState = AccessState(
+        tier: tierRpc,
+        hasAccess: (data['has_access'] as bool?) ?? true,
+        expiresAt: expiresRaw == null ? null : DateTime.tryParse(expiresRaw),
+      );
+      final ticketState = await _fromActiveTickets(uid);
+      return ticketState ?? rpcState;
+    } catch (_) {
+      return await _fromActiveTickets(uid) ??
+          const AccessState(tier: 'FREE', hasAccess: true, expiresAt: null);
+    }
+  }
+
+  Future<AccessState?> _fromActiveTickets(String uid) async {
+    final nowIso = DateTime.now().toUtc().toIso8601String();
+    final rows = await Supabase.instance.client
+        .from('ticket_codes')
+        .select('expires_at,ticket_products(ticket_type)')
+        .eq('activated_by', uid)
+        .gt('expires_at', nowIso);
+    if ((rows as List).isEmpty) return null;
+    DateTime? fullExp;
+    DateTime? halfExp;
+    for (final r in rows) {
+      final m = Map<String, dynamic>.from(r as Map);
+      final exp = DateTime.tryParse('${m['expires_at'] ?? ''}');
+      final tp =
+          (m['ticket_products'] as Map?)?['ticket_type']?.toString() ?? '';
+      if (exp == null) {
+        continue;
+      }
+      if (tp == 'FULL') {
+        fullExp = fullExp == null || exp.isAfter(fullExp) ? exp : fullExp;
+      }
+      if (tp == 'HALF') {
+        halfExp = halfExp == null || exp.isAfter(halfExp) ? exp : halfExp;
+      }
+    }
+    if (fullExp != null) {
+      return AccessState(tier: 'FULL', hasAccess: true, expiresAt: fullExp);
+    }
+    if (halfExp != null) {
+      return AccessState(tier: 'HALF', hasAccess: true, expiresAt: halfExp);
+    }
+    return const AccessState(tier: 'FREE', hasAccess: true, expiresAt: null);
+  }
+}

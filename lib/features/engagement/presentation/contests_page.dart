@@ -1,0 +1,55 @@
+import 'package:eduquest/features/engagement/data/engagement_repository.dart';
+import 'package:eduquest/features/engagement/domain/engagement_item.dart';
+import 'package:eduquest/features/engagement/presentation/contest_detail_page.dart';
+import 'package:eduquest/features/engagement/presentation/widgets/engagement_list.dart';
+import 'package:eduquest/shared/analytics/app_analytics.dart';
+import 'package:flutter/material.dart';
+
+class ContestsPage extends StatefulWidget {
+  const ContestsPage({super.key});
+
+  @override
+  State<ContestsPage> createState() => _ContestsPageState();
+}
+
+class _ContestsPageState extends State<ContestsPage>
+    with AutomaticKeepAliveClientMixin {
+  final _repo = EngagementRepository();
+  final _analytics = AppAnalytics();
+  List<EngagementItem> _items = const [];
+  bool _loading = true;
+  Future<void> _load() async {
+    if (mounted && _items.isEmpty) setState(() => _loading = true);
+    final value = await _repo.listContests();
+    if (!mounted) return;
+    setState(() {
+      _items = value;
+      _loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _analytics.track('contests_opened');
+    _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return EngagementList(
+      items: _items,
+      loading: _loading,
+      emptyLabel: 'Aucun concours disponible',
+      onTap: (item) => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ContestDetailPage(id: item.id)),
+      ),
+      onRefresh: _load,
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+}
