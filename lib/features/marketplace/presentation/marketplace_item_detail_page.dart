@@ -7,10 +7,7 @@ class MarketplaceItemDetailPage extends StatelessWidget {
   const MarketplaceItemDetailPage({super.key, required this.item});
   final MarketplaceItem item;
   Future<void> _open() async {
-    await launchUrl(
-      Uri.parse(item.url),
-      mode: LaunchMode.externalApplication,
-    );
+    await launchUrl(Uri.parse(item.url), mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -21,6 +18,20 @@ class MarketplaceItemDetailPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  item.imageUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           Text(
             item.title,
             style: const TextStyle(
@@ -30,36 +41,38 @@ class MarketplaceItemDetailPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Row(children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                color: s.primary.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(AppRadius.xs),
-              ),
-              child: Text(
-                item.type.toUpperCase(),
-                style: TextStyle(
-                  color: s.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: s.primary.withValues(alpha: .08),
+                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                ),
+                child: Text(
+                  item.type.toUpperCase(),
+                  style: TextStyle(
+                    color: s.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
                 ),
               ),
-            ),
-            if (item.priceLabel?.isNotEmpty == true) ...[
-              const SizedBox(width: 8),
-              Text(
-                item.priceLabel!,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+              if (item.priceLabel?.isNotEmpty == true) ...[
+                const SizedBox(width: 8),
+                Text(
+                  item.priceLabel!,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              ),
+              ],
             ],
-          ]),
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,

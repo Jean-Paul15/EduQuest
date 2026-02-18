@@ -35,34 +35,38 @@ class ReminderSettingTile extends StatelessWidget {
         border: Border.all(color: AppColors.divider),
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
-      child: Row(children: [
-        Expanded(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Rappel quotidien',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Rappel quotidien',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  enabled ? 'Heure : ${_label()}' : 'Désactivé',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 2),
-            Text(
-              enabled ? 'Heure: ${_label()}' : 'Desactive',
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        )),
-        Switch(value: enabled, onChanged: onToggle),
-        IconButton(
-          onPressed: enabled ? onPickTime : null,
-          icon: const Icon(Icons.schedule_rounded),
-          tooltip: "Choisir l'heure",
-        ),
-      ]),
+          ),
+          Switch(value: enabled, onChanged: onToggle),
+          IconButton(
+            onPressed: enabled ? onPickTime : null,
+            icon: const Icon(Icons.schedule_rounded),
+            tooltip: "Choisir l'heure",
+          ),
+        ],
+      ),
     );
   }
 }

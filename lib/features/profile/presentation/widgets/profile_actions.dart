@@ -22,20 +22,40 @@ class ProfileActions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _action(Icons.widgets_rounded, 'Mettre a jour le widget', onWidgetUpdate),
-        _action(Icons.add_to_home_screen_rounded, "Ajouter le widget a l'accueil", onWidgetPin),
+        _action(
+          Icons.widgets_rounded,
+          'Mettre à jour le widget',
+          onWidgetUpdate,
+        ),
+        _action(
+          Icons.add_to_home_screen_rounded,
+          "Ajouter le widget à l'accueil",
+          onWidgetPin,
+        ),
         const Divider(color: AppColors.divider, height: AppSpace.xxl),
         _action(Icons.gavel_rounded, "Conditions d'utilisation", onOpenTerms),
-        _action(Icons.privacy_tip_rounded, 'Politique de confidentialite', onOpenPrivacy),
+        _action(
+          Icons.privacy_tip_rounded,
+          'Politique de confidentialité',
+          onOpenPrivacy,
+        ),
         const Divider(color: AppColors.divider, height: AppSpace.xxl),
-        _action(Icons.logout_rounded, 'Se deconnecter', onSignOut,
-            color: AppColors.error),
+        _action(
+          Icons.logout_rounded,
+          'Se déconnecter',
+          onSignOut,
+          color: AppColors.error,
+        ),
       ],
     );
   }
 
-  Widget _action(IconData icon, String label, VoidCallback onTap,
-      {Color? color}) {
+  Widget _action(
+    IconData icon,
+    String label,
+    VoidCallback onTap, {
+    Color? color,
+  }) {
     return TextButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 20, color: color ?? AppColors.textSecondary),

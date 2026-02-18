@@ -18,9 +18,9 @@ class _ContestsPageState extends State<ContestsPage>
   final _analytics = AppAnalytics();
   List<EngagementItem> _items = const [];
   bool _loading = true;
-  Future<void> _load() async {
+  Future<void> _load({bool forceRefresh = false}) async {
     if (mounted && _items.isEmpty) setState(() => _loading = true);
-    final value = await _repo.listContests();
+    final value = await _repo.listContests(forceRefresh: forceRefresh);
     if (!mounted) return;
     setState(() {
       _items = value;
@@ -32,7 +32,7 @@ class _ContestsPageState extends State<ContestsPage>
   void initState() {
     super.initState();
     _analytics.track('contests_opened');
-    _load();
+    _load(forceRefresh: true);
   }
 
   @override
@@ -46,7 +46,7 @@ class _ContestsPageState extends State<ContestsPage>
         context,
         MaterialPageRoute(builder: (_) => ContestDetailPage(id: item.id)),
       ),
-      onRefresh: _load,
+      onRefresh: () => _load(forceRefresh: true),
     );
   }
 

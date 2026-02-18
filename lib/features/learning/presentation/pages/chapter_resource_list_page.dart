@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:eduquest/features/gamification/data/gamification_repository.dart';
 import 'package:eduquest/features/offline/data/pdf_runtime_cache.dart';
 import 'package:eduquest/features/learning/data/chapter_content_repository.dart';
 import 'package:eduquest/features/learning/domain/chapter_resource.dart';
@@ -34,6 +35,7 @@ class _ChapterResourceListPageState extends State<ChapterResourceListPage>
     with AutomaticKeepAliveClientMixin {
   final _repo = ChapterContentRepository();
   final _pdf = PdfRuntimeCache();
+  final _gamification = GamificationRepository();
   final _notif = NotificationService();
   List<ChapterResource> _items = const [];
   bool _loading = true;
@@ -107,6 +109,7 @@ class _ChapterResourceListPageState extends State<ChapterResourceListPage>
   }
 
   Future<void> _open(ChapterResource r) async {
+    unawaited(_gamification.claimQuestByCode('open_lesson'));
     if (_pdfMode) {
       await Navigator.push(
         context,
@@ -121,7 +124,7 @@ class _ChapterResourceListPageState extends State<ChapterResourceListPage>
       return;
     }
     if (_videoMode) {
-      final yt = parseYoutubeId(r.url) != null;
+      final yt = isYoutubeUrl(r.url);
       await Navigator.push(
         context,
         MaterialPageRoute(

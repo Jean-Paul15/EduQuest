@@ -1,3 +1,4 @@
+import 'package:eduquest/features/legal/data/legal_repository.dart';
 import 'package:eduquest/features/legal/presentation/legal_document_page.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,10 @@ class OnboardingIntroPage extends StatefulWidget {
 
 class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
   final _ctrl = PageController();
+  final _legal = LegalRepository();
   int _index = 0;
+  bool _submitting = false;
+  bool _legalLoading = true;
   static const _items = [
     (
       'Ta réussite,\nton combat',
@@ -37,6 +41,24 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
       Icons.wifi_off_rounded,
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _preloadLegal();
+  }
+
+  Future<void> _preloadLegal() async {
+    setState(() => _legalLoading = true);
+    try {
+      await Future.wait([
+        _legal.load('terms'),
+        _legal.load('privacy'),
+      ]).timeout(const Duration(seconds: 6));
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _legalLoading = false);
+  }
 
   @override
   void dispose() {
@@ -127,7 +149,9 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                    onPressed: () => Navigator.push(
+                    onPressed: _legalLoading
+                        ? null
+                        : () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
@@ -140,7 +164,9 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
                     child: const Text('Conditions'),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.push(
+                    onPressed: _legalLoading
+                        ? null
+                        : () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
@@ -152,14 +178,44 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
                     ),
                     child: const Text('Confidentialite'),
                   ),
+                  if (_legalLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 6),
+                      child: SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: widget.onContinue,
-                  child: const Text('Commencer'),
+                  onPressed: _submitting
+                      ? null
+                      : () async {
+                          final last = _items.length - 1;
+                          if (_index < last) {
+                            await _ctrl.nextPage(
+                              duration: const Duration(milliseconds: 280),
+                              curve: Curves.easeOutCubic,
+                            );
+                            return;
+                          }
+                          setState(() => _submitting = true);
+                          try {
+                            await widget.onContinue();
+                          } finally {
+                            if (mounted) setState(() => _submitting = false);
+                          }
+                        },
+                  child: Text(
+                    _index < _items.length - 1
+                        ? 'Poursuivre'
+                        : (_submitting ? 'Chargement...' : 'Commencer'),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

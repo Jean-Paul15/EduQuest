@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:eduquest/features/access/data/access_repository.dart';
+import 'package:eduquest/features/app_config/data/app_config_repository.dart';
 import 'package:eduquest/features/learning/data/exam_repository.dart';
 import 'package:eduquest/features/learning/domain/exam_category.dart';
 import 'package:eduquest/features/learning/data/learning_catalog_repository.dart';
@@ -12,6 +14,7 @@ import 'package:eduquest/shared/network/network_probe.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SubjectSectionPage extends StatefulWidget {
@@ -27,10 +30,18 @@ class _SubjectSectionPageState extends State<SubjectSectionPage>
   final _exams = ExamRepository();
   final _warmup = LearningWarmupService();
   final _notif = NotificationService();
+  final _accessRepo = AccessRepository();
+  final _configRepo = AppConfigRepository();
   List<LearningSubject> _items = const [];
   bool _loading = true;
   String? _openingId;
   bool _offlineWarned = false;
+  Map<String, String> _learningAccess = const {};
+  AccessState _access = const AccessState(
+    tier: 'FREE',
+    hasAccess: true,
+    expiresAt: null,
+  );
 
   @override
   void initState() {
@@ -40,6 +51,8 @@ class _SubjectSectionPageState extends State<SubjectSectionPage>
 
   Future<void> _load() async {
     if (mounted && _items.isEmpty) setState(() => _loading = true);
+    final accessF = _accessRepo.resolveAccess();
+    final learningAccessF = _configRepo.loadLearningAccess();
     final s = widget.section;
     final hadCache = switch (s) {
       LearningSection.exams => await _exams.hasSubjectsCache(
@@ -59,10 +72,14 @@ class _SubjectSectionPageState extends State<SubjectSectionPage>
       LearningSection.mockExams => await _exams.subjects(ExamCategory.mock),
       _ => await _catalog.subjectsForCourses(),
     };
+    final access = await accessF;
+    final learningAccess = await learningAccessF;
     if (mounted) {
       setState(() {
         _items = data;
         _loading = false;
+        _access = access;
+        _learningAccess = learningAccess;
       });
     }
     if (data.isEmpty) {
@@ -95,7 +112,55 @@ class _SubjectSectionPageState extends State<SubjectSectionPage>
     _ => null,
   };
 
+  String get _requiredTier {
+    final key = switch (widget.section) {
+      LearningSection.courses => 'courses',
+      LearningSection.exams => 'exams',
+      LearningSection.epreuves => 'epreuves',
+      LearningSection.mockExams => 'mockExams',
+      LearningSection.videos => 'videos',
+      LearningSection.youtube => 'youtube',
+    };
+    return (_learningAccess[key] ?? 'HALF').toUpperCase();
+  }
+
+  bool get _canOpenSection {
+    if (_access.hasAccess == false) return false;
+    if (_requiredTier == 'FREE') return true;
+    if (_access.tier == 'ADMIN' || _access.tier == 'CAMPAIGN_FREE') {
+      return true;
+    }
+    const rank = {'FREE': 0, 'HALF': 1, 'FULL': 2};
+    final userRank = rank[_access.tier] ?? -1;
+    final neededRank = rank[_requiredTier] ?? 1;
+    return userRank >= neededRank;
+  }
+
+  Future<void> _showAccessDenied() async {
+    if (!mounted) return;
+    await showCupertinoDialog<void>(
+      context: context,
+      builder: (_) => CupertinoAlertDialog(
+        title: const Text('Accès non autorisé'),
+        content: Text(
+          'Ton accès ${_access.tier} ne permet pas d’ouvrir ${widget.section.label}. Ticket requis: $_requiredTier.',
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Compris'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _open(LearningSubject s) async {
+    if (_canOpenSection == false) {
+      await _showAccessDenied();
+      return;
+    }
     if (mounted) setState(() => _openingId = s.id);
     try {
       if (!mounted) return;

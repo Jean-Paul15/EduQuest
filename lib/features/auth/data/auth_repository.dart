@@ -1,10 +1,12 @@
 import 'package:eduquest/app/bootstrap/offline_session_gate.dart';
+import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRepository {
   final _offlineGate = OfflineSessionGate();
+  final _notifications = NotificationService();
   bool get isConfigured => Env.hasSupabase;
   User? get currentUser =>
       isConfigured ? Supabase.instance.client.auth.currentUser : null;
@@ -21,6 +23,7 @@ class AuthRepository {
 
   Future<void> signOut() async {
     if (!isConfigured) return;
+    await _notifications.clearExternalUserId();
     await Supabase.instance.client.auth.signOut();
     await _offlineGate.clear();
   }

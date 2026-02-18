@@ -18,12 +18,22 @@ class _LiveClassesPageState extends State<LiveClassesPage>
   bool _loading = true;
 
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() {
+    super.initState();
+    _load(forceRefresh: true);
+  }
 
-  Future<void> _load() async {
-    if (mounted && _items.isEmpty) setState(() => _loading = true);
-    final data = await _repo.list();
-    if (mounted) setState(() { _items = data; _loading = false; });
+  Future<void> _load({bool forceRefresh = false}) async {
+    if (mounted && _items.isEmpty) {
+      setState(() => _loading = true);
+    }
+    final data = await _repo.list(forceRefresh: forceRefresh);
+    if (mounted) {
+      setState(() {
+        _items = data;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _open(String url) async {
@@ -33,7 +43,9 @@ class _LiveClassesPageState extends State<LiveClassesPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     if (_items.isEmpty) {
       return const EmptyState(
         title: 'Aucun live planifie',
@@ -42,7 +54,7 @@ class _LiveClassesPageState extends State<LiveClassesPage>
     }
     final s = Theme.of(context).colorScheme;
     return RefreshIndicator(
-      onRefresh: _load,
+      onRefresh: () => _load(forceRefresh: true),
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpace.l),
         itemCount: _items.length,
@@ -63,37 +75,53 @@ class _LiveClassesPageState extends State<LiveClassesPage>
         border: Border.all(color: AppColors.divider),
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
-      child: Row(children: [
-        Container(
-          padding: const EdgeInsets.all(AppSpace.s),
-          decoration: BoxDecoration(
-            color: s.primary.withValues(alpha: .08),
-            borderRadius: BorderRadius.circular(AppRadius.xs),
-          ),
-          child: Icon(Icons.videocam_rounded, size: 20, color: s.primary),
-        ),
-        const SizedBox(width: AppSpace.m),
-        Expanded(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(e.title, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-            const SizedBox(height: 2),
-            Text(
-              '${e.startsAt.toLocal()} — ${e.endsAt.toLocal()}',
-              style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpace.s),
+            decoration: BoxDecoration(
+              color: s.primary.withValues(alpha: .08),
+              borderRadius: BorderRadius.circular(AppRadius.xs),
             ),
-          ],
-        )),
-        const SizedBox(width: AppSpace.s),
-        FilledButton(
-          onPressed: () => _open(e.zoomLink),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.m, vertical: AppSpace.s),
-            textStyle: const TextStyle(fontSize: 13),
+            child: Icon(Icons.videocam_rounded, size: 20, color: s.primary),
           ),
-          child: const Text('Rejoindre'),
-        ),
-      ]),
+          const SizedBox(width: AppSpace.m),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  e.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${e.startsAt.toLocal()} — ${e.endsAt.toLocal()}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpace.s),
+          FilledButton(
+            onPressed: () => _open(e.zoomLink),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.m,
+                vertical: AppSpace.s,
+              ),
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+            child: const Text('Rejoindre'),
+          ),
+        ],
+      ),
     );
   }
 }

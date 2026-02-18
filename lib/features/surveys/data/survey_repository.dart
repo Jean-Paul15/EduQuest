@@ -41,6 +41,34 @@ class SurveyRepository {
     }
   }
 
+  Future<String> submitAll(List<Map<String, dynamic>> answers) async {
+    if (!Env.hasSupabase) return 'Supabase non configuré.';
+    if (answers.isEmpty) return 'Aucune réponse à envoyer.';
+    try {
+      final res = await Supabase.instance.client.rpc(
+        'submit_survey_answers_bulk',
+        params: {'p_answers': answers},
+      );
+      final out = Map<String, dynamic>.from(res as Map);
+      return out['message']?.toString() ?? 'Réponses enregistrées.';
+    } catch (_) {
+      var ok = 0;
+      for (final a in answers) {
+        final msg = await submit(
+          questionId: '${a['question_id']}',
+          text: a['answer_text']?.toString(),
+          option: (a['answer_json'] as Map?)?['selected']?.toString(),
+        );
+        final failed =
+            msg.toLowerCase().contains('impossible') ||
+            msg.toLowerCase().contains('non');
+        if (failed) return 'Échec partiel: $ok/${answers.length} enregistrées.';
+        ok++;
+      }
+      return 'Réponses enregistrées ($ok/${answers.length}).';
+    }
+  }
+
   Future<List<SurveyQuestion>> _fromLocal(String key) async {
     final rows = await _local.readList(key);
     if (rows == null) return const [];

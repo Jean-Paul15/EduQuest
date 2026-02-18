@@ -97,6 +97,20 @@ class GamificationRepository {
     }
   }
 
+  Future<String> claimQuestByCode(String code) async {
+    if (!Env.hasSupabase) return 'Action locale enregistrée.';
+    try {
+      final result = await Supabase.instance.client.rpc(
+        'claim_daily_quest',
+        params: {'p_code': code},
+      );
+      final map = Map<String, dynamic>.from(result as Map);
+      return '${map['message'] ?? 'Action enregistrée.'}';
+    } catch (_) {
+      return 'Action non prise en compte pour le moment.';
+    }
+  }
+
   GamificationState _emptyState() =>
       const GamificationState(xp: 0, level: 1, streakDays: 0, bestStreak: 0);
 

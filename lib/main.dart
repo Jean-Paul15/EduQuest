@@ -13,7 +13,6 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
   await SupabaseBootstrap.initialize();
   runApp(const EduQuestApp());
-  FlutterNativeSplash.remove();
   unawaited(_startBackgroundInit());
 }
 

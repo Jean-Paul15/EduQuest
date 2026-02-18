@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:eduquest/features/learning/data/learning_scope_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_chapter.dart';
 import 'package:eduquest/features/learning/domain/learning_subject.dart';
-import 'package:eduquest/shared/data/cache_policy.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -42,14 +41,18 @@ class LearningCatalogRepository {
     if (scope == null) return const [];
     final cacheKey = 'course:${scope.levelId}';
     final cached = _subjectsCache[cacheKey];
-    if (cached != null) return cached;
+    if (cached != null) {
+      if (Env.hasSupabase) {
+        unawaited(_refreshSubjects(scope.levelId, cacheKey));
+      }
+      return cached;
+    }
     final key = 'learn:subjects:$cacheKey';
     final localRows = await _local.readList(key);
     if (localRows != null) {
       final out = _subjectsFromRows(localRows);
       _subjectsCache[cacheKey] = out;
-      if (Env.hasSupabase &&
-          !await _local.isFresh(key, CachePolicy.learningSubjects)) {
+      if (Env.hasSupabase) {
         unawaited(_refreshSubjects(scope.levelId, cacheKey));
       }
       return out;
@@ -63,7 +66,12 @@ class LearningCatalogRepository {
     if (scope == null) return const [];
     final cacheKey = '${scope.levelId}:$subjectId';
     final cached = _chaptersCache[cacheKey];
-    if (cached != null) return cached;
+    if (cached != null) {
+      if (Env.hasSupabase) {
+        unawaited(_refreshChapters(scope.levelId, subjectId, cacheKey));
+      }
+      return cached;
+    }
     final key = 'learn:chapters:$cacheKey';
     final localRows = await _local.readList(key);
     if (localRows != null) {
@@ -77,8 +85,7 @@ class LearningCatalogRepository {
           )
           .toList();
       _chaptersCache[cacheKey] = out;
-      if (Env.hasSupabase &&
-          !await _local.isFresh(key, CachePolicy.learningChapters)) {
+      if (Env.hasSupabase) {
         unawaited(_refreshChapters(scope.levelId, subjectId, cacheKey));
       }
       return out;

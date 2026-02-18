@@ -18,9 +18,9 @@ class _EventsPageState extends State<EventsPage>
   final _analytics = AppAnalytics();
   List<EngagementItem> _items = const [];
   bool _loading = true;
-  Future<void> _load() async {
+  Future<void> _load({bool forceRefresh = false}) async {
     if (mounted && _items.isEmpty) setState(() => _loading = true);
-    final value = await _repo.listEvents();
+    final value = await _repo.listEvents(forceRefresh: forceRefresh);
     if (!mounted) return;
     setState(() {
       _items = value;
@@ -32,7 +32,7 @@ class _EventsPageState extends State<EventsPage>
   void initState() {
     super.initState();
     _analytics.track('events_opened');
-    _load();
+    _load(forceRefresh: true);
   }
 
   @override
@@ -46,7 +46,7 @@ class _EventsPageState extends State<EventsPage>
         context,
         MaterialPageRoute(builder: (_) => EventDetailPage(id: item.id)),
       ),
-      onRefresh: _load,
+      onRefresh: () => _load(forceRefresh: true),
     );
   }
 

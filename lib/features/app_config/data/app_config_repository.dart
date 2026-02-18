@@ -37,6 +37,7 @@ class AppConfigRepository {
       'contests': value['contests'] as bool? ?? true,
       'events': value['events'] as bool? ?? true,
       'surveys': value['surveys'] as bool? ?? true,
+      'notifications': value['notifications'] as bool? ?? true,
       'referral': value['referral'] as bool? ?? true,
       'market': value['market'] as bool? ?? true,
       'leaderboard': value['leaderboard'] as bool? ?? true,
@@ -44,11 +45,52 @@ class AppConfigRepository {
     };
   }
 
-  Future<Map<String, String>> loadAppLinks() async {
-    final value = await _value('app_links');
+  Future<Map<String, String>> loadAppLinks({bool forceRefresh = false}) async {
+    final value = forceRefresh
+        ? (await _refreshValue('app_links') ?? await _value('app_links'))
+        : await _value('app_links');
+    final base = value['site_base_url']?.toString() ?? '';
+    String norm(String raw) {
+      final v = raw.trim();
+      if (v.isEmpty) return '';
+      if (v.startsWith('http://') || v.startsWith('https://')) return v;
+      if (base.trim().isEmpty) return v;
+      final b = base.endsWith('/') ? base.substring(0, base.length - 1) : base;
+      final p = v.startsWith('/') ? v : '/$v';
+      return '$b$p';
+    }
     return {
-      'support_url': value['support_url']?.toString() ?? '',
-      'ticket_shop_url': value['ticket_shop_url']?.toString() ?? '',
+      'support_url': norm(value['support_url']?.toString() ?? ''),
+      'ticket_shop_url': norm(value['ticket_shop_url']?.toString() ?? ''),
+      'site_base_url': base,
+      'handoff_path': value['handoff_path']?.toString() ?? '',
+      'payment_path': value['payment_path']?.toString() ?? '',
+      'public_event_buy_path': value['public_event_buy_path']?.toString() ?? '',
+      'ticket_checkout_path': value['ticket_checkout_path']?.toString() ?? '',
+    };
+  }
+
+  Future<Map<String, dynamic>> loadFeedModules() async {
+    final value = await _value('feed_modules');
+    return {
+      'courses': value['courses'] as bool? ?? true,
+      'contests': value['contests'] as bool? ?? true,
+      'events': value['events'] as bool? ?? true,
+      'courses_limit': value['courses_limit'] as int? ?? 8,
+      'contests_limit': value['contests_limit'] as int? ?? 5,
+      'events_limit': value['events_limit'] as int? ?? 5,
+    };
+  }
+
+  Future<Map<String, String>> loadLearningAccess() async {
+    final value = await _value('learning_access');
+    return {
+      'courses': value['courses']?.toString().toUpperCase() ?? 'HALF',
+      'exams': value['exams']?.toString().toUpperCase() ?? 'HALF',
+      'epreuves': value['epreuves']?.toString().toUpperCase() ?? 'HALF',
+      'mockExams': value['mockExams']?.toString().toUpperCase() ?? 'FULL',
+      'videos': value['videos']?.toString().toUpperCase() ?? 'HALF',
+      'youtube': value['youtube']?.toString().toUpperCase() ?? 'HALF',
     };
   }
 

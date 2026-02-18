@@ -18,6 +18,15 @@ class LocalReminderService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
+    await android?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        'eduquest_alerts',
+        'EduQuest Alerts',
+        description: 'Notifications importantes EduQuest',
+        importance: Importance.max,
+        playSound: true,
+      ),
+    );
     await android?.requestNotificationsPermission();
     try {
       await (android as dynamic).requestExactAlarmsPermission();

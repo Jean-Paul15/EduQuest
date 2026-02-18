@@ -18,9 +18,9 @@ class _SurveysPageState extends State<SurveysPage>
   final _analytics = AppAnalytics();
   List<EngagementItem> _items = const [];
   bool _loading = true;
-  Future<void> _load() async {
+  Future<void> _load({bool forceRefresh = false}) async {
     if (mounted && _items.isEmpty) setState(() => _loading = true);
-    final value = await _repo.listSurveys();
+    final value = await _repo.listSurveys(forceRefresh: forceRefresh);
     if (!mounted) return;
     setState(() {
       _items = value;
@@ -42,13 +42,16 @@ class _SurveysPageState extends State<SurveysPage>
       items: _items,
       loading: _loading,
       emptyLabel: 'Aucune enquête disponible',
-      onTap: (item) => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SurveyDetailPage(id: item.id, title: item.title),
-        ),
-      ),
-      onRefresh: _load,
+      onTap: (item) async {
+        final done = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SurveyDetailPage(id: item.id, title: item.title),
+          ),
+        );
+        if (done == true) _load(forceRefresh: true);
+      },
+      onRefresh: () => _load(forceRefresh: true),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/glass_container.dart';
 import 'package:flutter/material.dart';
 
 class ActionTile extends StatelessWidget {
@@ -26,13 +27,7 @@ class ActionTile extends StatelessWidget {
     final s = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(color: AppColors.divider),
-        ),
+      child: GlassContainer(
         child: Row(
           children: [
             Container(

@@ -5,6 +5,7 @@ import 'package:eduquest/features/learning/domain/exam_entry.dart';
 import 'package:eduquest/features/learning/presentation/pages/exam_detail_page.dart';
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/shared/network/network_probe.dart';
+import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
@@ -110,66 +111,68 @@ class _ExamListPageState extends State<ExamListPage>
     for (final e in _items) {
       grouped.putIfAbsent(e.semester ?? 'Session', () => []).add(e);
     }
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.subjectLabel)),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpace.l),
-        children: grouped.entries
-            .map(
-              (g) => Container(
-                margin: const EdgeInsets.only(bottom: AppSpace.s),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  border: Border.all(color: AppColors.divider),
-                  borderRadius: BorderRadius.circular(AppRadius.card),
-                ),
-                child: ExpansionTile(
-                  title: Text(
-                    'Semestre: ${g.key}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+    return SensitiveScope(
+      child: Scaffold(
+        appBar: AppBar(title: Text(widget.subjectLabel)),
+        body: ListView(
+          padding: const EdgeInsets.all(AppSpace.l),
+          children: grouped.entries
+              .map(
+                (g) => Container(
+                  margin: const EdgeInsets.only(bottom: AppSpace.s),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    border: Border.all(color: AppColors.divider),
+                    borderRadius: BorderRadius.circular(AppRadius.card),
                   ),
-                  children: g.value
-                      .map(
-                        (e) => ListTile(
-                          title: Text(
-                            e.title,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
+                  child: ExpansionTile(
+                    title: Text(
+                      'Semestre: ${g.key}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    children: g.value
+                        .map(
+                          (e) => ListTile(
+                            title: Text(
+                              e.title,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                              ),
                             ),
-                          ),
-                          subtitle: Text(
-                            e.correctionUrl?.isNotEmpty == true
-                                ? 'Avec correction'
-                                : 'Sans correction',
-                            style: const TextStyle(
-                              fontSize: 12,
+                            subtitle: Text(
+                              e.correctionUrl?.isNotEmpty == true
+                                  ? 'Avec correction'
+                                  : 'Sans correction',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textTertiary,
+                              ),
+                            ),
+                            trailing: const Icon(
+                              Icons.chevron_right_rounded,
                               color: AppColors.textTertiary,
                             ),
-                          ),
-                          trailing: const Icon(
-                            Icons.chevron_right_rounded,
-                            color: AppColors.textTertiary,
-                          ),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ExamDetailPage(
-                                title: e.title,
-                                paperUrl: e.paperUrl,
-                                correctionUrl: e.correctionUrl,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ExamDetailPage(
+                                  title: e.title,
+                                  paperUrl: e.paperUrl,
+                                  correctionUrl: e.correctionUrl,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                      .toList(),
+                        )
+                        .toList(),
+                  ),
                 ),
-              ),
-            )
-            .toList(),
+              )
+              .toList(),
+        ),
       ),
     );
   }

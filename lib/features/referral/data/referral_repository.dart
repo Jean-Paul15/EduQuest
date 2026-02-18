@@ -40,6 +40,25 @@ class ReferralRepository {
     }
   }
 
+  Future<int> qualifiedCount() async {
+    if (!Env.hasSupabase) return await _fromLocalQualifiedCount() ?? 0;
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) return await _fromLocalQualifiedCount() ?? 0;
+    try {
+      final out = await Supabase.instance.client.rpc(
+        'referral_qualified_count',
+        params: {'p_referrer': uid},
+      );
+      final value = _toInt(out);
+      await _local.writeList('referral:qualified', [
+        {'count': value},
+      ]);
+      return value;
+    } catch (_) {
+      return await _fromLocalQualifiedCount() ?? 0;
+    }
+  }
+
   Future<String> applyCode(String code) async {
     if (!Env.hasSupabase) return 'Supabase non configuré.';
     final res = await Supabase.instance.client.rpc(
@@ -60,5 +79,22 @@ class ReferralRepository {
     final rows = await _local.readList('referral:count');
     if (rows == null || rows.isEmpty) return null;
     return rows.first['count'] as int?;
+  }
+
+  Future<int?> _fromLocalQualifiedCount() async {
+    final rows = await _local.readList('referral:qualified');
+    if (rows == null || rows.isEmpty) return null;
+    return rows.first['count'] as int?;
+  }
+
+  int _toInt(dynamic raw) {
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    if (raw is String) return int.tryParse(raw) ?? 0;
+    if (raw is Map) {
+      final first = raw.values.isEmpty ? null : raw.values.first;
+      return _toInt(first);
+    }
+    return 0;
   }
 }

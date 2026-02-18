@@ -10,12 +10,19 @@ class PdfOfflineRepository {
     required String pdfUrl,
     required String version,
     required String? oldVersion,
+    bool forceRefresh = false,
   }) async {
     final newKey = '$resourceId-$version';
-    if (oldVersion == version && await _cache.exists(newKey)) return true;
+    if (!forceRefresh && oldVersion == version && await _cache.exists(newKey)) {
+      return true;
+    }
     try {
-      final res = await http.get(Uri.parse(pdfUrl)).timeout(const Duration(seconds: 20));
-      if (res.statusCode >= 400 || res.bodyBytes.isEmpty) return await _fallback(resourceId, oldVersion);
+      final res = await http
+          .get(Uri.parse(pdfUrl))
+          .timeout(const Duration(seconds: 20));
+      if (res.statusCode >= 400 || res.bodyBytes.isEmpty) {
+        return await _fallback(resourceId, oldVersion);
+      }
       await _cache.save(newKey, res.bodyBytes);
       if (oldVersion != null && oldVersion != version) {
         await _cache.delete('$resourceId-$oldVersion');

@@ -2,6 +2,7 @@ import 'package:eduquest/features/learning/presentation/pages/chapter_quiz_list_
 import 'package:eduquest/features/learning/presentation/pages/chapter_resource_list_page.dart';
 import 'package:eduquest/features/learning/domain/chapter_resource.dart';
 import 'package:eduquest/features/learning/domain/learning_quiz.dart';
+import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:flutter/material.dart';
 
 class ChapterCoursePage extends StatelessWidget {
@@ -23,47 +24,49 @@ class ChapterCoursePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(chapterTitle),
-          bottom: const TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            tabs: [
-              Tab(text: 'Résumé'),
-              Tab(text: 'Exercices'),
-              Tab(text: 'Corrigés'),
-              Tab(text: 'QCM'),
+    return SensitiveScope(
+      child: DefaultTabController(
+        length: 4,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(chapterTitle),
+            bottom: const TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              tabs: [
+                Tab(text: 'Résumé'),
+                Tab(text: 'Exercices'),
+                Tab(text: 'Corrigés'),
+                Tab(text: 'QCM'),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              ChapterResourceListPage(
+                chapterId: chapterId,
+                type: 'pdf',
+                emptyLabel: 'Résumé non publié.',
+                initialItems: initialSummaries,
+              ),
+              ChapterResourceListPage(
+                chapterId: chapterId,
+                type: 'exercise_set',
+                emptyLabel: 'Exercices non publiés.',
+                initialItems: initialExercises,
+              ),
+              ChapterResourceListPage(
+                chapterId: chapterId,
+                type: 'summary',
+                emptyLabel: 'Corrigés non publiés.',
+                initialItems: initialCorrections,
+              ),
+              ChapterQuizListPage(
+                chapterId: chapterId,
+                initialItems: initialQuizzes,
+              ),
             ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            ChapterResourceListPage(
-              chapterId: chapterId,
-              type: 'pdf',
-              emptyLabel: 'Résumé non publié.',
-              initialItems: initialSummaries,
-            ),
-            ChapterResourceListPage(
-              chapterId: chapterId,
-              type: 'exercise_set',
-              emptyLabel: 'Exercices non publiés.',
-              initialItems: initialExercises,
-            ),
-            ChapterResourceListPage(
-              chapterId: chapterId,
-              type: 'summary',
-              emptyLabel: 'Corrigés non publiés.',
-              initialItems: initialCorrections,
-            ),
-            ChapterQuizListPage(
-              chapterId: chapterId,
-              initialItems: initialQuizzes,
-            ),
-          ],
         ),
       ),
     );

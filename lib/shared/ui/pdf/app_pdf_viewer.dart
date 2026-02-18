@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:eduquest/features/gamification/data/revision_tracker.dart';
 import 'package:eduquest/features/offline/data/pdf_runtime_cache.dart';
+import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -16,16 +18,25 @@ class AppPdfViewer extends StatefulWidget {
 
 class _AppPdfViewerState extends State<AppPdfViewer> {
   final _cache = PdfRuntimeCache();
+  final _tracker = RevisionTracker();
   String? _error;
   List<int>? _bytes;
   bool _booting = true;
+  late final DateTime _openedAt;
 
   bool get _valid => widget.url.trim().isNotEmpty;
 
   @override
   void initState() {
     super.initState();
+    _openedAt = _tracker.start();
     _boot();
+  }
+
+  @override
+  void dispose() {
+    unawaited(_tracker.stop(_openedAt));
+    super.dispose();
   }
 
   Future<void> _boot() async {
@@ -91,9 +102,11 @@ class AppPdfViewerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: AppPdfViewer(url: url, emptyLabel: emptyLabel),
+    return SensitiveScope(
+      child: Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: AppPdfViewer(url: url, emptyLabel: emptyLabel),
+      ),
     );
   }
 }

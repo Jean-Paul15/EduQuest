@@ -51,14 +51,59 @@ class LegalRepository {
   }
 
   LegalDocument _fallback(String type) {
-    final title = type == 'terms'
+    final isTerms = type == 'terms';
+    final title = isTerms
         ? 'Conditions d’utilisation'
         : 'Politique de confidentialité';
+    final body = isTerms
+        ? '''
+## Conditions d’utilisation
+
+En utilisant EduQuest, tu acceptes les règles de la plateforme.
+
+### 1. Compte
+- Les informations du profil doivent être exactes.
+- Le compte est personnel et ne doit pas être partagé.
+
+### 2. Utilisation des contenus
+- Les cours, corrigés et quiz sont réservés à l’apprentissage.
+- Toute copie ou revente non autorisée est interdite.
+
+### 3. Accès et tickets
+- L’accès peut dépendre du type de ticket actif.
+- Les conditions d’accès peuvent évoluer selon les campagnes.
+
+### 4. Bon usage
+- Les comportements abusifs peuvent entraîner une restriction d’accès.
+- Le respect des autres utilisateurs est obligatoire.
+'''
+        : '''
+## Politique de confidentialité
+
+EduQuest protège les données personnelles des utilisateurs.
+
+### 1. Données collectées
+- Profil: nom, classe, série, téléphone (si fourni).
+- Usage: progression, quiz, activités d’apprentissage.
+
+### 2. Finalités
+- Personnaliser les contenus.
+- Améliorer l’expérience et le support.
+- Sécuriser la plateforme.
+
+### 3. Conservation et sécurité
+- Les données sont stockées de manière sécurisée.
+- L’accès est limité aux services autorisés.
+
+### 4. Droits utilisateur
+- Tu peux demander la modification ou la suppression de tes données
+  via le support.
+''';
     return LegalDocument(
       type: type,
       version: '1.0.0',
       title: title,
-      body: 'Document en cours de chargement.',
+      body: body,
     );
   }
 

@@ -25,7 +25,7 @@ class UserProfileRepository {
       final row = await Supabase.instance.client
           .from('profiles')
           .select(
-            'full_name,school_name,country_id,education_level_id,series_id',
+            'full_name,school_name,country_id,education_level_id,series_id,whatsapp_phone',
           )
           .eq('id', uid)
           .maybeSingle();
@@ -43,6 +43,7 @@ class UserProfileRepository {
         countryCode: country ?? 'TG',
         levelCode: level ?? 'Terminale',
         serieCode: serie ?? 'D',
+        whatsappPhone: row?['whatsapp_phone']?.toString(),
       );
       await _local.writeList('user:profile', [
         {
@@ -50,6 +51,7 @@ class UserProfileRepository {
           'countryCode': out.countryCode,
           'levelCode': out.levelCode,
           'serieCode': out.serieCode,
+          'whatsappPhone': out.whatsappPhone,
         },
       ]);
       return out;
@@ -83,6 +85,35 @@ class UserProfileRepository {
       countryCode: '${r['countryCode']}',
       levelCode: '${r['levelCode']}',
       serieCode: '${r['serieCode']}',
+      whatsappPhone: r['whatsappPhone']?.toString(),
     );
+  }
+
+  Future<bool> saveWhatsappPhone(String phone) async {
+    final auth = AuthRepository();
+    if (!Env.hasSupabase || auth.currentUser == null) return false;
+    final uid = auth.currentUser!.id;
+    final out = phone.trim();
+    try {
+      await Supabase.instance.client
+          .from('profiles')
+          .update({'whatsapp_phone': out.isEmpty ? null : out})
+          .eq('id', uid);
+      final cached = await _fromLocal();
+      if (cached != null) {
+        await _local.writeList('user:profile', [
+          {
+            'displayName': cached.displayName,
+            'countryCode': cached.countryCode,
+            'levelCode': cached.levelCode,
+            'serieCode': cached.serieCode,
+            'whatsappPhone': out.isEmpty ? null : out,
+          },
+        ]);
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }

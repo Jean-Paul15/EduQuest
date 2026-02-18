@@ -1,3 +1,4 @@
+import 'package:eduquest/features/gamification/data/gamification_repository.dart';
 import 'package:eduquest/features/learning/presentation/controllers/qcm_attempt_controller.dart';
 import 'package:eduquest/features/learning/presentation/widgets/qcm_question_stage.dart';
 import 'package:eduquest/features/learning/presentation/widgets/qcm_result_panel.dart';
@@ -13,6 +14,8 @@ class QcmAttemptPage extends StatefulWidget {
 
 class _QcmAttemptPageState extends State<QcmAttemptPage> {
   late final QcmAttemptController _c;
+  final _gamification = GamificationRepository();
+  bool _questClaimed = false;
   @override
   void initState() {
     super.initState();
@@ -42,6 +45,10 @@ class _QcmAttemptPageState extends State<QcmAttemptPage> {
           );
         }
         if (_c.done) {
+          if (!_questClaimed) {
+            _questClaimed = true;
+            _gamification.claimQuestByCode('complete_quiz');
+          }
           return Scaffold(
             appBar: AppBar(title: Text(widget.title)),
             body: QcmResultPanel(

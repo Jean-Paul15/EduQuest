@@ -1,5 +1,6 @@
 import 'package:eduquest/features/access/data/access_repository.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/glass_container.dart';
 import 'package:flutter/material.dart';
 
 class AccessBanner extends StatelessWidget {
@@ -14,19 +15,15 @@ class AccessBanner extends StatelessWidget {
         access.expiresAt?.toLocal().toString().split(' ').first ?? '--';
     final active = access.hasAccess;
     final subtitle = promo
-        ? 'Promotion active: acces ouvert a tous'
+        ? access.expiresAt == null
+              ? 'Promotion active: accès ouvert à tous'
+              : 'Promotion active jusqu’au $expiry'
         : active && access.expiresAt == null
         ? 'Acces actif'
         : active
         ? 'Expire le $expiry'
         : 'Acces inactif';
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.divider),
-      ),
+    return GlassContainer(
       child: Row(
         children: [
           Container(

@@ -1,8 +1,11 @@
+import 'package:eduquest/features/gamification/data/revision_tracker.dart';
+import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/shared/ui/media/network_media_player.dart';
 import 'package:eduquest/shared/ui/media/youtube_media_player.dart';
+import 'package:eduquest/shared/ui/media/youtube_url_parser.dart';
 import 'package:flutter/material.dart';
 
-class AppMediaPlayerPage extends StatelessWidget {
+class AppMediaPlayerPage extends StatefulWidget {
   const AppMediaPlayerPage({
     super.key,
     required this.title,
@@ -14,12 +17,35 @@ class AppMediaPlayerPage extends StatelessWidget {
   final bool isYoutube;
 
   @override
+  State<AppMediaPlayerPage> createState() => _AppMediaPlayerPageState();
+}
+
+class _AppMediaPlayerPageState extends State<AppMediaPlayerPage> {
+  final _tracker = RevisionTracker();
+  late final DateTime _openedAt;
+  bool get _playYoutube => widget.isYoutube || isYoutubeUrl(widget.url);
+
+  @override
+  void initState() {
+    super.initState();
+    _openedAt = _tracker.start();
+  }
+
+  @override
+  void dispose() {
+    _tracker.stop(_openedAt);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: isYoutube
-          ? YoutubeMediaPlayer(url: url)
-          : NetworkMediaPlayer(url: url),
+    return SensitiveScope(
+      child: Scaffold(
+        appBar: AppBar(title: Text(widget.title)),
+        body: _playYoutube
+            ? YoutubeMediaPlayer(url: widget.url)
+            : NetworkMediaPlayer(url: widget.url),
+      ),
     );
   }
 }

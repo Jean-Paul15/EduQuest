@@ -1,13 +1,18 @@
 import 'package:eduquest/features/engagement/data/hub_badge_repository.dart';
+import 'package:eduquest/features/engagement/presentation/contest_detail_page.dart';
 import 'package:eduquest/features/engagement/presentation/engagement_hub_page.dart';
+import 'package:eduquest/features/engagement/presentation/event_detail_page.dart';
 import 'package:eduquest/features/feed/presentation/feed_page.dart';
 import 'package:eduquest/features/home/presentation/home_page.dart';
 import 'package:eduquest/features/learning/presentation/learning_page.dart';
 import 'package:eduquest/features/navigation/data/navigation_prefetch_service.dart';
 import 'package:eduquest/features/navigation/presentation/widgets/nav_badge_icon.dart';
 import 'package:eduquest/features/profile/presentation/profile_page.dart';
+import 'package:eduquest/shared/deeplink/app_deep_link_command.dart';
 import 'package:eduquest/shared/sync/realtime_auto_sync_service.dart';
+import 'package:eduquest/shared/sync/scope_refresh_bus.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:flutter/material.dart';
 
 class MainNavPage extends StatefulWidget {
@@ -23,7 +28,7 @@ class MainNavPage extends StatefulWidget {
 }
 
 class _MainNavPageState extends State<MainNavPage> {
-  int _index = 0, _hubBadge = 0;
+  int _index = 0, _hubBadge = 0, _scopeRev = 0;
   final _badgeRepo = HubBadgeRepository();
   final _prefetch = NavigationPrefetchService();
   late final RealtimeAutoSyncService _sync;
@@ -37,11 +42,15 @@ class _MainNavPageState extends State<MainNavPage> {
       await _prefetch.tab(0);
       await _prefetch.neighbors(0);
     });
+    ScopeRefreshBus.listenable.addListener(_onScopeChanged);
+    AppDeepLinkBus.notifier.addListener(_onDeepLinkCommand);
     _sync.start();
   }
 
   @override
   void dispose() {
+    ScopeRefreshBus.listenable.removeListener(_onScopeChanged);
+    AppDeepLinkBus.notifier.removeListener(_onDeepLinkCommand);
     _sync.stop();
     super.dispose();
   }
@@ -57,6 +66,49 @@ class _MainNavPageState extends State<MainNavPage> {
     if (mounted) setState(() => _hubBadge = n);
   }
 
+  void _onScopeChanged() {
+    if (!mounted) return;
+    setState(() => _scopeRev++);
+    Future<void>.microtask(() => _prefetch.tab(_index));
+    Future<void>.microtask(() => _prefetch.neighbors(_index));
+    Future<void>.microtask(_loadBadge);
+  }
+
+  void _onDeepLinkCommand() {
+    final cmd = AppDeepLinkBus.notifier.value;
+    if (!mounted || cmd == null) return;
+    if (cmd.tabIndex != null) {
+      setState(() => _index = cmd.tabIndex!);
+      Future<void>.microtask(() => _prefetch.tab(_index));
+      Future<void>.microtask(() => _prefetch.neighbors(_index));
+    }
+    if (cmd.message.isNotEmpty) {
+      ModernSnackbar.show(context, cmd.message, success: cmd.success);
+    }
+    if (cmd.entityId.isNotEmpty) {
+      Future<void>.microtask(() => _openDeepLinkDetails(cmd.kind, cmd.entityId));
+    }
+    Future<void>.microtask(_loadBadge);
+    AppDeepLinkBus.clear();
+  }
+
+  Future<void> _openDeepLinkDetails(String kind, String id) async {
+    if (!mounted) return;
+    if (kind == 'event') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => EventDetailPage(id: id)),
+      );
+      return;
+    }
+    if (kind == 'contest') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ContestDetailPage(id: id)),
+      );
+    }
+  }
+
   Future<void> _onNavTap(int value) async {
     if (_index == value) {
       Future<void>.microtask(() => _prefetch.tab(value));
@@ -65,11 +117,6 @@ class _MainNavPageState extends State<MainNavPage> {
     setState(() => _index = value);
     Future<void>.microtask(() => _prefetch.tab(value));
     Future<void>.microtask(() => _prefetch.neighbors(value));
-    if (value == 3) {
-      Future<void>.microtask(_badgeRepo.markSeenNow);
-      setState(() => _hubBadge = 0);
-      return;
-    }
     Future<void>.microtask(_loadBadge);
   }
 
@@ -83,9 +130,9 @@ class _MainNavPageState extends State<MainNavPage> {
             onThemeToggle: widget.onThemeToggle,
             themeMode: widget.themeMode,
           ),
-          const FeedPage(),
-          const LearningPage(),
-          const EngagementHubPage(),
+          FeedPage(key: ValueKey('feed-$_scopeRev')),
+          LearningPage(key: ValueKey('learn-$_scopeRev')),
+          EngagementHubPage(key: ValueKey('hub-$_scopeRev')),
           ProfilePage(
             onThemeToggle: widget.onThemeToggle,
             themeMode: widget.themeMode,

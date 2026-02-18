@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:eduquest/features/learning/domain/chapter_resource.dart';
 import 'package:eduquest/features/learning/domain/learning_quiz.dart';
 import 'package:eduquest/shared/config/env.dart';
-import 'package:eduquest/shared/data/cache_policy.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -45,8 +44,7 @@ class ChapterContentRepository {
     final key = 'chapter:res:$chapterId:$type';
     final mem = _resMem[key];
     if (mem != null) {
-      if (Env.hasSupabase &&
-          !await _local.isFresh(key, CachePolicy.chapterResources)) {
+      if (Env.hasSupabase) {
         unawaited(
           _refreshResources(chapterId: chapterId, type: type, key: key),
         );
@@ -59,11 +57,7 @@ class ChapterContentRepository {
     }
     if (!Env.hasSupabase) return local;
     if (local.isNotEmpty) {
-      if (!await _local.isFresh(key, CachePolicy.chapterResources)) {
-        unawaited(
-          _refreshResources(chapterId: chapterId, type: type, key: key),
-        );
-      }
+      unawaited(_refreshResources(chapterId: chapterId, type: type, key: key));
       return local;
     }
     return (await _refreshResources(
@@ -78,8 +72,7 @@ class ChapterContentRepository {
     final key = 'chapter:qcm:$chapterId';
     final mem = _quizMem[key];
     if (mem != null) {
-      if (Env.hasSupabase &&
-          !await _local.isFresh(key, CachePolicy.chapterQuizzes)) {
+      if (Env.hasSupabase) {
         unawaited(_refreshQuizzes(chapterId: chapterId, key: key));
       }
       return mem;
@@ -90,9 +83,7 @@ class ChapterContentRepository {
     }
     if (!Env.hasSupabase) return local;
     if (local.isNotEmpty) {
-      if (!await _local.isFresh(key, CachePolicy.chapterQuizzes)) {
-        unawaited(_refreshQuizzes(chapterId: chapterId, key: key));
-      }
+      unawaited(_refreshQuizzes(chapterId: chapterId, key: key));
       return local;
     }
     return (await _refreshQuizzes(chapterId: chapterId, key: key)) ?? local;

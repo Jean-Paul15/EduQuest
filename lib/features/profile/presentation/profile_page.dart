@@ -7,6 +7,7 @@ import 'package:eduquest/features/profile/presentation/widgets/profile_actions.d
 import 'package:eduquest/features/profile/presentation/widgets/reminder_setting_tile.dart';
 import 'package:eduquest/features/user/data/user_profile_repository.dart';
 import 'package:eduquest/features/widget/data/home_widget_service.dart';
+import 'package:eduquest/shared/validation/phone_validator.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +30,12 @@ class _ProfilePageState extends State<ProfilePage> {
       _notif = NotificationService(),
       _widget = HomeWidgetService(),
       _user = UserProfileRepository();
-  String _name = 'Etudiant',
+  final _phoneCtrl = TextEditingController();
+  String _name = 'Étudiant',
       _countryCode = 'TG',
       _levelCode = 'Terminale',
       _serieCode = 'D';
+  bool _savingPhone = false;
   NotificationPreferences _prefs = const NotificationPreferences(
     revisionEnabled: true,
     contestEnabled: true,
@@ -49,14 +52,35 @@ class _ProfilePageState extends State<ProfilePage> {
     _reloadProfile();
   }
 
+  @override
+  void dispose() {
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _reloadProfile() async {
     final u = await _user.load();
+    final uid = _auth.currentUser?.id;
+    if (uid != null) {
+      await _notif.setExternalUserId(uid);
+    }
+    await _notif.setLearningTags(
+      country: u.countryCode,
+      level: u.levelCode,
+      serie: u.serieCode,
+    );
+    await _notif.setTopicTags(
+      revisionEnabled: _prefs.revisionEnabled,
+      contestEnabled: _prefs.contestEnabled,
+      eventEnabled: _prefs.eventEnabled,
+    );
     if (!mounted) return;
     setState(() {
       _name = u.displayName;
       _countryCode = u.countryCode;
       _levelCode = u.levelCode;
       _serieCode = u.serieCode;
+      _phoneCtrl.text = u.whatsappPhone ?? '';
     });
   }
 
@@ -131,13 +155,37 @@ class _ProfilePageState extends State<ProfilePage> {
       return mounted
           ? ModernSnackbar.show(
               context,
-              'Non supporte par ce lanceur.',
+              'Non supporté par ce lanceur.',
               success: false,
             )
           : null;
     }
     await _widget.requestPin();
-    if (mounted) ModernSnackbar.show(context, "Widget propose sur l'accueil.");
+    if (mounted) {
+      ModernSnackbar.show(context, "Widget proposé sur l'écran d'accueil.");
+    }
+  }
+
+  Future<void> _savePhone() async {
+    if (_savingPhone) return;
+    final msg = phoneValidationMessage(
+      countryCode: _countryCode,
+      phone: _phoneCtrl.text,
+    );
+    if (msg != null) {
+      ModernSnackbar.show(context, msg, success: false);
+      return;
+    }
+    setState(() => _savingPhone = true);
+    final phone = normalizePhone(_phoneCtrl.text).replaceAll('+', '');
+    final ok = await _user.saveWhatsappPhone(phone);
+    if (!mounted) return;
+    setState(() => _savingPhone = false);
+    ModernSnackbar.show(
+      context,
+      ok ? 'Numéro WhatsApp enregistré.' : 'Échec enregistrement numéro.',
+      success: ok,
+    );
   }
 
   @override
@@ -149,6 +197,8 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(16),
         children: [
           _header(cs),
+          const SizedBox(height: 12),
+          _whatsAppCard(),
           const SizedBox(height: 16),
           _settings(),
           const SizedBox(height: 16),
@@ -158,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
             onWidgetUpdate: () => _widget.update(
               title: 'EduQuest \u2022 $_name',
               focusLabel: 'Rappel',
-              focusValue: 'Revision du jour',
+              focusValue: 'Révision du jour',
             ),
             onWidgetPin: _pinWidget,
             onOpenTerms: () => Navigator.push(
@@ -216,7 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 2),
               Text(
-                '$_levelCode \u2022 Serie $_serieCode \u2022 $_countryCode',
+                '$_levelCode \u2022 Série $_serieCode \u2022 $_countryCode',
                 style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.textSecondary,
@@ -240,14 +290,14 @@ class _ProfilePageState extends State<ProfilePage> {
         SwitchListTile(
           value: widget.themeMode == ThemeMode.dark,
           onChanged: (_) => widget.onThemeToggle(),
-          title: const Text('Theme sombre'),
+          title: const Text('Thème sombre'),
           dense: true,
         ),
         const Divider(height: 1, color: AppColors.divider),
         SwitchListTile(
           value: _prefs.revisionEnabled,
           onChanged: (v) => _save(_w(r: v)),
-          title: const Text('Notifications revision'),
+          title: const Text('Notifications révision'),
           dense: true,
         ),
         SwitchListTile(
@@ -259,7 +309,7 @@ class _ProfilePageState extends State<ProfilePage> {
         SwitchListTile(
           value: _prefs.eventEnabled,
           onChanged: (v) => _save(_w(e: v)),
-          title: const Text('Notifications evenements'),
+          title: const Text('Notifications événements'),
           dense: true,
         ),
         const Divider(height: 1, color: AppColors.divider),
@@ -269,6 +319,35 @@ class _ProfilePageState extends State<ProfilePage> {
           minute: _prefs.reminderMinute,
           onToggle: (v) => _save(_w(m: v)),
           onPickTime: _pickReminderTime,
+        ),
+      ],
+    ),
+  );
+
+  Widget _whatsAppCard() => Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: Theme.of(context).cardColor,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      border: Border.all(color: AppColors.divider),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _phoneCtrl,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(
+              labelText: 'Numéro WhatsApp',
+              hintText: 'Ex: 90123456',
+              prefixIcon: Icon(Icons.phone_rounded, size: 18),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        FilledButton(
+          onPressed: _savingPhone ? null : _savePhone,
+          child: Text(_savingPhone ? '...' : 'Sauver'),
         ),
       ],
     ),

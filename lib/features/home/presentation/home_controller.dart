@@ -72,16 +72,18 @@ class HomeController {
   Future<void> _warmNotifications(UserProfile profile) async {
     try {
       final uid = _auth.currentUser?.id;
-      if (uid != null) await _notif.setExternalUserId(uid);
-      await _notif.setLearningTags(
+      if (uid == null) return;
+      final prefs = await _prefsRepo.get();
+      final access = await _accessRepo.resolveAccess();
+      await _notif.syncUserContext(
+        userId: uid,
         country: profile.countryCode,
         level: profile.levelCode,
         serie: profile.serieCode,
+        ticketTier: access.tier,
+        prefs: prefs,
       );
-      await _notif.syncDailyReminder(
-        prefs: await _prefsRepo.get(),
-        displayName: profile.displayName,
-      );
+      await _notif.syncDailyReminder(prefs: prefs, displayName: profile.displayName);
     } catch (_) {}
   }
 
@@ -110,6 +112,17 @@ class HomeController {
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: 'activated_by',
+            value: uid,
+          ),
+          callback: (_) => onChange(),
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'quest_completions',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'profile_id',
             value: uid,
           ),
           callback: (_) => onChange(),

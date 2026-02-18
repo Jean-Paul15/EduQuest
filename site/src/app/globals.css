@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/* ======= EduQuest Design System — v2 ======= */
+
+:root {
+  --eq-blue: #1e40af;
+  --eq-blue-deep: #0a1628;
+  --eq-blue-mid: #1d3a6e;
+  --eq-blue-light: #3b82f6;
+  --eq-blue-pale: #dbeafe;
+  --eq-orange: #f97316;
+  --eq-orange-hot: #ea580c;
+  --eq-orange-pale: #fff7ed;
+  --eq-surface: #ffffff;
+  --eq-bg: #fafbfd;
+  --eq-text: #0f172a;
+  --eq-muted: #64748b;
+  --eq-radius: 1rem;
+  --eq-radius-lg: 1.5rem;
+}
+
+/* ======= Base ======= */
+
+@layer base {
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-[var(--eq-bg)] text-[var(--eq-text)] antialiased;
+    font-family: var(--font-body), ui-sans-serif, system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection { @apply bg-orange-100 text-orange-900; }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+    font-weight: 800;
+  }
+}
+
+/* ======= Components ======= */
+
+@layer components {
+  .container-tight { @apply max-w-6xl mx-auto w-full; }
+
+  .heading-hero {
+    @apply text-[2.5rem] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-extrabold tracking-[-0.045em] leading-[0.98];
+  }
+  .heading-section {
+    @apply text-[1.75rem] sm:text-3xl md:text-4xl font-extrabold tracking-[-0.035em] leading-tight;
+  }
+  .text-body { @apply text-[15px] sm:text-base leading-relaxed text-slate-600; }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full
+      bg-gradient-to-b from-orange-500 to-orange-600
+      px-6 py-3 text-[15px] font-bold text-white
+      shadow-lg shadow-orange-500/25
+      transition-all duration-200
+      hover:shadow-xl hover:shadow-orange-500/30 hover:brightness-110 hover:-translate-y-0.5
+      active:scale-[0.97];
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full
+      bg-white/90 backdrop-blur-sm border border-slate-200
+      px-6 py-3 text-[15px] font-bold text-slate-800 shadow-sm
+      transition-all duration-200
+      hover:bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5
+      active:scale-[0.97];
+  }
+  .btn-ghost-light {
+    @apply inline-flex items-center justify-center gap-2 rounded-full
+      border border-white/20 bg-white/5 backdrop-blur-sm
+      px-6 py-3 text-[15px] font-semibold text-white
+      transition-all duration-200
+      hover:bg-white/15 hover:border-white/40;
+  }
+  .kicker {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1
+      text-xs font-bold uppercase tracking-widest;
+  }
+  .glass-card {
+    @apply rounded-2xl bg-white/80 backdrop-blur-lg border border-white/40 shadow-sm;
+  }
+
+  .section-pad { @apply py-16 sm:py-24; }
+  .section-dark { @apply bg-[var(--eq-blue-deep)] text-white; }
+}
+
+/* ======= Utilities ======= */
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-blue-500 to-orange-500;
+  }
+  .mask-gradient-b {
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  }
+  .animate-float { animation: float 6s ease-in-out infinite; }
+  .animate-glow  { animation: glow 4s ease-in-out infinite alternate; }
+}
+
+/* ======= Keyframes ======= */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(1deg); }
+}
+@keyframes glow {
+  from { opacity: 0.4; filter: blur(80px); }
+  to   { opacity: 0.7; filter: blur(120px); }
+}

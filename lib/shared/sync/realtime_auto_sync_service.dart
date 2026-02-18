@@ -8,6 +8,7 @@ import 'package:eduquest/features/learning/data/learning_catalog_repository.dart
 import 'package:eduquest/features/learning/data/learning_warmup_service.dart';
 import 'package:eduquest/features/learning/domain/learning_section.dart';
 import 'package:eduquest/shared/config/env.dart';
+import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,6 +19,7 @@ class RealtimeAutoSyncService {
   final _learning = LearningWarmupService();
   final _engagement = EngagementRepository();
   final _lives = LiveClassesRepository();
+  final _local = LocalJsonCache();
   RealtimeChannel? _channel;
   Timer? _debounce;
   bool _busy = false;
@@ -36,6 +38,10 @@ class RealtimeAutoSyncService {
       'events',
       'surveys',
       'live_classes',
+      'user_notifications',
+      'notification_campaigns',
+      'marketplace_items',
+      'app_config',
     ];
     final c = Supabase.instance.client;
     final ch = c.channel('auto-sync-$uid');
@@ -47,6 +53,17 @@ class RealtimeAutoSyncService {
         callback: (_) => _schedule(),
       );
     }
+    ch.onPostgresChanges(
+      event: PostgresChangeEvent.all,
+      schema: 'public',
+      table: 'profiles',
+      filter: PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'id',
+        value: uid,
+      ),
+      callback: (_) => _schedule(),
+    );
     _channel = ch.subscribe();
   }
 
@@ -66,6 +83,17 @@ class RealtimeAutoSyncService {
     if (_busy) return;
     _busy = true;
     try {
+      await _local.removeByPrefixes([
+        'feed:',
+        'hub:',
+        'learn:',
+        'exam:',
+        'chapter:',
+        'leaderboard:',
+        'market:',
+        'orientation:',
+        'user:profile',
+      ]);
       LearningCatalogRepository.clearMemory();
       ExamRepository.clearMemory();
       ChapterContentRepository.clearMemory();

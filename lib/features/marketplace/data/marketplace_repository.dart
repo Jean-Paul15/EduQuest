@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:eduquest/features/marketplace/domain/marketplace_item.dart';
 import 'package:eduquest/shared/config/env.dart';
-import 'package:eduquest/shared/data/cache_policy.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,8 +17,7 @@ class MarketplaceRepository {
     final key = 'market:$q:${type ?? 'all'}:$limit';
     final mem = _mem[key];
     if (mem != null) {
-      if (Env.hasSupabase &&
-          !await _local.isFresh(key, CachePolicy.marketplaceSearch)) {
+      if (Env.hasSupabase) {
         unawaited(_refresh(key: key, q: q, type: type, limit: limit));
       }
       return mem;
@@ -27,8 +25,7 @@ class MarketplaceRepository {
     final local = await _fromLocal(key);
     if (local.isNotEmpty) {
       _mem[key] = local;
-      if (Env.hasSupabase &&
-          !await _local.isFresh(key, CachePolicy.marketplaceSearch)) {
+      if (Env.hasSupabase) {
         unawaited(_refresh(key: key, q: q, type: type, limit: limit));
       }
       return local;
@@ -61,6 +58,7 @@ class MarketplaceRepository {
               type: '${e['item_type']}',
               priceLabel: e['price_label']?.toString(),
               url: '${e['external_checkout_url']}',
+              imageUrl: e['image_url']?.toString(),
             ),
           )
           .toList();
@@ -74,6 +72,7 @@ class MarketplaceRepository {
                 'type': e.type,
                 'priceLabel': e.priceLabel,
                 'url': e.url,
+                'imageUrl': e.imageUrl,
               },
             )
             .toList(),
@@ -96,6 +95,7 @@ class MarketplaceRepository {
             type: '${e['type']}',
             priceLabel: e['priceLabel']?.toString(),
             url: '${e['url']}',
+            imageUrl: e['imageUrl']?.toString(),
           ),
         )
         .toList();

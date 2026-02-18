@@ -1,11 +1,19 @@
 import 'package:eduquest/features/class_selection/data/class_selection_local_cache.dart';
 import 'package:eduquest/features/class_selection/domain/level_option.dart';
 import 'package:eduquest/features/class_selection/domain/series_option.dart';
+import 'package:eduquest/features/engagement/data/engagement_repository.dart';
+import 'package:eduquest/features/engagement/data/live_classes_repository.dart';
+import 'package:eduquest/features/learning/data/chapter_content_repository.dart';
+import 'package:eduquest/features/learning/data/exam_repository.dart';
+import 'package:eduquest/features/learning/data/learning_catalog_repository.dart';
 import 'package:eduquest/shared/config/env.dart';
+import 'package:eduquest/shared/data/local_json_cache.dart';
+import 'package:eduquest/shared/sync/scope_refresh_bus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ClassSelectionRepository {
   final _cache = ClassSelectionLocalCache();
+  final _local = LocalJsonCache();
 
   Future<Map<String, String?>> current() async {
     final local = await _cache.current();
@@ -94,6 +102,74 @@ class ClassSelectionRepository {
       'change_student_level',
       params: {'p_level_id': levelId, 'p_series_id': seriesId},
     );
-    return '${Map<String, dynamic>.from(res as Map)['message'] ?? 'Classe mise à jour.'}';
+    final out = Map<String, dynamic>.from(res as Map);
+    final ok = out['success'] == true;
+    final msg = '${out['message'] ?? 'Classe mise à jour.'}';
+    if (!ok) return msg;
+    await _cache.saveCurrent({'levelId': levelId, 'seriesId': seriesId});
+    await _syncProfileCache(levelId, seriesId);
+    await _clearScopedCaches();
+    ScopeRefreshBus.bump();
+    return msg;
+  }
+
+  Future<void> _clearScopedCaches() async {
+    await _local.removeByPrefixes([
+      'feed:',
+      'hub:',
+      'learn:',
+      'exam:',
+      'chapter:',
+      'leaderboard:',
+      'market:',
+      'orientation:',
+    ]);
+    LearningCatalogRepository.clearMemory();
+    ExamRepository.clearMemory();
+    ChapterContentRepository.clearMemory();
+    EngagementRepository.clearMemory();
+    LiveClassesRepository.clearMemory();
+  }
+
+  Future<void> _syncProfileCache(String levelId, String? seriesId) async {
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) return;
+    try {
+      final row = await Supabase.instance.client
+          .from('profiles')
+          .select('full_name,country_id,whatsapp_phone')
+          .eq('id', uid)
+          .maybeSingle();
+      final cached = await _local.readList('user:profile');
+      final cachedName = (cached != null && cached.isNotEmpty)
+          ? cached.first['displayName']?.toString()
+          : null;
+      final full = row?['full_name']?.toString().trim();
+      final displayName = (full == null || full.isEmpty)
+          ? (cachedName ?? 'Étudiant')
+          : full;
+      final countryCode = await _loadCode('countries', row?['country_id']);
+      final levelCode = await _loadCode('education_levels', levelId);
+      final serieCode = await _loadCode('series', seriesId);
+      await _local.writeList('user:profile', [
+        {
+          'displayName': displayName,
+          'countryCode': countryCode ?? 'TG',
+          'levelCode': levelCode ?? 'Terminale',
+          'serieCode': serieCode ?? '',
+          'whatsappPhone': row?['whatsapp_phone']?.toString(),
+        },
+      ]);
+    } catch (_) {}
+  }
+
+  Future<String?> _loadCode(String table, dynamic id) async {
+    if (id == null) return null;
+    final row = await Supabase.instance.client
+        .from(table)
+        .select('code')
+        .eq('id', id)
+        .maybeSingle();
+    return row?['code']?.toString();
   }
 }

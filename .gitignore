@@ -65,12 +65,8 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 
-# Supabase local artifacts
-supabase/.temp/
-supabase/.branches/
-supabase/.cache/
-supabase/.workspace/
-supabase/.history/
+# Supabase (never push)
+supabase/
 
 # Local cache / DB
 *.db
@@ -89,3 +85,9 @@ out/
 .atom/
 migrate_working_dir/
 .claude/
+
+# Never push SQL and Markdown docs (except README)
+*.sql
+*.md
+!README.md
+!**/README.md

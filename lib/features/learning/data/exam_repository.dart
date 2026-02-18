@@ -3,7 +3,6 @@ import 'package:eduquest/features/learning/data/learning_scope_repository.dart';
 import 'package:eduquest/features/learning/domain/exam_category.dart';
 import 'package:eduquest/features/learning/domain/exam_entry.dart';
 import 'package:eduquest/features/learning/domain/learning_subject.dart';
-import 'package:eduquest/shared/data/cache_policy.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -56,7 +55,12 @@ class ExamRepository {
     if (s == null) return const [];
     final key = '${category.name}:${s.countryId}:${s.levelId}';
     final cached = _subjectCache[key];
-    if (cached != null) return cached;
+    if (cached != null) {
+      if (Env.hasSupabase) {
+        unawaited(_refreshSubjects(s.countryId, s.levelId, category, key));
+      }
+      return cached;
+    }
     final cacheKey = 'exam:subjects:$key';
     final localRows = await _local.readList(cacheKey);
     if (localRows != null) {
@@ -70,8 +74,7 @@ class ExamRepository {
           )
           .toList();
       _subjectCache[key] = out;
-      if (Env.hasSupabase &&
-          !await _local.isFresh(cacheKey, CachePolicy.examSubjects)) {
+      if (Env.hasSupabase) {
         unawaited(_refreshSubjects(s.countryId, s.levelId, category, key));
       }
       return out;
@@ -150,7 +153,14 @@ class ExamRepository {
     if (s == null) return const [];
     final key = '${category.name}:${s.countryId}:${s.levelId}:$subjectId';
     final cached = _paperCache[key];
-    if (cached != null) return cached;
+    if (cached != null) {
+      if (Env.hasSupabase) {
+        unawaited(
+          _refreshPapers(s.countryId, s.levelId, subjectId, category, key),
+        );
+      }
+      return cached;
+    }
     final cacheKey = 'exam:papers:$key';
     final localRows = await _local.readList(cacheKey);
     if (localRows != null) {
@@ -166,8 +176,7 @@ class ExamRepository {
           )
           .toList();
       _paperCache[key] = out;
-      if (Env.hasSupabase &&
-          !await _local.isFresh(cacheKey, CachePolicy.examPapers)) {
+      if (Env.hasSupabase) {
         unawaited(
           _refreshPapers(s.countryId, s.levelId, subjectId, category, key),
         );

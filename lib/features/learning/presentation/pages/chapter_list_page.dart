@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:eduquest/features/learning/data/learning_catalog_repository.dart';
 import 'package:eduquest/features/learning/data/chapter_content_repository.dart';
+import 'package:eduquest/features/gamification/data/gamification_repository.dart';
 import 'package:eduquest/features/learning/domain/chapter_resource.dart';
 import 'package:eduquest/features/learning/domain/learning_chapter.dart';
 import 'package:eduquest/features/learning/domain/learning_quiz.dart';
 import 'package:eduquest/features/learning/domain/learning_section.dart';
 import 'package:eduquest/features/learning/presentation/pages/chapter_course_page.dart';
 import 'package:eduquest/features/learning/presentation/pages/chapter_media_page.dart';
+import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/shared/network/network_probe.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
@@ -34,6 +36,7 @@ class _ChapterListPageState extends State<ChapterListPage>
     with AutomaticKeepAliveClientMixin {
   final _repo = LearningCatalogRepository();
   final _chapter = ChapterContentRepository();
+  final _gamification = GamificationRepository();
   final _notif = NotificationService();
   List<LearningChapter> _items = const [];
   bool _loading = true;
@@ -106,6 +109,7 @@ class _ChapterListPageState extends State<ChapterListPage>
         final corrections = loaded[2] as List<ChapterResource>;
         final quizzes = loaded[3] as List<LearningQuiz>;
         if (!mounted) return;
+        unawaited(_gamification.claimQuestByCode('open_lesson'));
         await Navigator.push(
           context,
           MaterialPageRoute(
@@ -174,49 +178,51 @@ class _ChapterListPageState extends State<ChapterListPage>
         subtitle: 'Aucun chapitre disponible.',
       );
     }
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.subjectLabel)),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(AppSpace.l),
-        itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: AppSpace.s),
-        itemBuilder: (_, i) {
-          final e = _items[i];
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              border: Border.all(color: AppColors.divider),
-              borderRadius: BorderRadius.circular(AppRadius.card),
-            ),
-            child: ListTile(
-              title: Text(
-                e.title,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
+    return SensitiveScope(
+      child: Scaffold(
+        appBar: AppBar(title: Text(widget.subjectLabel)),
+        body: ListView.separated(
+          padding: const EdgeInsets.all(AppSpace.l),
+          itemCount: _items.length,
+          separatorBuilder: (_, __) => const SizedBox(height: AppSpace.s),
+          itemBuilder: (_, i) {
+            final e = _items[i];
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                border: Border.all(color: AppColors.divider),
+                borderRadius: BorderRadius.circular(AppRadius.card),
               ),
-              subtitle: Text(
-                'Chapitre ${e.position + 1}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textTertiary,
+              child: ListTile(
+                title: Text(
+                  e.title,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                subtitle: Text(
+                  'Chapitre ${e.position + 1}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+                trailing: _openingId == e.id
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppColors.textTertiary,
+                      ),
+                onTap: () => _open(e),
               ),
-              trailing: _openingId == e.id
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.textTertiary,
-                    ),
-              onTap: () => _open(e),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

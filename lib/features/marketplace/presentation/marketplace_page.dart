@@ -16,7 +16,6 @@ class MarketplacePage extends StatefulWidget {
 class _MarketplacePageState extends State<MarketplacePage> {
   final _repo = MarketplaceRepository();
   final _search = TextEditingController();
-  final Map<String, int> _cart = {};
   List<MarketplaceItem> _items = const [];
   String? _type;
   bool _loading = true;
@@ -45,8 +44,6 @@ class _MarketplacePageState extends State<MarketplacePage> {
 
   Future<void> _buy(String url) async =>
       launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  int get _count => _cart.values.fold(0, (a, b) => a + b);
-  void _add(String id) => setState(() => _cart[id] = (_cart[id] ?? 0) + 1);
 
   Widget _filters() => Column(
     children: [
@@ -113,8 +110,15 @@ class _MarketplacePageState extends State<MarketplacePage> {
     }
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView.builder(
+      child: GridView.builder(
         padding: const EdgeInsets.all(16),
+        physics: const AlwaysScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 0.78,
+        ),
         itemCount: _items.length,
         itemBuilder: (_, i) {
           final e = _items[i];
@@ -126,7 +130,6 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 builder: (_) => MarketplaceItemDetailPage(item: e),
               ),
             ),
-            onAdd: () => _add(e.id),
             onBuy: () => _buy(e.url),
           );
         },
@@ -145,16 +148,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
       );
     }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Marketplace'),
-        actions: [
-          if (_count > 0)
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Chip(label: Text('$_count')),
-            ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Marketplace')),
       body: Column(
         children: [
           Padding(
@@ -172,70 +166,100 @@ class _ItemCard extends StatelessWidget {
   const _ItemCard({
     required this.item,
     required this.onTap,
-    required this.onAdd,
     required this.onBuy,
   });
   final MarketplaceItem item;
-  final VoidCallback onTap, onAdd, onBuy;
+  final VoidCallback onTap, onBuy;
 
   @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
+    final icon = switch (item.type) {
+      'book' => Icons.menu_book_rounded,
+      'kit' => Icons.inventory_2_rounded,
+      'ad_slot' => Icons.campaign_rounded,
+      _ => Icons.shopping_bag_outlined,
+    };
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(AppRadius.card),
           border: Border.all(color: AppColors.divider),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: s.primary.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(AppRadius.xs),
-              ),
-              child: Icon(
-                Icons.shopping_bag_outlined,
-                color: s.primary,
-                size: 20,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.s),
+              child: SizedBox(
+                height: 110,
+                width: double.infinity,
+                child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                    ? Image.network(
+                        item.imageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _iconBox(icon, s),
+                      )
+                    : _iconBox(icon, s),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
+            const SizedBox(height: 10),
+            Text(
+              item.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const Spacer(),
+            if (item.priceLabel != null)
+              Text(
+                item.priceLabel!,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    item.type.toUpperCase(),
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: AppColors.textPrimary,
+                      color: AppColors.textTertiary,
+                      fontSize: 11,
                     ),
                   ),
-                  if (item.priceLabel != null)
-                    Text(
-                      '${item.type.toUpperCase()} - ${item.priceLabel}',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: onBuy,
-              icon: Icon(Icons.open_in_new_rounded, size: 18, color: s.primary),
+                ),
+                IconButton(
+                  onPressed: onBuy,
+                  icon: Icon(
+                    Icons.open_in_new_rounded,
+                    size: 18,
+                    color: s.primary,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _iconBox(IconData icon, ColorScheme s) {
+    return Container(
+      decoration: BoxDecoration(
+        color: s.primary.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(AppRadius.s),
+      ),
+      child: Center(child: Icon(icon, color: s.primary, size: 28)),
     );
   }
 }
