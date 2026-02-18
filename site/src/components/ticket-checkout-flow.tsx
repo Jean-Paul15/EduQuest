@@ -27,8 +27,8 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
       keyId: `ticket:${current.product_id}`,
       url: "/api/payments/complete",
       payload: { kind: "ticket", id: current.product_id },
-      successMessage: "Paiement valid\u00e9 !",
-      errorMessage: "\u00c9chec du paiement. Veuillez r\u00e9essayer.",
+      successMessage: "Paiement validé !",
+      errorMessage: "Échec du paiement. Veuillez réessayer.",
     });
     if (response?.ok && data?.activationCode) setCode(String(data.activationCode));
   };
@@ -65,7 +65,7 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
                     <div>
                       <p className="text-sm font-bold text-slate-900">{x.product_code}</p>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        {x.ticket_type === "FULL" ? "Acc\u00e8s complet" : "Acc\u00e8s essentiel"} &middot; {x.duration_days} jours
+                        {x.ticket_type === "FULL" ? "Accès complet" : "Accès essentiel"} &middot; {x.duration_days} jours
                       </p>
                     </div>
                     <div className="text-right">
@@ -95,7 +95,7 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
       {/* Price summary + pay */}
       {!success && current && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
-          <h2 className="text-base font-bold text-slate-900">R\u00e9capitulatif</h2>
+          <h2 className="text-base font-bold text-slate-900">Récapitulatif</h2>
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-slate-600">
               <span>Prix de base</span>
@@ -121,7 +121,9 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
             {busy ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Traitement en cours&hellip;</>
             ) : (
-              <><Ticket className="w-4 h-4" /> Payer {current.total_price.toLocaleString("fr-FR")} XOF</>
+              current.total_price > 0
+                ? <><Ticket className="w-4 h-4" /> Payer {current.total_price.toLocaleString("fr-FR")} XOF</>
+                : <><Ticket className="w-4 h-4" /> Activer gratuitement</>
             )}
           </button>
 
@@ -133,9 +135,9 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
           )}
 
           <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400">
-            <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-500" /> S\u00e9curis\u00e9</span>
+            <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Sécurisé</span>
             <span className="w-0.5 h-0.5 bg-slate-300 rounded-full" />
-            <span>Confirmation instantan\u00e9e</span>
+            <span>Confirmation instantanée</span>
           </div>
         </section>
       )}
@@ -147,7 +149,7 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
             <div className="mx-auto w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
               <CheckCircle2 className="w-7 h-7 text-emerald-500" />
             </div>
-            <p className="text-lg font-bold text-slate-900">Paiement confirm\u00e9</p>
+            <p className="text-lg font-bold text-slate-900">Paiement confirmé</p>
             <p className="text-sm text-slate-500">{message}</p>
           </div>
 
@@ -164,7 +166,7 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
               </button>
             </div>
             <a href={`/api/tickets/code-pdf?code=${code}`} className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-              <Download className="w-3.5 h-3.5" /> T\u00e9l\u00e9charger le PDF
+              <Download className="w-3.5 h-3.5" /> Télécharger le PDF
             </a>
           </div>
         </section>

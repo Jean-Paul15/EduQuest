@@ -11,7 +11,7 @@ const chapters = [
     icon: <AlertTriangle className="w-5 h-5" />,
     color: "text-red-500",
     title: "80 % des élèves révisent sans méthode. Le résultat est prévisible.",
-    body: "Pas de programme clair, pas de correction, pas de suivi. Les familles investissent dans l\u2019éducation mais les outils manquent cruellement.",
+    body: "Pas de programme clair, pas de correction, pas de suivi. Les familles investissent dans l’éducation mais les outils manquent cruellement.",
     media: "/media/vitrine/hero-classroom.png",
   },
   {
@@ -19,16 +19,16 @@ const chapters = [
     icon: <ListChecks className="w-5 h-5" />,
     color: "text-orange-500",
     title: "Un plan de travail structuré, jour après jour.",
-    body: "Cours organisés par matière et chapitre, exercices progressifs, corrections détaillées et examens blancs chronométrés. Tout ce qu\u2019il faut pour progresser.",
+    body: "Cours organisés par matière et chapitre, exercices progressifs, corrections détaillées et examens blancs chronométrés. Tout ce qu’il faut pour progresser.",
     media: "/media/vitrine/product-demo.mp4",
     isVideo: true,
   },
   {
-    kicker: "L\u2019avantage terrain",
+    kicker: "L’avantage terrain",
     icon: <WifiOff className="w-5 h-5" />,
     color: "text-emerald-500",
     title: "Fonctionne sans internet. Partout. Tout le temps.",
-    body: "Téléchargez vos chapitres une fois, révisez hors ligne autant que vous voulez. Conçu pour la réalité du terrain en Afrique de l\u2019Ouest.",
+    body: "Téléchargez vos chapitres une fois, révisez hors ligne autant que vous voulez. Conçu pour la réalité du terrain en Afrique de l’Ouest.",
     media: "/media/vitrine/offline-study.png",
   },
   {
@@ -36,7 +36,7 @@ const chapters = [
     icon: <Trophy className="w-5 h-5" />,
     color: "text-blue-500",
     title: "Des concours pour se dépasser. Des prix pour se motiver.",
-    body: "Concours hebdomadaires, classements en direct, récompenses réelles. L\u2019émulation entre élèves crée une dynamique de progrès impossible à reproduire seul.",
+    body: "Concours hebdomadaires, classements en direct, récompenses réelles. L’émulation entre élèves crée une dynamique de progrès impossible à reproduire seul.",
     media: "/media/vitrine/contest-event.png",
   },
 ];

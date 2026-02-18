@@ -9,7 +9,7 @@ const acts = [
     icon: <Lightbulb className="w-5 h-5 text-orange-500" />,
     label: "Acte 1",
     title: "Le déclic",
-    body: "L\u2019élève veut réussir mais ne sait pas par où commencer. EduQuest transforme ce flou en étapes claires et motivantes.",
+    body: "L’élève veut réussir mais ne sait pas par où commencer. EduQuest transforme ce flou en étapes claires et motivantes.",
     media: "/media/vitrine/hero-classroom.png",
   },
   {
@@ -23,8 +23,8 @@ const acts = [
   {
     icon: <Rocket className="w-5 h-5 text-emerald-500" />,
     label: "Acte 3",
-    title: "L\u2019action",
-    body: "L\u2019élève active son accès, entre dans le rythme, suit les rappels et progresse chapitre après chapitre.",
+    title: "L’action",
+    body: "L’élève active son accès, entre dans le rythme, suit les rappels et progresse chapitre après chapitre.",
     media: "/media/vitrine/contest-event.png",
   },
   {

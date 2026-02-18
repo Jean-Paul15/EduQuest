@@ -6,7 +6,7 @@ import { GraduationCap, ShieldCheck, Users } from "lucide-react";
 const pillars = [
   { icon: <GraduationCap className="w-6 h-6" />, title: "Programme complet", body: "Du CM2 à la Terminale, tous les chapitres au programme officiel togolais et sous-régional." },
   { icon: <ShieldCheck className="w-6 h-6" />, title: "Sécurisé et fiable", body: "Données protégées, paiements sûrs, accès garanti même sans connexion internet." },
-  { icon: <Users className="w-6 h-6" />, title: "Communauté active", body: "Des milliers d\u2019élèves connectés, des enseignants impliqués, un vrai réseau d\u2019entraide." },
+  { icon: <Users className="w-6 h-6" />, title: "Communauté active", body: "Des milliers d’élèves connectés, des enseignants impliqués, un vrai réseau d’entraide." },
 ];
 
 const schools = ["Lycée de Tokoin", "Collège St-Joseph", "Cours Lumière", "Notre-Dame des Apôtres"];
@@ -20,7 +20,7 @@ export const TrustSection = () => (
           <svg className="w-16 h-16 sm:w-24 sm:h-24" fill="currentColor" viewBox="0 0 32 32"><path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" /></svg>
         </div>
         <p className="relative z-10 pt-10 text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 leading-snug tracking-tight italic">
-          {"\u00AB\u00A0"}La réussite, c&apos;est d&apos;abord et surtout d&apos;être au travail quand les autres vont à la pêche.{"\u00A0\u00BB"}
+          {"« "}La réussite, c&apos;est d&apos;abord et surtout d&apos;être au travail quand les autres vont à la pêche.{" »"}
         </p>
         <footer className="mt-5 flex items-center justify-center gap-3">
           <div className="w-8 h-[2px] bg-orange-500 rounded-full" />

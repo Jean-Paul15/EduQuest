@@ -56,7 +56,7 @@ export default async function ConcoursPage() {
                       <Calendar className="w-3.5 h-3.5 text-slate-400" />{formatDate(c.starts_at)}
                     </span>
                     <span className="inline-flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400" />{c.venue || "\u00c0 pr\u00e9ciser"}
+                      <MapPin className="w-3.5 h-3.5 text-slate-400" />{c.venue || "À préciser"}
                     </span>
                   </div>
                 </div>

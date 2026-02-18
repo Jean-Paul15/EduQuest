@@ -29,17 +29,17 @@ export default async function EventBuyPage({ searchParams }: Props) {
           {event.title}
         </h1>
         <p className="text-sm text-slate-500 max-w-xs mx-auto">
-          Remplissez vos coordonn\u00e9es pour recevoir votre ticket imm\u00e9diatement.
+          Remplissez vos coordonnées pour recevoir votre ticket immédiatement.
         </p>
       </section>
 
       {/* Trust */}
       <div className="flex items-center justify-center gap-4 text-xs text-slate-400">
-        <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Paiement s\u00e9curis\u00e9</span>
+        <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Paiement sécurisé</span>
         <span className="w-1 h-1 bg-slate-200 rounded-full" />
-        <span>Ticket instantan\u00e9</span>
+        <span>Ticket instantané</span>
         <span className="w-1 h-1 bg-slate-200 rounded-full" />
-        <span>Re\u00e7u PDF</span>
+        <span>Reçu PDF</span>
       </div>
 
       <PublicEventBuyForm eventId={eventId} appReturnUrl={appReturnUrl} />

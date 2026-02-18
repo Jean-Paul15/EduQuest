@@ -10,10 +10,10 @@ import { useIdempotentPost } from "@/lib/security/use-idempotent-post";
 type Props = { eventId: string; appReturnUrl: string };
 
 const fields = [
-  { key: "firstName" as const, label: "Pr\u00e9nom", icon: User, type: "text" },
+  { key: "firstName" as const, label: "Prénom", icon: User, type: "text" },
   { key: "lastName" as const, label: "Nom", icon: User, type: "text" },
   { key: "email" as const, label: "Email", icon: Mail, type: "email" },
-  { key: "phone" as const, label: "T\u00e9l\u00e9phone", icon: Phone, type: "tel" },
+  { key: "phone" as const, label: "Téléphone", icon: Phone, type: "tel" },
 ];
 
 export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
@@ -30,8 +30,8 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
       keyId: eventId,
       url: "/api/events/public-buy",
       payload: { eventId, ...form },
-      successMessage: "Paiement valid\u00e9 !",
-      errorMessage: "Impossible de finaliser l\u2019achat. V\u00e9rifiez vos informations.",
+      successMessage: "Paiement validé !",
+      errorMessage: "Impossible de finaliser l’achat. Vérifiez vos informations.",
     });
     if (data?.ticketCode) setTicketCode(String(data.ticketCode));
   };
@@ -73,7 +73,7 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
             {busy ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Traitement en cours&hellip;</>
             ) : (
-              <><FileText className="w-4 h-4" /> Payer et g\u00e9n\u00e9rer le ticket</>
+              <><FileText className="w-4 h-4" /> Payer et générer le ticket</>
             )}
           </button>
 
@@ -93,7 +93,7 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
             <div className="mx-auto w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
               <CheckCircle2 className="w-7 h-7 text-emerald-500" />
             </div>
-            <p className="text-lg font-bold text-slate-900">Ticket g\u00e9n\u00e9r\u00e9</p>
+            <p className="text-lg font-bold text-slate-900">Ticket généré</p>
             <p className="text-sm text-slate-500">{message}</p>
           </div>
           <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-3">
@@ -109,7 +109,7 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
               </button>
             </div>
             <a href={`/api/events/public-ticket-pdf?ticket=${ticketCode}`} className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-              <Download className="w-3.5 h-3.5" /> T\u00e9l\u00e9charger le re\u00e7u PDF
+              <Download className="w-3.5 h-3.5" /> Télécharger le reçu PDF
             </a>
           </div>
         </section>

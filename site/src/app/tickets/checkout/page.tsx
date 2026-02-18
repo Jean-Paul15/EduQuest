@@ -22,7 +22,7 @@ export default async function TicketCheckoutPage({ searchParams }: Props) {
             <Ticket className="w-6 h-6" />
           </div>
           <h1 className="text-xl font-extrabold tracking-tight">Aucune offre disponible</h1>
-          <p className="text-sm text-slate-500">Contactez le support pour activer des offres adapt\u00e9es \u00e0 votre profil.</p>
+          <p className="text-sm text-slate-500">Contactez le support pour activer des offres adaptées à votre profil.</p>
           <a href="/support" className="btn-secondary inline-flex !text-sm">
             <HelpCircle className="w-4 h-4" /> Contacter le support
           </a>
@@ -39,18 +39,18 @@ export default async function TicketCheckoutPage({ searchParams }: Props) {
           <Ticket className="w-6 h-6" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Activer mon acc\u00e8s EduQuest
+          Activer mon accès EduQuest
         </h1>
         <p className="text-sm text-slate-500 max-w-xs mx-auto">
-          Choisissez votre formule, payez en un clic, r\u00e9cup\u00e9rez votre code.
+          Choisissez votre formule, payez en un clic, récupérez votre code.
         </p>
       </section>
 
       {/* Trust */}
       <div className="flex items-center justify-center gap-4 text-xs text-slate-400">
-        <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Paiement s\u00e9curis\u00e9</span>
+        <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Paiement sécurisé</span>
         <span className="w-1 h-1 bg-slate-200 rounded-full" />
-        <span>Code instantan\u00e9</span>
+        <span>Code instantané</span>
         <span className="w-1 h-1 bg-slate-200 rounded-full" />
         <span>Retour automatique</span>
       </div>

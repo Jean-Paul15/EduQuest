@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader } from "@/components/site-header";
+import { LoadingProvider } from "@/components/providers/loading-provider";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import "./globals.css";
 
@@ -19,8 +21,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.variable} ${sora.variable} min-h-screen bg-[var(--eq-bg)] text-[var(--eq-text)]`}>
-        <SiteHeader email={data.user?.email} />
-        {children}
+        <LoadingProvider>
+          <SiteHeader email={data.user?.email} />
+          {children}
+          <Analytics />
+        </LoadingProvider>
       </body>
     </html>
   );
