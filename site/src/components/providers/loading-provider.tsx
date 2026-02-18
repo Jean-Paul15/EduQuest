@@ -25,8 +25,9 @@ export const LoadingProvider = ({ children }: Props) => {
       const to = new URL(link.href, window.location.href);
       const current = new URL(window.location.href);
       if (to.origin !== current.origin) return;
-      if (`${to.pathname}${to.search}` === `${current.pathname}${current.search}`) return;
-      targetPath.current = `${to.pathname}${to.search}`;
+      const nextPath = `${to.pathname}${to.search}`;
+      const currentPath = `${current.pathname}${current.search}`;
+      targetPath.current = nextPath === currentPath ? currentPath : nextPath;
       startedAt.current = Date.now();
       setProgress(28);
       setLoading(true);
