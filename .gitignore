@@ -65,8 +65,8 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 
-# Supabase (never push)
-supabase/
+# Supabase CLI local folder at repo root (never push)
+/supabase/
 
 # Local cache / DB
 *.db
