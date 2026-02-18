@@ -13,6 +13,7 @@ export const LoadingProvider = ({ children }: Props) => {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(18);
   const startedAt = useRef<number | null>(null);
+  const targetPath = useRef<string | null>(null);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
@@ -25,6 +26,7 @@ export const LoadingProvider = ({ children }: Props) => {
       const current = new URL(window.location.href);
       if (to.origin !== current.origin) return;
       if (`${to.pathname}${to.search}` === `${current.pathname}${current.search}`) return;
+      targetPath.current = `${to.pathname}${to.search}`;
       startedAt.current = Date.now();
       setProgress(28);
       setLoading(true);
@@ -35,10 +37,15 @@ export const LoadingProvider = ({ children }: Props) => {
 
   useEffect(() => {
     if (!loading) return;
+    const currentPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+    if (targetPath.current && currentPath !== targetPath.current) return;
     const elapsed = startedAt.current ? Date.now() - startedAt.current : 0;
     const remaining = Math.max(0, 600 - elapsed);
-    const settle = window.setTimeout(() => setProgress(100), 0);
-    const timer = window.setTimeout(() => setLoading(false), remaining);
+    const settle = window.setTimeout(() => setProgress(100), 30);
+    const timer = window.setTimeout(() => {
+      setLoading(false);
+      targetPath.current = null;
+    }, remaining);
     return () => {
       window.clearTimeout(settle);
       window.clearTimeout(timer);
@@ -49,6 +56,15 @@ export const LoadingProvider = ({ children }: Props) => {
     if (!loading) return;
     const timer = window.setInterval(() => setProgress((v) => Math.min(95, v + 5)), 120);
     return () => window.clearInterval(timer);
+  }, [loading]);
+
+  useEffect(() => {
+    if (!loading) return;
+    const timeout = window.setTimeout(() => {
+      setLoading(false);
+      targetPath.current = null;
+    }, 12000);
+    return () => window.clearTimeout(timeout);
   }, [loading]);
 
   return (
