@@ -32,13 +32,13 @@ export const LearningSecurityAccessManager = () => {
   const save = async () => {
     const payload = [{ key: "learning_security", value: sec }, { key: "learning_access", value: access }];
     const r = await supabase.from("app_config").upsert(payload);
-    setMessage(r.error ? r.error.message : "Sécurité/accès apprentissage enregistrés.");
+    setMessage(r.error ? r.error.message : "Protection et accès enregistrés.");
   };
   const allTier = (tier: string) => setAccess(Object.fromEntries(keys.map((k) => [k, tier])));
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Apprendre: sécurité et accès</h2>
+      <h2 className="font-semibold">Contenus: protection et accès</h2>
       <label className="flex items-center justify-between rounded border p-2 text-sm"><span>Capture autorisée</span><input type="checkbox" checked={sec.capture_allowed} onChange={(e) => setSec({ ...sec, capture_allowed: e.target.checked })} /></label>
       <label className="flex items-center justify-between rounded border p-2 text-sm"><span>Garder écran actif</span><input type="checkbox" checked={sec.keep_awake} onChange={(e) => setSec({ ...sec, keep_awake: e.target.checked })} /></label>
       <div className="flex flex-wrap gap-2">
@@ -49,9 +49,9 @@ export const LearningSecurityAccessManager = () => {
       <div className="grid gap-2 md:grid-cols-2">
         {keys.map((k) => (
           <label key={k} className="flex items-center justify-between rounded border p-2 text-sm">
-            <span>{k}</span>
+            <span>{{ courses: "Cours", exams: "Examens", epreuves: "Épreuves", mockExams: "Examens blancs", videos: "Vidéos", youtube: "YouTube" }[k] || k}</span>
             <select value={access[k] || "HALF"} onChange={(e) => setAccess({ ...access, [k]: e.target.value })} className="rounded border p-1 text-xs">
-              <option value="FREE">FREE</option><option value="HALF">HALF</option><option value="FULL">FULL</option>
+              <option value="FREE">Gratuit</option><option value="HALF">Partiel</option><option value="FULL">Complet</option>
             </select>
           </label>
         ))}

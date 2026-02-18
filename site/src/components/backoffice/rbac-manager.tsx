@@ -46,12 +46,12 @@ export const RbacManager = () => {
   return (
     <div className="space-y-4">
       <Card className="space-y-3 p-4">
-        <h2 className="font-semibold">Créer un rôle</h2>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du rôle" className="w-full rounded border p-2" />
-        <Button onClick={async () => { await supabase.from("backoffice_roles").insert({ name, slug: name.toLowerCase().replaceAll(" ", "-") }); setName(""); load(); }}>Créer</Button>
+        <h2 className="font-semibold">Créer un profil d&apos;accès</h2>
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du profil (ex: Responsable contenu)" className="w-full rounded border p-2" />
+        <Button onClick={async () => { await supabase.from("backoffice_roles").insert({ name, slug: name.toLowerCase().replaceAll(" ", "-") }); setName(""); load(); }}>Créer le profil</Button>
       </Card>
       <Card className="space-y-3 p-4">
-        <h2 className="font-semibold">Sections visibles par rôle</h2>
+        <h2 className="font-semibold">Menus visibles par profil</h2>
         <select value={roleId} onChange={(e) => setRoleId(e.target.value)} className="w-full rounded border p-2">
           {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
         </select>
@@ -61,9 +61,9 @@ export const RbacManager = () => {
         <Button onClick={save}>Enregistrer</Button>
       </Card>
       <Card className="space-y-3 p-4">
-        <h2 className="font-semibold">Attribuer un rôle par email</h2>
+        <h2 className="font-semibold">Associer un profil à une adresse email</h2>
         <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@domaine.com" className="w-full rounded border p-2" />
-        <Button onClick={async () => { const r = await supabase.rpc("grant_backoffice_role", { p_role_id: roleId, p_user_email: email }); setMessage(r.data?.message || "Rôle attribué."); }}>Attribuer</Button>
+        <Button onClick={async () => { const r = await supabase.rpc("grant_backoffice_role", { p_role_id: roleId, p_user_email: email }); setMessage(r.data?.message || "Profil attribué."); }}>Associer</Button>
       </Card>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </div>

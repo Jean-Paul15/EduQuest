@@ -8,6 +8,8 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 type Cfg = { provider: string; webhook_tolerance_sec: number; signature_header: string; timestamp_header: string; event_id_field: string };
 type Log = { provider: string; event_id: string; status: string; processed_at: string | null };
 const base: Cfg = { provider: "generic", webhook_tolerance_sec: 300, signature_header: "x-payment-signature", timestamp_header: "x-payment-timestamp", event_id_field: "event_id" };
+const statusLabel = (s: string) =>
+  ({ processed: "Confirmé", failed: "Échec", duplicate: "Doublon ignoré" }[s] || s);
 
 export const PaymentProviderManager = () => {
   const supabase = getSupabaseBrowserClient();
@@ -24,21 +26,23 @@ export const PaymentProviderManager = () => {
 
   const save = async () => {
     const r = await supabase.from("app_config").upsert({ key: "payment_provider_config", value: cfg });
-    setMessage(r.error ? r.error.message : "Config provider enregistrée.");
+    setMessage(r.error ? r.error.message : "Réglages paiement enregistrés.");
   };
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Paiement provider: webhook signé</h2>
+      <h2 className="font-semibold">Paiement sécurisé (avancé)</h2>
+      <p className="text-xs text-slate-500">Réglages utilisés pour valider automatiquement les confirmations de paiement.</p>
       <div className="grid gap-2 md:grid-cols-2">
-        <input value={cfg.provider} onChange={(e) => setCfg({ ...cfg, provider: e.target.value })} className="rounded border p-2 text-sm" />
-        <input type="number" min={60} value={cfg.webhook_tolerance_sec} onChange={(e) => setCfg({ ...cfg, webhook_tolerance_sec: Number(e.target.value) || 60 })} className="rounded border p-2 text-sm" />
-        <input value={cfg.signature_header} onChange={(e) => setCfg({ ...cfg, signature_header: e.target.value })} className="rounded border p-2 text-sm" />
-        <input value={cfg.timestamp_header} onChange={(e) => setCfg({ ...cfg, timestamp_header: e.target.value })} className="rounded border p-2 text-sm" />
+        <input value={cfg.provider} onChange={(e) => setCfg({ ...cfg, provider: e.target.value })} placeholder="Canal de paiement" className="rounded border p-2 text-sm" />
+        <input type="number" min={60} value={cfg.webhook_tolerance_sec} onChange={(e) => setCfg({ ...cfg, webhook_tolerance_sec: Number(e.target.value) || 60 })} placeholder="Délai accepté (secondes)" className="rounded border p-2 text-sm" />
+        <input value={cfg.signature_header} onChange={(e) => setCfg({ ...cfg, signature_header: e.target.value })} placeholder="Nom du champ signature" className="rounded border p-2 text-sm" />
+        <input value={cfg.timestamp_header} onChange={(e) => setCfg({ ...cfg, timestamp_header: e.target.value })} placeholder="Nom du champ date" className="rounded border p-2 text-sm" />
       </div>
-      <input value={cfg.event_id_field} onChange={(e) => setCfg({ ...cfg, event_id_field: e.target.value })} className="w-full rounded border p-2 text-sm" />
+      <input value={cfg.event_id_field} onChange={(e) => setCfg({ ...cfg, event_id_field: e.target.value })} placeholder="Nom du champ identifiant paiement" className="w-full rounded border p-2 text-sm" />
       <Button onClick={save}>Enregistrer</Button>
-      {logs.map((x, i) => <p key={i} className="text-xs text-slate-600">{x.provider} • {x.event_id} • {x.status} • {x.processed_at || "-"}</p>)}
+      <p className="text-xs text-slate-500">Historique récent des confirmations de paiement:</p>
+      {logs.map((x, i) => <p key={i} className="text-xs text-slate-600">Canal: {x.provider} • Réf: {x.event_id} • État: {statusLabel(x.status)} • Date: {x.processed_at || "-"}</p>)}
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </Card>
   );

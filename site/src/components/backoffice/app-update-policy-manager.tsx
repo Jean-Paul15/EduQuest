@@ -37,14 +37,14 @@ export const AppUpdatePolicyManager = () => {
   const num = (k: "android" | "ios", f: "min_build_number" | "latest_build_number", v: string) => setP({ ...p, [k]: { ...p[k], [f]: Number(v) || 0 } });
   const txt = (k: "android" | "ios", v: string) => setP({ ...p, [k]: { ...p[k], store_url: v } });
   const force = (k: "android" | "ios", v: boolean) => setP({ ...p, [k]: { ...p[k], force_update: v } });
-  const block = (k: "android" | "ios") => <div className="rounded border p-2"><p className="text-xs font-semibold">{k}</p><div className="mt-2 grid gap-2 md:grid-cols-2"><input value={p[k].min_build_number} type="number" onChange={(e) => num(k, "min_build_number", e.target.value)} className="rounded border p-2 text-sm" /><input value={p[k].latest_build_number} type="number" onChange={(e) => num(k, "latest_build_number", e.target.value)} className="rounded border p-2 text-sm" /><input value={p[k].store_url} onChange={(e) => txt(k, e.target.value)} className="rounded border p-2 text-sm md:col-span-2" /><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={p[k].force_update} onChange={(e) => force(k, e.target.checked)} /> force_update</label></div></div>;
+  const block = (k: "android" | "ios") => <div className="rounded border p-2"><p className="text-xs font-semibold">{k === "android" ? "Android" : "iPhone (iOS)"}</p><div className="mt-2 grid gap-2 md:grid-cols-2"><input value={p[k].min_build_number} type="number" onChange={(e) => num(k, "min_build_number", e.target.value)} placeholder="Version minimale autorisée" className="rounded border p-2 text-sm" /><input value={p[k].latest_build_number} type="number" onChange={(e) => num(k, "latest_build_number", e.target.value)} placeholder="Dernière version publiée" className="rounded border p-2 text-sm" /><input value={p[k].store_url} onChange={(e) => txt(k, e.target.value)} placeholder="Lien Store" className="rounded border p-2 text-sm md:col-span-2" /><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={p[k].force_update} onChange={(e) => force(k, e.target.checked)} /> Mise à jour obligatoire</label></div></div>;
 
   return (
     <Card className="space-y-3 p-4">
       <h2 className="font-semibold">Mise à jour obligatoire</h2>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={p.enabled} onChange={(e) => setP({ ...p, enabled: e.target.checked })} /> enabled</label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={p.enforce_exact_match} onChange={(e) => setP({ ...p, enforce_exact_match: e.target.checked })} /> enforce_exact_match</label>
-      <input value={p.message} onChange={(e) => setP({ ...p, message: e.target.value })} placeholder="Message blocage update" className="w-full rounded border p-2 text-sm" />
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={p.enabled} onChange={(e) => setP({ ...p, enabled: e.target.checked })} /> Activer le contrôle de version</label>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={p.enforce_exact_match} onChange={(e) => setP({ ...p, enforce_exact_match: e.target.checked })} /> Exiger exactement la dernière version</label>
+      <input value={p.message} onChange={(e) => setP({ ...p, message: e.target.value })} placeholder="Message affiché à l'utilisateur" className="w-full rounded border p-2 text-sm" />
       <div className="grid gap-2 md:grid-cols-2">{block("android")}{block("ios")}</div>
       <Button onClick={save}>Enregistrer</Button>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}

@@ -28,14 +28,14 @@ export const CrudJsonStudio = ({ table, title, pk = "id" }: Props) => {
       setMessage(r.error ? r.error.message : "Ligne mise à jour.");
       if (!r.error) load();
     } catch {
-      setMessage("JSON invalide ou clé primaire manquante.");
+      setMessage("Format invalide ou identifiant manquant.");
     }
   };
 
   const deleteRow = async (raw: string) => {
     const row = JSON.parse(raw) as JsonRow;
     const id = row[pk] ? String(row[pk]) : "";
-    if (!id) return setMessage("Clé primaire manquante.");
+    if (!id) return setMessage("Identifiant manquant.");
     const r = await supabase.from(table).delete().eq(pk, id);
     setMessage(r.error ? r.error.message : "Ligne supprimée.");
     if (!r.error) load();
@@ -48,7 +48,7 @@ export const CrudJsonStudio = ({ table, title, pk = "id" }: Props) => {
       setMessage(r.error ? r.error.message : "Ligne ajoutée.");
       if (!r.error) load();
     } catch {
-      setMessage("JSON invalide.");
+      setMessage("Format invalide.");
     }
   };
 
@@ -58,6 +58,7 @@ export const CrudJsonStudio = ({ table, title, pk = "id" }: Props) => {
         <h2 className="font-semibold">{title}</h2>
         <Button onClick={load}>Charger</Button>
       </div>
+      <p className="text-xs text-slate-500">Mode avancé réservé aux administrateurs.</p>
       <textarea value={draft} onChange={(e) => setDraft(e.target.value)} className="h-28 w-full rounded border p-2 font-mono text-xs" />
       <Button onClick={insertRow}>Ajouter</Button>
       {rows.map((raw, i) => (

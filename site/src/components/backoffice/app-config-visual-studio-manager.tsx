@@ -8,6 +8,16 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 type Row = { key: string; value: Record<string, unknown> };
 const keys = (o: Record<string, unknown>) => Object.keys(o).sort();
 const str = (v: unknown) => String(v ?? "");
+const pretty = (k: string) =>
+  ({
+    app_links: "Liens app/site",
+    auth_options: "Options de connexion",
+    hub_modules: "Fonctions accueil",
+    learning_access: "Accès aux contenus",
+    learning_security: "Protection contenus",
+    feed_modules: "Contenu d'accueil",
+    app_update_policy: "Mise à jour obligatoire",
+  }[k] || k);
 
 export const AppConfigVisualStudioManager = () => {
   const supabase = getSupabaseBrowserClient();
@@ -24,7 +34,7 @@ export const AppConfigVisualStudioManager = () => {
 
   const setField = (k: string, v: unknown) => setDraft((p) => ({ ...p, [k]: v }));
   const setSub = (k: string, s: string, v: unknown) => setDraft((p) => ({ ...p, [k]: { ...((p[k] as Record<string, unknown>) || {}), [s]: v } }));
-  const save = async () => { const r = await supabase.from("app_config").upsert({ key, value: draft }); setMessage(r.error ? r.error.message : `Config "${key}" enregistrée.`); if (!r.error) await load(); };
+  const save = async () => { const r = await supabase.from("app_config").upsert({ key, value: draft }); setMessage(r.error ? r.error.message : `Réglages "${pretty(key)}" enregistrés.`); if (!r.error) await load(); };
 
   const control = (val: unknown, on: (v: unknown) => void) =>
     typeof val === "boolean" ? <input type="checkbox" checked={val} onChange={(e) => on(e.target.checked)} /> :
@@ -34,8 +44,8 @@ export const AppConfigVisualStudioManager = () => {
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">App Config Visual Studio (100% clés)</h2>
-      <select value={key} onChange={(e) => { const next = rows.find((x) => x.key === e.target.value); setKey(e.target.value); setDraft((next?.value || {}) as Record<string, unknown>); }} className="w-full rounded border p-2 text-sm">{rows.map((x) => <option key={x.key} value={x.key}>{x.key}</option>)}</select>
+      <h2 className="font-semibold">Éditeur avancé des réglages</h2>
+      <select value={key} onChange={(e) => { const next = rows.find((x) => x.key === e.target.value); setKey(e.target.value); setDraft((next?.value || {}) as Record<string, unknown>); }} className="w-full rounded border p-2 text-sm">{rows.map((x) => <option key={x.key} value={x.key}>{pretty(x.key)}</option>)}</select>
       <div className="grid gap-2">
         {keys(draft).map((k) => {
           const v = draft[k];

@@ -37,13 +37,17 @@ export const OnboardingFlowSettingsManager = () => {
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Onboarding: ordre et blocage</h2>
-      {(["enabled", "blocking", "require_terms"] as const).map((k) => (
-        <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{k}</span><input type="checkbox" checked={cfg[k]} onChange={(e) => setCfg({ ...cfg, [k]: e.target.checked })} /></label>
+      <h2 className="font-semibold">Première ouverture de l&apos;app</h2>
+      {([
+        ["enabled", "Activer le parcours d'accueil"],
+        ["blocking", "Obliger le parcours complet"],
+        ["require_terms", "Demander l'acceptation des conditions"],
+      ] as const).map(([k, label]) => (
+        <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{label}</span><input type="checkbox" checked={cfg[k]} onChange={(e) => setCfg({ ...cfg, [k]: e.target.checked })} /></label>
       ))}
-      <input value={cfg.hero_title} onChange={(e) => setCfg({ ...cfg, hero_title: e.target.value })} className="w-full rounded border p-2 text-sm" />
-      <input value={cfg.hero_subtitle} onChange={(e) => setCfg({ ...cfg, hero_subtitle: e.target.value })} className="w-full rounded border p-2 text-sm" />
-      <input value={screensCsv} onChange={(e) => setScreensCsv(e.target.value)} className="w-full rounded border p-2 text-sm" />
+      <input value={cfg.hero_title} onChange={(e) => setCfg({ ...cfg, hero_title: e.target.value })} placeholder="Titre d'accueil" className="w-full rounded border p-2 text-sm" />
+      <input value={cfg.hero_subtitle} onChange={(e) => setCfg({ ...cfg, hero_subtitle: e.target.value })} placeholder="Sous-titre d'accueil" className="w-full rounded border p-2 text-sm" />
+      <input value={screensCsv} onChange={(e) => setScreensCsv(e.target.value)} placeholder="Étapes affichées (séparées par des virgules)" className="w-full rounded border p-2 text-sm" />
       <Button onClick={save}>Enregistrer</Button>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </Card>

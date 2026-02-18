@@ -40,19 +40,24 @@ export const OfflineCachePolicyManager = () => {
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Offline/Cache: TTL et préchargement</h2>
+      <h2 className="font-semibold">Mode hors ligne et rapidité</h2>
+      <p className="text-xs text-slate-500">Réglages de préchargement et de durée de conservation des contenus.</p>
       <div className="grid gap-2 md:grid-cols-3">
-        {(["prefetch_before_nav", "aggressive_navigation", "background_refresh"] as const).map((k) => (
-          <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{k}</span><input type="checkbox" checked={cfg[k]} onChange={(e) => setCfg({ ...cfg, [k]: e.target.checked })} /></label>
+        {([
+          ["prefetch_before_nav", "Précharger avant ouverture"],
+          ["aggressive_navigation", "Navigation rapide prioritaire"],
+          ["background_refresh", "Actualisation en arrière-plan"],
+        ] as const).map(([k, label]) => (
+          <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{label}</span><input type="checkbox" checked={cfg[k]} onChange={(e) => setCfg({ ...cfg, [k]: e.target.checked })} /></label>
         ))}
       </div>
       <div className="grid gap-2 md:grid-cols-3">
-        <input type="number" min={1} value={cfg.home_ttl_min} onChange={(e) => n("home_ttl_min", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={1} value={cfg.hub_ttl_min} onChange={(e) => n("hub_ttl_min", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={1} value={cfg.learning_ttl_min} onChange={(e) => n("learning_ttl_min", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={1} value={cfg.feed_ttl_min} onChange={(e) => n("feed_ttl_min", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={1} value={cfg.pdf_cache_days} onChange={(e) => n("pdf_cache_days", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={128} value={cfg.max_cache_mb} onChange={(e) => n("max_cache_mb", e.target.value)} className="rounded border p-2 text-sm" />
+        <input type="number" min={1} value={cfg.home_ttl_min} onChange={(e) => n("home_ttl_min", e.target.value)} placeholder="Accueil (minutes)" className="rounded border p-2 text-sm" />
+        <input type="number" min={1} value={cfg.hub_ttl_min} onChange={(e) => n("hub_ttl_min", e.target.value)} placeholder="Hub (minutes)" className="rounded border p-2 text-sm" />
+        <input type="number" min={1} value={cfg.learning_ttl_min} onChange={(e) => n("learning_ttl_min", e.target.value)} placeholder="Apprentissage (minutes)" className="rounded border p-2 text-sm" />
+        <input type="number" min={1} value={cfg.feed_ttl_min} onChange={(e) => n("feed_ttl_min", e.target.value)} placeholder="Fil d'actualité (minutes)" className="rounded border p-2 text-sm" />
+        <input type="number" min={1} value={cfg.pdf_cache_days} onChange={(e) => n("pdf_cache_days", e.target.value)} placeholder="PDF conservés (jours)" className="rounded border p-2 text-sm" />
+        <input type="number" min={128} value={cfg.max_cache_mb} onChange={(e) => n("max_cache_mb", e.target.value)} placeholder="Espace max (Mo)" className="rounded border p-2 text-sm" />
       </div>
       <Button onClick={save}>Enregistrer</Button>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}

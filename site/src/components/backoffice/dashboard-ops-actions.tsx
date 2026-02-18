@@ -26,9 +26,9 @@ export const DashboardOpsActions = () => {
   }, [load]);
 
   const queueDraft = async () => {
-    if (!draftId) return setMessage("Aucun draft push.");
+    if (!draftId) return setMessage("Aucune campagne en brouillon.");
     const r = await supabase.rpc("queue_notification_campaign", { p_campaign_id: draftId });
-    setMessage(r.error ? r.error.message : (r.data?.message || "Campagne mise en file."));
+    setMessage(r.error ? r.error.message : (r.data?.message || "Campagne programmée."));
     if (!r.error) await load();
   };
 
@@ -46,8 +46,8 @@ export const DashboardOpsActions = () => {
     <Card className="space-y-3 p-4">
       <h2 className="font-semibold">Actions rapides</h2>
       <div className="flex flex-wrap gap-2">
-        <Button onClick={queueDraft}>Queue dernier draft push</Button>
-        <Button variant="outline" onClick={rebuildRewards}>Régénérer rewards</Button>
+        <Button onClick={queueDraft}>Programmer la dernière campagne</Button>
+        <Button variant="outline" onClick={rebuildRewards}>Recalculer les récompenses</Button>
         <Button variant="outline" onClick={marketingCleanup}>Nettoyage marketing</Button>
       </div>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}

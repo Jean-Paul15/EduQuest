@@ -6,6 +6,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const keys = ["app_links", "hub_modules", "learning_access", "auth_options"];
+const pretty: Record<string, string> = {
+  app_links: "Liens app et site",
+  hub_modules: "Fonctions d'accueil",
+  learning_access: "Accès aux contenus",
+  auth_options: "Options de connexion",
+};
 
 export const ContentManager = () => {
   const supabase = getSupabaseBrowserClient();
@@ -31,9 +37,9 @@ export const ContentManager = () => {
       const value = JSON.parse(items[key] || "{}");
       const r = await supabase.from("app_config").upsert({ key, value });
       if (r.error) throw r.error;
-      setMessage(`Configuration "${key}" enregistrée.`);
+      setMessage(`Réglage "${pretty[key] || key}" enregistré.`);
     } catch {
-      setMessage(`JSON invalide pour "${key}".`);
+      setMessage(`Format invalide pour "${pretty[key] || key}".`);
     }
   };
 
@@ -41,7 +47,8 @@ export const ContentManager = () => {
     <div className="space-y-4">
       {keys.map((key) => (
         <Card key={key} className="space-y-3 p-4">
-          <p className="text-sm font-semibold text-slate-900">{key}</p>
+          <p className="text-sm font-semibold text-slate-900">{pretty[key] || key}</p>
+          <p className="text-xs text-slate-500">Édition avancée (réservée administrateur).</p>
           <textarea
             value={items[key] || "{}"}
             onChange={(e) => setItems((v) => ({ ...v, [key]: e.target.value }))}

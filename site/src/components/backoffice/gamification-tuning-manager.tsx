@@ -34,16 +34,16 @@ export const GamificationTuningManager = () => {
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Gamification: XP et seuils</h2>
+      <h2 className="font-semibold">Points et récompenses</h2>
       <div className="grid gap-2 md:grid-cols-3">
-        <input type="number" min={0} value={cfg.xp_daily_checkin} onChange={(e) => n("xp_daily_checkin", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={0} value={cfg.xp_open_lesson} onChange={(e) => n("xp_open_lesson", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={0} value={cfg.xp_complete_quiz} onChange={(e) => n("xp_complete_quiz", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={0} value={cfg.xp_review_15min} onChange={(e) => n("xp_review_15min", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={0} value={cfg.xp_referral_bonus} onChange={(e) => n("xp_referral_bonus", e.target.value)} className="rounded border p-2 text-sm" />
-        <input type="number" min={0} value={cfg.streak_bonus} onChange={(e) => n("streak_bonus", e.target.value)} className="rounded border p-2 text-sm" />
+        <input type="number" min={0} value={cfg.xp_daily_checkin} onChange={(e) => n("xp_daily_checkin", e.target.value)} placeholder="Points check-in quotidien" className="rounded border p-2 text-sm" />
+        <input type="number" min={0} value={cfg.xp_open_lesson} onChange={(e) => n("xp_open_lesson", e.target.value)} placeholder="Points ouverture cours" className="rounded border p-2 text-sm" />
+        <input type="number" min={0} value={cfg.xp_complete_quiz} onChange={(e) => n("xp_complete_quiz", e.target.value)} placeholder="Points quiz terminé" className="rounded border p-2 text-sm" />
+        <input type="number" min={0} value={cfg.xp_review_15min} onChange={(e) => n("xp_review_15min", e.target.value)} placeholder="Points révision 15 min" className="rounded border p-2 text-sm" />
+        <input type="number" min={0} value={cfg.xp_referral_bonus} onChange={(e) => n("xp_referral_bonus", e.target.value)} placeholder="Bonus parrainage" className="rounded border p-2 text-sm" />
+        <input type="number" min={0} value={cfg.streak_bonus} onChange={(e) => n("streak_bonus", e.target.value)} placeholder="Bonus série de jours" className="rounded border p-2 text-sm" />
       </div>
-      <input type="number" min={0} value={cfg.reward_threshold} onChange={(e) => n("reward_threshold", e.target.value)} className="w-full rounded border p-2 text-sm" />
+      <input type="number" min={0} value={cfg.reward_threshold} onChange={(e) => n("reward_threshold", e.target.value)} placeholder="Seuil points pour récompense" className="w-full rounded border p-2 text-sm" />
       <Button onClick={save}>Enregistrer</Button>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </Card>

@@ -29,16 +29,18 @@ export const AppConfigPresetsManager = () => {
   const apply = async (name: keyof typeof presets) => {
     const payload = Object.entries(presets[name]).map(([key, value]) => ({ key, value }));
     const r = await supabase.from("app_config").upsert(payload);
-    setMessage(r.error ? r.error.message : `Preset appliqué: ${name}`);
+    const labels: Record<string, string> = { open_week: "Semaine promo", strict_secure: "Mode protégé", minimal_hub: "Mode simplifié" };
+    setMessage(r.error ? r.error.message : `Scénario appliqué: ${labels[name] || name}`);
   };
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Presets configuration (1-clic)</h2>
+      <h2 className="font-semibold">Scénarios rapides (1 clic)</h2>
+      <p className="text-xs text-slate-500">Applique un réglage prêt à l&apos;emploi selon ta stratégie du moment.</p>
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => apply("open_week")}>Promo ouverte</Button>
         <Button variant="outline" onClick={() => apply("strict_secure")}>Mode strict</Button>
-        <Button variant="outline" onClick={() => apply("minimal_hub")}>Hub minimal</Button>
+        <Button variant="outline" onClick={() => apply("minimal_hub")}>Mode simplifié</Button>
       </div>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </Card>

@@ -24,17 +24,17 @@ export const TicketCheckoutRulesManager = () => {
   const save = async () => {
     const clean = { fee_fixed: Math.max(0, rules.fee_fixed), fee_percent: Math.max(0, rules.fee_percent), upgrade_discount_percent: Math.max(0, rules.upgrade_discount_percent), upgrade_bonus_days: Math.max(0, Math.floor(rules.upgrade_bonus_days)) };
     const r = await supabase.from("app_config").upsert({ key: "ticket_checkout_rules", value: clean });
-    setMessage(r.error ? r.error.message : "Règles checkout ticket enregistrées.");
+    setMessage(r.error ? r.error.message : "Règles d'achat tickets enregistrées.");
   };
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Règles checkout ticket (frais/upgrade)</h2>
+      <h2 className="font-semibold">Règles d&apos;achat tickets</h2>
       <div className="grid gap-2 md:grid-cols-2">
-        <input value={rules.fee_fixed} type="number" min={0} onChange={(e) => n("fee_fixed", e.target.value)} className="rounded border p-2 text-sm" placeholder="Frais fixes" />
-        <input value={rules.fee_percent} type="number" min={0} onChange={(e) => n("fee_percent", e.target.value)} className="rounded border p-2 text-sm" placeholder="Frais %" />
-        <input value={rules.upgrade_discount_percent} type="number" min={0} onChange={(e) => n("upgrade_discount_percent", e.target.value)} className="rounded border p-2 text-sm" placeholder="Réduction upgrade %" />
-        <input value={rules.upgrade_bonus_days} type="number" min={0} onChange={(e) => n("upgrade_bonus_days", e.target.value)} className="rounded border p-2 text-sm" placeholder="Bonus jours upgrade" />
+        <input value={rules.fee_fixed} type="number" min={0} onChange={(e) => n("fee_fixed", e.target.value)} className="rounded border p-2 text-sm" placeholder="Frais fixes (XOF)" />
+        <input value={rules.fee_percent} type="number" min={0} onChange={(e) => n("fee_percent", e.target.value)} className="rounded border p-2 text-sm" placeholder="Frais en pourcentage" />
+        <input value={rules.upgrade_discount_percent} type="number" min={0} onChange={(e) => n("upgrade_discount_percent", e.target.value)} className="rounded border p-2 text-sm" placeholder="Réduction en cas d'amélioration" />
+        <input value={rules.upgrade_bonus_days} type="number" min={0} onChange={(e) => n("upgrade_bonus_days", e.target.value)} className="rounded border p-2 text-sm" placeholder="Jours bonus en cas d'amélioration" />
       </div>
       <Button onClick={save}>Enregistrer</Button>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}

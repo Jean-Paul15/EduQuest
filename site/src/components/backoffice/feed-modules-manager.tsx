@@ -39,14 +39,19 @@ export const FeedModulesManager = () => {
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Feed: modules et limites</h2>
+      <h2 className="font-semibold">Accueil: rubriques et quantités</h2>
+      <p className="text-xs text-slate-500">Choisis ce qui s&apos;affiche sur la page d&apos;accueil et combien d&apos;éléments montrer.</p>
       <div className="grid gap-2 md:grid-cols-3">
-        {(["courses", "contests", "events"] as const).map((k) => <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{k}</span><input type="checkbox" checked={feed[k]} onChange={(e) => setFeed({ ...feed, [k]: e.target.checked })} /></label>)}
+        {([
+          ["courses", "Cours"],
+          ["contests", "Concours"],
+          ["events", "Événements"],
+        ] as const).map(([k, label]) => <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{label}</span><input type="checkbox" checked={feed[k]} onChange={(e) => setFeed({ ...feed, [k]: e.target.checked })} /></label>)}
       </div>
       <div className="grid gap-2 md:grid-cols-3">
-        <input value={feed.courses_limit} type="number" min={1} onChange={(e) => num("courses_limit", e.target.value)} className="rounded border p-2 text-sm" />
-        <input value={feed.contests_limit} type="number" min={1} onChange={(e) => num("contests_limit", e.target.value)} className="rounded border p-2 text-sm" />
-        <input value={feed.events_limit} type="number" min={1} onChange={(e) => num("events_limit", e.target.value)} className="rounded border p-2 text-sm" />
+        <input value={feed.courses_limit} type="number" min={1} onChange={(e) => num("courses_limit", e.target.value)} placeholder="Nombre de cours" className="rounded border p-2 text-sm" />
+        <input value={feed.contests_limit} type="number" min={1} onChange={(e) => num("contests_limit", e.target.value)} placeholder="Nombre de concours" className="rounded border p-2 text-sm" />
+        <input value={feed.events_limit} type="number" min={1} onChange={(e) => num("events_limit", e.target.value)} placeholder="Nombre d'événements" className="rounded border p-2 text-sm" />
       </div>
       <Button onClick={save}>Enregistrer</Button>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}

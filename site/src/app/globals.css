@@ -95,6 +95,58 @@
 
   .section-pad { @apply py-16 sm:py-24; }
   .section-dark { @apply bg-[var(--eq-blue-deep)] text-white; }
+
+  .eq-backoffice input:not([type="checkbox"]):not([type="radio"]),
+  .eq-backoffice select,
+  .eq-backoffice textarea {
+    @apply rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100;
+  }
+  .eq-backoffice input[type="checkbox"],
+  .eq-backoffice input[type="radio"] {
+    @apply h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-200;
+  }
+  .eq-backoffice label {
+    @apply text-sm font-medium text-slate-700;
+  }
+  .eq-backoffice button:not(.btn-primary):not(.btn-secondary) {
+    @apply rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow;
+  }
+  .eq-backoffice a {
+    @apply transition;
+  }
+  .eq-backoffice a:hover {
+    @apply opacity-90;
+  }
+  .eq-backoffice input::placeholder,
+  .eq-backoffice textarea::placeholder {
+    @apply text-slate-400;
+  }
+  .eq-backoffice :is(input, select, textarea, button, a):focus-visible {
+    @apply outline-none ring-2 ring-blue-200;
+  }
+  .eq-backoffice .rounded-xl.border,
+  .eq-backoffice .rounded-2xl.border {
+    @apply border-slate-200/80 bg-white/85 shadow-sm backdrop-blur;
+  }
+  .eq-backoffice .text-2xl.font-semibold,
+  .eq-backoffice .text-xl.font-semibold {
+    @apply tracking-tight text-slate-900;
+  }
+  .eq-backoffice .eq-chip {
+    @apply inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide;
+  }
+  .eq-backoffice .eq-chip-ok {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-700;
+  }
+  .eq-backoffice .eq-chip-warn {
+    @apply border-orange-200 bg-orange-50 text-orange-700;
+  }
+  .eq-backoffice .eq-row {
+    @apply rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm transition hover:border-blue-200 hover:shadow;
+  }
+  .eq-backoffice .eq-action-bar {
+    @apply flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2;
+  }
 }
 
 /* ======= Utilities ======= */

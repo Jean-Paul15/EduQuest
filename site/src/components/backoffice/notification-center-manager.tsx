@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 type Campaign = { id: string; title: string; status: string; scheduled_at: string | null };
+const statusLabel = (s: string) =>
+  ({
+    draft: "Brouillon",
+    queued: "Programmé",
+    retrying: "Nouvelle tentative",
+    sent: "Envoyé",
+    failed: "Échec",
+  }[s] || s);
 
 export const NotificationCenterManager = () => {
   const supabase = getSupabaseBrowserClient();
@@ -42,7 +50,7 @@ export const NotificationCenterManager = () => {
       ttl: 86400,
     };
     const r = await supabase.from("notification_campaigns").insert({ title, body, deeplink, target_filter, display_payload });
-    setMessage(r.error ? r.error.message : "Campagne créée.");
+    setMessage(r.error ? r.error.message : "Campagne enregistrée.");
     if (!r.error) {
       setTitle("");
       setBody("");
@@ -55,29 +63,30 @@ export const NotificationCenterManager = () => {
 
   const queue = async (id: string) => {
     const r = await supabase.rpc("queue_notification_campaign", { p_campaign_id: id });
-    setMessage(r.error ? r.error.message : (r.data?.message || "Campagne mise en file."));
+    setMessage(r.error ? r.error.message : (r.data?.message || "Campagne programmée."));
     load();
   };
 
   return (
     <Card className="space-y-3 p-4">
       <h2 className="font-semibold">Campagnes notifications</h2>
+      <p className="text-xs text-slate-500">Prépare un message puis programme son envoi aux élèves ciblés.</p>
       <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre notification" className="w-full rounded border p-2" />
       <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message..." className="h-24 w-full rounded border p-2" />
-      <input value={deeplink} onChange={(e) => setDeeplink(e.target.value)} placeholder="eduquest://..." className="w-full rounded border p-2" />
+      <input value={deeplink} onChange={(e) => setDeeplink(e.target.value)} placeholder="Lien d'ouverture dans l'app (optionnel)" className="w-full rounded border p-2" />
       <div className="grid grid-cols-3 gap-2">
         <input value={level} onChange={(e) => setLevel(e.target.value)} placeholder="Classe (ex: Terminale)" className="rounded border p-2 text-sm" />
         <input value={serie} onChange={(e) => setSerie(e.target.value)} placeholder="Série (ex: D)" className="rounded border p-2 text-sm" />
-        <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Topic (event, contest...)" className="rounded border p-2 text-sm" />
+        <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Thème (ex: event, contest)" className="rounded border p-2 text-sm" />
       </div>
-      <Button onClick={createDraft}>Créer brouillon</Button>
+      <Button onClick={createDraft}>Créer la campagne</Button>
       {rows.map((r) => (
         <div key={r.id} className="flex items-center justify-between rounded border p-2">
           <div>
             <p className="text-sm font-medium">{r.title}</p>
-            <p className="text-xs text-slate-500">{r.status}</p>
+            <p className="text-xs text-slate-500">{statusLabel(r.status)}</p>
           </div>
-          <Button onClick={() => queue(r.id)}>Mettre en file</Button>
+          <Button onClick={() => queue(r.id)}>Programmer</Button>
         </div>
       ))}
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}

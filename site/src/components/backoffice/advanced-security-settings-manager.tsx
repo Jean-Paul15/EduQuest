@@ -28,17 +28,22 @@ export const AdvancedSecuritySettingsManager = () => {
   const save = async () => {
     const value = { ...cfg, watermark_opacity: Math.max(0.05, Math.min(0.9, cfg.watermark_opacity)) };
     const r = await supabase.from("app_config").upsert({ key: "security_advanced", value });
-    setMessage(r.error ? r.error.message : "Sécurité avancée enregistrée.");
+    setMessage(r.error ? r.error.message : "Protection avancée enregistrée.");
   };
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Sécurité avancée</h2>
-      {(["enforce_sensitive_guard", "block_learning_capture", "block_hub_capture", "watermark_enabled"] as const).map((k) => (
-        <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{k}</span><input type="checkbox" checked={cfg[k]} onChange={(e) => setCfg({ ...cfg, [k]: e.target.checked })} /></label>
+      <h2 className="font-semibold">Protection avancée</h2>
+      {([
+        ["enforce_sensitive_guard", "Activer la protection renforcée"],
+        ["block_learning_capture", "Bloquer capture sur contenus d'apprentissage"],
+        ["block_hub_capture", "Bloquer capture sur l'accueil"],
+        ["watermark_enabled", "Afficher un marquage visuel"],
+      ] as const).map(([k, label]) => (
+        <label key={k} className="flex items-center justify-between rounded border p-2 text-sm"><span>{label}</span><input type="checkbox" checked={cfg[k]} onChange={(e) => setCfg({ ...cfg, [k]: e.target.checked })} /></label>
       ))}
-      <input value={cfg.watermark_label} onChange={(e) => setCfg({ ...cfg, watermark_label: e.target.value })} className="w-full rounded border p-2 text-sm" />
-      <input type="number" min={0.05} max={0.9} step="0.05" value={cfg.watermark_opacity} onChange={(e) => setCfg({ ...cfg, watermark_opacity: Number(e.target.value) || 0.2 })} className="w-full rounded border p-2 text-sm" />
+      <input value={cfg.watermark_label} onChange={(e) => setCfg({ ...cfg, watermark_label: e.target.value })} placeholder="Texte du marquage" className="w-full rounded border p-2 text-sm" />
+      <input type="number" min={0.05} max={0.9} step="0.05" value={cfg.watermark_opacity} onChange={(e) => setCfg({ ...cfg, watermark_opacity: Number(e.target.value) || 0.2 })} placeholder="Intensité du marquage" className="w-full rounded border p-2 text-sm" />
       <Button onClick={save}>Enregistrer</Button>
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </Card>

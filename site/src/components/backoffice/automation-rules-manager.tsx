@@ -10,6 +10,18 @@ type Rule = {
   depends_on_rule_id: string | null; max_retries: number; retry_backoff_min: number;
 };
 type Run = { status: string; details: Record<string, unknown>; created_at: string };
+const triggerLabel = (v: string) =>
+  ({
+    cron: "Programmé",
+    manual: "Manuel",
+    event: "Événement",
+  }[v] || v);
+const statusLabel = (v: string) =>
+  ({
+    success: "Réussi",
+    failed: "Échec",
+    running: "En cours",
+  }[v] || v);
 
 export const AutomationRulesManager = () => {
   const supabase = getSupabaseBrowserClient();
@@ -37,7 +49,7 @@ export const AutomationRulesManager = () => {
   };
   const runAll = async () => {
     const r = await supabase.rpc("run_due_automation_rules");
-    setMessage(r.error ? r.error.message : `Rules traitées: ${r.data?.processed || 0}`);
+    setMessage(r.error ? r.error.message : `Règles traitées: ${r.data?.processed || 0}`);
     if (!r.error) await load();
   };
   const save = async (x: Rule) => {
@@ -53,10 +65,10 @@ export const AutomationRulesManager = () => {
 
   return (
     <Card className="space-y-3 p-4">
-      <h2 className="font-semibold">Automations no-code (dépendances + retry)</h2>
+      <h2 className="font-semibold">Actions automatiques</h2>
       <Button onClick={runAll}>Exécuter les règles actives</Button>
-      {rules.map((x) => <div key={x.id} className="rounded border p-2 text-sm"><p>{x.code} • {x.trigger_type} • {x.schedule_cron || "-"} • {x.last_run_at || "jamais"}</p><div className="mt-2 grid gap-2 md:grid-cols-3"><select value={x.depends_on_rule_id || ""} onChange={(e) => upd(x.id, { depends_on_rule_id: e.target.value || null })} className="rounded border p-1 text-xs"><option value="">no dependency</option>{rules.filter((r) => r.id !== x.id).map((r) => <option key={r.id} value={r.id}>{r.code}</option>)}</select><input type="number" min={1} value={x.max_retries || 3} onChange={(e) => upd(x.id, { max_retries: Number(e.target.value) || 1 })} className="rounded border p-1 text-xs" /><input type="number" min={1} value={x.retry_backoff_min || 15} onChange={(e) => upd(x.id, { retry_backoff_min: Number(e.target.value) || 1 })} className="rounded border p-1 text-xs" /></div><div className="mt-2 flex gap-2"><Button variant="outline" onClick={() => runOne(x)}>Run</Button><Button variant="outline" onClick={() => toggle(x)}>{x.active ? "Actif" : "Inactif"}</Button><Button variant="outline" onClick={() => save(x)}>Save</Button></div></div>)}
-      {runs.map((x, i) => <p key={i} className="text-xs text-slate-600">{x.created_at} • {x.status} • {JSON.stringify(x.details || {})}</p>)}
+      {rules.map((x) => <div key={x.id} className="rounded border p-2 text-sm"><p>{x.label || x.code} • {triggerLabel(x.trigger_type)} • {x.schedule_cron || "Sans horaire"} • Dernière exécution: {x.last_run_at || "jamais"}</p><div className="mt-2 grid gap-2 md:grid-cols-3"><select value={x.depends_on_rule_id || ""} onChange={(e) => upd(x.id, { depends_on_rule_id: e.target.value || null })} className="rounded border p-1 text-xs"><option value="">Aucune dépendance</option>{rules.filter((r) => r.id !== x.id).map((r) => <option key={r.id} value={r.id}>{r.label || r.code}</option>)}</select><input type="number" min={1} value={x.max_retries || 3} onChange={(e) => upd(x.id, { max_retries: Number(e.target.value) || 1 })} placeholder="Nombre de tentatives" className="rounded border p-1 text-xs" /><input type="number" min={1} value={x.retry_backoff_min || 15} onChange={(e) => upd(x.id, { retry_backoff_min: Number(e.target.value) || 1 })} placeholder="Pause entre tentatives (min)" className="rounded border p-1 text-xs" /></div><div className="mt-2 flex gap-2"><Button variant="outline" onClick={() => runOne(x)}>Lancer</Button><Button variant="outline" onClick={() => toggle(x)}>{x.active ? "Actif" : "Inactif"}</Button><Button variant="outline" onClick={() => save(x)}>Enregistrer</Button></div></div>)}
+      {runs.map((x, i) => <p key={i} className="text-xs text-slate-600">{x.created_at} • {statusLabel(x.status)}</p>)}
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </Card>
   );
