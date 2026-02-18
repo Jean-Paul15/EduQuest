@@ -1,0 +1,58 @@
+#!/bin/sh
+set -e
+
+echo "[pre-commit] checks..."
+
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+darts=""
+site_files=""
+for f in $staged_files; do
+  case "$f" in
+    *.sql)
+      echo "[pre-commit] blocked: SQL file staged -> $f"
+      exit 1
+      ;;
+    *.md)
+      case "$f" in
+        README.md|*/README.md) ;;
+        *)
+          echo "[pre-commit] blocked: Markdown file staged -> $f"
+          exit 1
+          ;;
+      esac
+      ;;
+    *.dart)
+      darts="$darts $f"
+      ;;
+    site/*.ts|site/*.tsx|site/*.js|site/*.jsx|site/*.mjs|site/*.cjs)
+      rel="${f#site/}"
+      site_files="$site_files $rel"
+      ;;
+    site/src/*)
+      case "$f" in
+        *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs)
+          rel="${f#site/}"
+          site_files="$site_files $rel"
+          ;;
+      esac
+      ;;
+  esac
+done
+
+if [ -n "$darts" ] && command -v flutter >/dev/null 2>&1; then
+  echo "[pre-commit] flutter analyze staged dart files..."
+  # shellcheck disable=SC2086
+  flutter analyze $darts
+else
+  echo "[pre-commit] no staged dart files (or flutter missing), skip analyze"
+fi
+
+if [ -n "$site_files" ] && command -v pnpm >/dev/null 2>&1 && [ -f "site/package.json" ]; then
+  echo "[pre-commit] eslint staged site files..."
+  # shellcheck disable=SC2086
+  pnpm --dir site exec eslint --max-warnings=0 $site_files
+else
+  echo "[pre-commit] no staged site js/ts files, skip eslint"
+fi
+
+echo "[pre-commit] ok"
