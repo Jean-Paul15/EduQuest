@@ -51,7 +51,7 @@ class IntroBottomSection extends StatelessWidget {
             ),
             if (legalLoading)
               const Padding(
-                padding: EdgeInsets.only(left: 6),
+                padding: EdgeInsets.only(left: RuachSpace.s1),
                 child: SizedBox(
                   width: 14,
                   height: 14,

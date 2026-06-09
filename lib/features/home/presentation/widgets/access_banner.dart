@@ -54,7 +54,7 @@ class AccessBanner extends StatelessWidget {
                     color: RuachColors.cream900,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: RuachSpace.s1),
                 Text(
                   subtitle,
                   style: TextStyle(
@@ -66,7 +66,7 @@ class AccessBanner extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: RuachSpace.s3, vertical: RuachSpace.s1),
             decoration: BoxDecoration(
               color: s.primary.withValues(alpha: .08),
               borderRadius: BorderRadius.circular(RuachRadius.sm),

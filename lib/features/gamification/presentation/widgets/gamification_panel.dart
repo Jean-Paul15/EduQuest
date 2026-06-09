@@ -49,9 +49,9 @@ class GamificationPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: RuachSpace.s2),
           RuachProgressBar(value: state.levelProgress),
-          const SizedBox(height: 10),
+          const SizedBox(height: RuachSpace.s3),
           Row(
             children: [
               Icon(
@@ -59,7 +59,7 @@ class GamificationPanel extends StatelessWidget {
                 size: 16,
                 color: RuachColors.gold600,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: RuachSpace.s1),
               Text(
                 '${state.streakDays}j',
                 style: const TextStyle(
@@ -79,10 +79,10 @@ class GamificationPanel extends StatelessWidget {
             ],
           ),
           if (quests.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: RuachSpace.s3),
             Wrap(
-              spacing: 6,
-              runSpacing: 6,
+              spacing: RuachSpace.s2,
+              runSpacing: RuachSpace.s2,
               children: quests.map((q) => QuestBadge(quest: q)).toList(),
             ),
           ],

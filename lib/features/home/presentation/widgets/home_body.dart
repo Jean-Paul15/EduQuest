@@ -35,7 +35,7 @@ class HomeBody extends StatelessWidget {
     final tx = Theme.of(context).textTheme;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(RuachSpace.s4, RuachSpace.s2, RuachSpace.s4, RuachSpace.s6),
+      padding: const EdgeInsets.fromLTRB(RuachSpace.s4, RuachSpace.s4, RuachSpace.s4, RuachSpace.s6),
       children: [
         Row(
           children: [
@@ -47,7 +47,7 @@ class HomeBody extends StatelessWidget {
                     'Salut, $displayName',
                     style: tx.headlineMedium?.copyWith(color: RuachColors.cream900),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: RuachSpace.s1),
                   Text(
                     'Continue ta progression.',
                     style: tx.bodyMedium?.copyWith(color: RuachColors.cream500),
@@ -56,7 +56,7 @@ class HomeBody extends StatelessWidget {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(RuachSpace.s2),
               decoration: BoxDecoration(
                 color: s.primary.withValues(alpha: .08),
                 borderRadius: BorderRadius.circular(RuachRadius.md),

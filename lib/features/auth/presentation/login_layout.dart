@@ -3,6 +3,7 @@ import 'package:eduquest/features/auth/presentation/login_email_form.dart';
 import 'package:eduquest/features/auth/presentation/login_header.dart';
 import 'package:eduquest/features/auth/presentation/login_or_divider.dart';
 import 'package:eduquest/features/auth/presentation/login_social_buttons.dart';
+import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
 
 class LoginLayout extends StatelessWidget {
@@ -41,7 +42,7 @@ class LoginLayout extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: RuachSpace.s6),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
               child: Column(
@@ -58,9 +59,9 @@ class LoginLayout extends StatelessWidget {
                     ),
                   if (options.emailPassword) ...[
                     if (options.google || options.apple) ...[
-                      const SizedBox(height: 8),
+                      SizedBox(height: RuachSpace.s2),
                       const LoginOrDivider(),
-                      const SizedBox(height: 16),
+                      SizedBox(height: RuachSpace.s4),
                     ],
                     LoginEmailForm(
                       email: email,
