@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:eduquest/app/theme/ruach_typography_body.dart';
+import 'package:eduquest/app/theme/ruach_typography_mono.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 
 /// Typographic scale per RuachEdu spec.
@@ -12,7 +14,7 @@ class RuachTypography {
     final primary = isDark ? RuachColors.cream100 : RuachColors.cream900;
     final secondary = isDark ? RuachColors.cream500 : RuachColors.cream500;
 
-    return base.copyWith(
+    var theme = base.copyWith(
       // ── Display (Fraunces italic) ──
       displayLarge: GoogleFonts.fraunces(
         fontWeight: FontWeight.w300,
@@ -82,69 +84,12 @@ class RuachTypography {
         letterSpacing: 0.02 * 12,
         color: secondary,
       ),
-      // ── Body ──
-      bodyLarge: base.bodyLarge?.copyWith(
-        fontWeight: FontWeight.w400,
-        fontSize: 16,
-        height: 26 / 16,
-        letterSpacing: 0,
-        color: secondary,
-      ),
-      bodyMedium: base.bodyMedium?.copyWith(
-        fontWeight: FontWeight.w400,
-        fontSize: 14,
-        height: 22 / 14,
-        letterSpacing: 0,
-        color: secondary,
-      ),
-      bodySmall: base.bodySmall?.copyWith(
-        fontWeight: FontWeight.w400,
-        fontSize: 12,
-        height: 18 / 12,
-        letterSpacing: 0,
-        color: secondary,
-      ),
-      // ── Labels (buttons, chips, etc.) ──
-      labelLarge: base.labelLarge?.copyWith(
-        fontWeight: FontWeight.w500,
-        fontSize: 14,
-        height: 20 / 14,
-        letterSpacing: 0.03 * 14,
-        color: primary,
-      ),
-      labelMedium: base.labelMedium?.copyWith(
-        fontWeight: FontWeight.w500,
-        fontSize: 12,
-        height: 16 / 12,
-        letterSpacing: 0.04 * 12,
-        color: secondary,
-      ),
-      labelSmall: base.labelSmall?.copyWith(
-        fontWeight: FontWeight.w500,
-        fontSize: 11,
-        height: 14 / 11,
-        letterSpacing: 0.05 * 11,
-        color: secondary,
-      ),
     );
+    theme = RuachTypographyBody.apply(theme, primary, secondary);
+    return theme;
   }
 
   /// Mono scale for code and stats (JetBrains Mono).
-  static TextStyle monoLarge(Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
-    return GoogleFonts.jetBrainsMono(
-      fontSize: 16,
-      height: 24 / 16,
-      color: isDark ? RuachColors.cream100 : RuachColors.cream900,
-    );
-  }
-
-  static TextStyle monoSmall(Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
-    return GoogleFonts.jetBrainsMono(
-      fontSize: 13,
-      height: 20 / 13,
-      color: isDark ? RuachColors.cream100 : RuachColors.cream900,
-    );
-  }
+  static TextStyle monoLarge(Brightness brightness) => RuachTypographyMono.large(brightness);
+  static TextStyle monoSmall(Brightness brightness) => RuachTypographyMono.small(brightness);
 }

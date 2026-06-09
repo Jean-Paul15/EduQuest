@@ -32,9 +32,10 @@ class HomeBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
+    final tx = Theme.of(context).textTheme;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: const EdgeInsets.fromLTRB(RuachSpace.s4, RuachSpace.s2, RuachSpace.s4, RuachSpace.s6),
       children: [
         Row(
           children: [
@@ -44,20 +45,12 @@ class HomeBody extends StatelessWidget {
                 children: [
                   Text(
                     'Salut, $displayName',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: RuachColors.cream900,
-                      letterSpacing: -0.3,
-                    ),
+                    style: tx.headlineMedium?.copyWith(color: RuachColors.cream900),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Continue ta progression.',
-                    style: TextStyle(
-                      color: RuachColors.cream500,
-                      fontSize: 14,
-                    ),
+                    style: tx.bodyMedium?.copyWith(color: RuachColors.cream500),
                   ),
                 ],
               ),
@@ -76,9 +69,9 @@ class HomeBody extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: RuachSpace.s4),
         AccessBanner(access: access),
-        const SizedBox(height: 12),
+        const SizedBox(height: RuachSpace.s3),
         GamificationPanel(
           state: gamification,
           quests: quests,

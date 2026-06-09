@@ -1,5 +1,5 @@
 import 'package:eduquest/app/router/app_router.dart';
-import 'package:eduquest/app/theme/app_theme.dart';
+import 'package:eduquest/app/theme/ruach_theme.dart';
 import 'package:flutter/material.dart';
 
 class RuachEduApp extends StatefulWidget {
@@ -28,8 +28,8 @@ class _RuachEduAppState extends State<RuachEduApp> {
     return MaterialApp.router(
       title: 'RuachEdu',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: RuachTheme.light(),
+      darkTheme: RuachTheme.dark(),
       themeMode: _themeMode,
       routerConfig: _router,
     );

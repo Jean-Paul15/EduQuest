@@ -44,37 +44,28 @@ class IntroSlide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tx = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Spacer(flex: 2),
         Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(RuachSpace.s4),
           decoration: BoxDecoration(
             color: primaryColor.withValues(alpha: .1),
             borderRadius: BorderRadius.circular(RuachRadius.md),
           ),
           child: Icon(icon, color: primaryColor, size: 28),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: RuachSpace.s6),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w800,
-            height: 1.15,
-            letterSpacing: -0.5,
-            color: RuachColors.cream900,
-          ),
+          style: tx.headlineLarge,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: RuachSpace.s3),
         Text(
           description,
-          style: const TextStyle(
-            color: RuachColors.cream500,
-            fontSize: 16,
-            height: 1.5,
-          ),
+          style: tx.bodyLarge?.copyWith(color: RuachColors.cream500),
         ),
         const Spacer(flex: 3),
       ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/app/theme/ruach_color_scheme.dart';
 import 'package:eduquest/app/theme/ruach_component_themes.dart';
+import 'package:eduquest/app/theme/ruach_component_themes_buttons.dart';
+import 'package:eduquest/app/theme/ruach_component_themes_surface.dart';
 import 'package:eduquest/app/theme/ruach_theme_extensions.dart';
 import 'package:eduquest/app/theme/ruach_typography.dart';
 
@@ -27,13 +29,13 @@ class RuachTheme {
       textTheme: textTheme,
       scaffoldBackgroundColor: scheme.surface,
       appBarTheme: RuachComponentThemes.appBarTheme(scheme: scheme, textTheme: textTheme),
-      inputDecorationTheme: RuachComponentThemes.inputTheme(scheme: scheme, brightness: brightness),
-      navigationBarTheme: RuachComponentThemes.navTheme(scheme: scheme, brightness: brightness),
+      inputDecorationTheme: RuachSurfaceThemes.inputTheme(scheme: scheme, brightness: brightness),
+      navigationBarTheme: RuachSurfaceThemes.navTheme(scheme: scheme, brightness: brightness),
       cardTheme: RuachComponentThemes.cardTheme(scheme: scheme),
-      chipTheme: RuachComponentThemes.chipTheme(scheme: scheme),
-      filledButtonTheme: RuachComponentThemes.filledButtonTheme(scheme: scheme),
-      outlinedButtonTheme: RuachComponentThemes.outlinedButtonTheme(scheme: scheme),
-      textButtonTheme: RuachComponentThemes.textButtonTheme(scheme: scheme),
+      chipTheme: RuachButtonThemes.chipTheme(scheme: scheme),
+      filledButtonTheme: RuachButtonThemes.filledButtonTheme(scheme: scheme),
+      outlinedButtonTheme: RuachButtonThemes.outlinedButtonTheme(scheme: scheme),
+      textButtonTheme: RuachButtonThemes.textButtonTheme(scheme: scheme),
       snackBarTheme: RuachComponentThemes.snackBarTheme(scheme: scheme),
       dividerTheme: RuachComponentThemes.dividerTheme(scheme: scheme),
       tabBarTheme: RuachComponentThemes.tabBarTheme(scheme: scheme),

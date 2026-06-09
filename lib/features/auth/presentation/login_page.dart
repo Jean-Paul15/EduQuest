@@ -2,7 +2,7 @@ import 'package:eduquest/features/app_config/data/app_config_repository.dart';
 import 'package:eduquest/features/app_config/domain/auth_options.dart';
 import 'package:eduquest/features/auth/data/auth_repository.dart';
 import 'package:eduquest/features/auth/presentation/login_layout.dart';
-import 'package:eduquest/shared/ui/modern_snackbar.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_snackbar.dart';
 import 'package:eduquest/shared/ui/user_error_message.dart';
 import 'package:flutter/material.dart';
 
@@ -40,10 +40,10 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await action();
       if (!mounted) return;
-      ModernSnackbar.show(context, ok);
+      RuachSnackbar.success(context, ok);
     } catch (e) {
       if (!mounted) return;
-      ModernSnackbar.show(context, userErrorMessage(e), success: false);
+      RuachSnackbar.error(context, userErrorMessage(e));
     }
   }
 
@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
     final email = _email.text.trim();
     final pass = _pass.text;
     if (_register && pass != _confirm.text) {
-      ModernSnackbar.show(context, 'Les mots de passe ne correspondent pas.', success: false);
+      RuachSnackbar.error(context, 'Les mots de passe ne correspondent pas.');
       return;
     }
     if (_register) {
@@ -64,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
   void _forgotPassword() {
     final email = _email.text.trim();
     if (email.isEmpty) {
-      ModernSnackbar.show(context, 'Renseigne ton email d\'abord.', success: false);
+      RuachSnackbar.error(context, 'Renseigne ton email d\'abord.');
       return;
     }
     _run(() => widget.repository.resetPassword(email), 'Lien de reinitialisation envoye.');

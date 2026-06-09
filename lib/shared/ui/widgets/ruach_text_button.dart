@@ -14,9 +14,8 @@ class RuachTextButton extends StatelessWidget {
     return Semantics(
       label: label,
       child: TapScale(
-        onTap: onPressed,
         child: TextButton(
-          onPressed: null,
+          onPressed: onPressed ?? () {},
           style: TextButton.styleFrom(
             minimumSize: const Size(0, 36),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(RuachRadius.full)),

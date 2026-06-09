@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_outline_button.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class LoginSocialButtons extends StatelessWidget {
   const LoginSocialButtons({
@@ -27,10 +29,10 @@ class LoginSocialButtons extends StatelessWidget {
             child: RuachButton(
               label: 'Continuer avec Google',
               onPressed: onGoogleTap,
-              icon: Icons.g_mobiledata_rounded,
+              icon: PhosphorIconsRegular.googleLogo,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: RuachSpace.s3),
         ],
         if (apple) ...[
           SizedBox(
@@ -38,10 +40,10 @@ class LoginSocialButtons extends StatelessWidget {
             child: RuachOutlineButton(
               label: 'Continuer avec Apple',
               onPressed: onAppleTap,
-              icon: Icons.apple,
+              icon: PhosphorIconsRegular.appleLogo,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: RuachSpace.s3),
         ],
       ],
     );

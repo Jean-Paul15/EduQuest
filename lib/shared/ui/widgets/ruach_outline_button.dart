@@ -20,9 +20,8 @@ class RuachOutlineButton extends StatelessWidget {
     return Semantics(
       label: label,
       child: TapScale(
-        onTap: onPressed,
         child: OutlinedButton(
-          onPressed: null,
+          onPressed: onPressed ?? () {},
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(0, 44),
             padding: const EdgeInsets.symmetric(horizontal: 20),

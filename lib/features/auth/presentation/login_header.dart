@@ -10,12 +10,13 @@ class LoginHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
+    final tx = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(RuachSpace.s3),
           decoration: BoxDecoration(
             color: s.primary.withValues(alpha: .1),
             borderRadius: BorderRadius.circular(RuachRadius.sm),
@@ -26,25 +27,17 @@ class LoginHeader extends StatelessWidget {
             size: 24,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: RuachSpace.s5),
         Text(
           register ? 'Creer un compte' : 'Bon retour',
-          style: const TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-            color: RuachColors.cream900,
-          ),
+          style: tx.headlineLarge,
         ),
-        const SizedBox(height: 4),
-        const Text(
+        const SizedBox(height: RuachSpace.s1),
+        Text(
           'Acces securise RuachEdu',
-          style: TextStyle(
-            color: RuachColors.cream500,
-            fontSize: 15,
-          ),
+          style: tx.titleMedium?.copyWith(color: RuachColors.cream500),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: RuachSpace.s8),
       ],
     );
   }

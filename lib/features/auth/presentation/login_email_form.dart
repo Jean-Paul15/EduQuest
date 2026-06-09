@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_input.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_text_button.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -30,34 +32,28 @@ class LoginEmailForm extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextField(
+        RuachInput(
           controller: email,
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
-            hintText: 'Email',
-            prefixIcon: Icon(PhosphorIconsRegular.envelope, size: 20),
-          ),
+          hint: 'Email',
+          prefixIcon: const Icon(PhosphorIconsRegular.envelope, size: 20),
         ),
-        const SizedBox(height: 10),
-        TextField(
+        const SizedBox(height: RuachSpace.s3),
+        RuachInput(
           controller: pass,
-          obscureText: obscure,
-          decoration: InputDecoration(
-            hintText: 'Mot de passe',
-            prefixIcon: const Icon(PhosphorIconsRegular.lock, size: 20),
-            suffixIcon: IconButton(
-              onPressed: onToggleObscure,
-              icon: Icon(
-                obscure
-                    ? PhosphorIconsRegular.eyeSlash
-                    : PhosphorIconsRegular.eye,
-                size: 20,
-              ),
+          obscure: obscure,
+          hint: 'Mot de passe',
+          prefixIcon: const Icon(PhosphorIconsRegular.lock, size: 20),
+          suffixIcon: IconButton(
+            onPressed: onToggleObscure,
+            icon: Icon(
+              obscure ? PhosphorIconsRegular.eyeSlash : PhosphorIconsRegular.eye,
+              size: 20,
             ),
           ),
         ),
         if (!register) ...[
-          const SizedBox(height: 6),
+          const SizedBox(height: RuachSpace.s1),
           Align(
             alignment: Alignment.centerRight,
             child: RuachTextButton(
@@ -67,17 +63,15 @@ class LoginEmailForm extends StatelessWidget {
           ),
         ],
         if (register) ...[
-          const SizedBox(height: 10),
-          TextField(
+          const SizedBox(height: RuachSpace.s3),
+          RuachInput(
             controller: confirm,
-            obscureText: true,
-            decoration: const InputDecoration(
-              hintText: 'Confirmer mot de passe',
-              prefixIcon: Icon(PhosphorIconsRegular.lock, size: 20),
-            ),
+            obscure: true,
+            hint: 'Confirmer mot de passe',
+            prefixIcon: const Icon(PhosphorIconsRegular.lock, size: 20),
           ),
         ],
-        const SizedBox(height: 16),
+        const SizedBox(height: RuachSpace.s4),
         SizedBox(
           width: double.infinity,
           child: RuachButton(
@@ -85,7 +79,7 @@ class LoginEmailForm extends StatelessWidget {
             onPressed: onSubmit,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: RuachSpace.s2),
         Center(
           child: RuachTextButton(
             label: register ? 'J\'ai deja un compte' : 'Creer un compte',

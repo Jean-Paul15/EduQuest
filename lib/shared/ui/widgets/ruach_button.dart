@@ -23,9 +23,8 @@ class RuachButton extends StatelessWidget {
     return Semantics(
       label: label,
       child: TapScale(
-        onTap: onPressed,
         child: FilledButton(
-          onPressed: null,
+          onPressed: loading ? null : (onPressed ?? () {}),
           style: FilledButton.styleFrom(
             minimumSize: const Size(0, 52),
             padding: const EdgeInsets.symmetric(horizontal: 24),
