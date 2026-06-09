@@ -38,7 +38,7 @@ class LoginHeader extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'Acces securise RuachNova',
+          'Acces securise RuachEdu',
           style: TextStyle(
             color: RuachColors.cream500,
             fontSize: 15,

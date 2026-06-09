@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> with HomeNavigationMixin {
     });
     final (label, value, footer) = widgetFocus(s);
     _widget.update(
-      title: 'RuachNova • ${s.displayName}',
+      title: 'RuachEdu • ${s.displayName}',
       focusLabel: label,
       focusValue: value,
       footer: footer,

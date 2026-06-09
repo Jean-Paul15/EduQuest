@@ -9,7 +9,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) => RuachAppBar(
-        title: 'RuachNova',
+        title: 'RuachEdu',
         actions: [
           IconButton(
             onPressed: onSupport,

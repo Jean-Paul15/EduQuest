@@ -59,7 +59,7 @@ class LegalRepository {
         ? '''
 ## Conditions d’utilisation
 
-En utilisant RuachNova, tu acceptes les règles de la plateforme.
+En utilisant RuachEdu, tu acceptes les règles de la plateforme.
 
 ### 1. Compte
 - Les informations du profil doivent être exactes.
@@ -80,7 +80,7 @@ En utilisant RuachNova, tu acceptes les règles de la plateforme.
         : '''
 ## Politique de confidentialité
 
-RuachNova protège les données personnelles des utilisateurs.
+RuachEdu protège les données personnelles des utilisateurs.
 
 ### 1. Données collectées
 - Profil: nom, classe, série, téléphone (si fourni).

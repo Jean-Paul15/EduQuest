@@ -22,7 +22,7 @@ class SurveyReminderService {
     await _local.initialize();
     await _local.showInfo(
       id: _notifId,
-      title: 'Enquête RuachNova',
+      title: 'Enquête RuachEdu',
       body: 'Réponds à l’enquête de la semaine pour améliorer l’app.',
     );
     await prefs.setInt(_lastKey, now);

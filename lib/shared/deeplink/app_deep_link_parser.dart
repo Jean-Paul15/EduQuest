@@ -2,7 +2,7 @@ import 'package:eduquest/shared/deeplink/app_deep_link_command.dart';
 
 class AppDeepLinkParser {
   static AppDeepLinkCommand? fromUri(Uri uri) {
-    if (uri.scheme.toLowerCase() != 'ruachnova') return null;
+    if (uri.scheme.toLowerCase() != 'ruachedu') return null;
     if (uri.host.toLowerCase() == 'login-callback') return null;
     final tab = _tabFromUri(uri);
     final kind = (uri.queryParameters['kind'] ?? '').toLowerCase();

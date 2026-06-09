@@ -26,7 +26,7 @@ class _RuachEduAppState extends State<RuachEduApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'RuachNova',
+      title: 'RuachEdu',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),

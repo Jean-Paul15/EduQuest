@@ -1,4 +1,4 @@
-package com.tgeduquest.app
+package edu.ruachnova.com
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.view.View
 import android.widget.RemoteViews
-import com.tgeduquest.app.R
+import edu.ruachnova.com.R
 import es.antonborri.home_widget.HomeWidgetLaunchIntent
 import es.antonborri.home_widget.HomeWidgetProvider
 
@@ -18,7 +18,7 @@ class EduQuestHomeWidgetProvider : HomeWidgetProvider() {
     ) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.eduquest_home_widget).apply {
-                val title = widgetData.getString("eduquest_title", "RuachNova") ?: "RuachNova"
+                val title = widgetData.getString("eduquest_title", "RuachEdu") ?: "RuachEdu"
                 val focusLabel = widgetData.getString("eduquest_focus_label", "Niveau") ?: "Niveau"
                 val focusValue = widgetData.getString("eduquest_focus_value", "-") ?: "-"
                 val footer = widgetData.getString("eduquest_footer", "") ?: ""

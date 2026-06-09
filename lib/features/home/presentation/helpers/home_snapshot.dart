@@ -7,7 +7,7 @@ import 'package:eduquest/features/home/domain/home_snapshot.dart';
     return (
       'Defi du jour',
       '${q.label} • +${q.xpReward} XP',
-      'Touchez pour ouvrir RuachNova',
+      'Touchez pour ouvrir RuachEdu',
     );
   }
   final exp = s.access.expiresAt;
@@ -16,7 +16,7 @@ import 'package:eduquest/features/home/domain/home_snapshot.dart';
     return (
       'Ticket',
       '${s.access.tier} • Expire dans ${d < 0 ? 0 : d}j',
-      'Touchez pour ouvrir RuachNova',
+      'Touchez pour ouvrir RuachEdu',
     );
   }
   if (s.gamification.streakDays > 0) {
@@ -29,6 +29,6 @@ import 'package:eduquest/features/home/domain/home_snapshot.dart';
   return (
     'Niveau',
     '${s.gamification.level} • ${s.gamification.xp} XP',
-    'Touchez pour ouvrir RuachNova',
+    'Touchez pour ouvrir RuachEdu',
   );
 }
