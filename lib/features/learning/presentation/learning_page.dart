@@ -4,6 +4,7 @@ import 'package:eduquest/features/learning/domain/learning_section.dart';
 import 'package:eduquest/features/learning/presentation/pages/subject_section_page.dart';
 import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class LearningPage extends StatefulWidget {
@@ -66,7 +67,7 @@ class _LearningPageState extends State<LearningPage> {
     Scrollable.ensureVisible(
       ctx,
       alignment: .5,
-      duration: AppMotion.normal,
+      duration: RuachMotion.appear,
       curve: Curves.easeOutCubic,
     );
   }
@@ -75,12 +76,12 @@ class _LearningPageState extends State<LearningPage> {
   Widget build(BuildContext context) {
     return SensitiveScope(
       child: Scaffold(
-        backgroundColor: AppColors.canvasLight,
-        appBar: AppBar(title: const Text('Apprendre')),
+        backgroundColor: RuachColors.cream50,
+        appBar: const RuachAppBar(title: 'Apprendre'),
         body: Column(
           children: [
             Container(
-              color: AppColors.white,
+              color: RuachColors.white,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: SizedBox(
                 height: 36,
@@ -98,7 +99,7 @@ class _LearningPageState extends State<LearningPage> {
                 ),
               ),
             ),
-            const Divider(height: 1, color: AppColors.divider),
+            const Divider(height: 1, color: RuachColors.cream200),
             Expanded(
               child: PageView.builder(
                 controller: _controller,
@@ -135,13 +136,13 @@ class _Chip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: AppMotion.fast,
+        duration: RuachMotion.tap,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.white,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
+          color: selected ? RuachColors.gold500 : RuachColors.white,
+          borderRadius: BorderRadius.circular(RuachRadius.full),
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.divider,
+            color: selected ? RuachColors.gold500 : RuachColors.cream200,
           ),
         ),
         alignment: Alignment.center,
@@ -150,7 +151,7 @@ class _Chip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: selected ? AppColors.white : AppColors.textSecondary,
+            color: selected ? RuachColors.white : RuachColors.cream500,
           ),
         ),
       ),

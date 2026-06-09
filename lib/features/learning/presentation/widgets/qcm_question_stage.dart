@@ -1,6 +1,8 @@
 import 'package:eduquest/features/learning/domain/qcm_question.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class QcmQuestionStage extends StatelessWidget {
   const QcmQuestionStage({
@@ -38,7 +40,7 @@ class QcmQuestionStage extends StatelessWidget {
                 : 'Reponse: ${question.answer}')
             : '';
     return Scaffold(
-      appBar: AppBar(title: Text('${index + 1}/$total')),
+      appBar: RuachAppBar(title: '${index + 1}/$total'),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -47,18 +49,18 @@ class QcmQuestionStage extends StatelessWidget {
             child: LinearProgressIndicator(
               value: ratio,
               minHeight: 4,
-              backgroundColor: AppColors.divider,
+              backgroundColor: RuachColors.cream200,
             ),
           ),
           const SizedBox(height: 12),
           Row(children: [
-            Icon(Icons.timer_outlined, size: 16, color: AppColors.accent),
+            Icon(PhosphorIconsRegular.timer, size: 16, color: RuachColors.gold600),
             const SizedBox(width: 4),
             Text(
               '${left}s',
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: RuachColors.cream900,
               ),
             ),
           ]),
@@ -68,7 +70,7 @@ class QcmQuestionStage extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: RuachColors.cream900,
               height: 1.4,
             ),
           ),
@@ -83,19 +85,19 @@ class QcmQuestionStage extends StatelessWidget {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: correct
-                      ? AppColors.success.withValues(alpha: .08)
+                      ? RuachColors.success600.withValues(alpha: .08)
                       : wrong
-                          ? AppColors.error.withValues(alpha: .08)
+                          ? RuachColors.error400.withValues(alpha: .08)
                           : Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(AppRadius.s),
+                  borderRadius: BorderRadius.circular(RuachRadius.md),
                   border: Border.all(
                     color: correct
-                        ? AppColors.success
+                        ? RuachColors.success600
                         : wrong
-                            ? AppColors.error
+                            ? RuachColors.error400
                             : o == selected
                                 ? s.primary
-                                : AppColors.divider,
+                                : RuachColors.cream200,
                     width: o == selected || correct || wrong ? 1.5 : 1,
                   ),
                 ),
@@ -103,7 +105,7 @@ class QcmQuestionStage extends StatelessWidget {
                   o,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textPrimary,
+                    color: RuachColors.cream900,
                   ),
                 ),
               ),
@@ -116,8 +118,8 @@ class QcmQuestionStage extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: locked && selected == question.answer
-                    ? AppColors.success
-                    : AppColors.error,
+                    ? RuachColors.success600
+                    : RuachColors.error400,
               ),
             ),
           ],

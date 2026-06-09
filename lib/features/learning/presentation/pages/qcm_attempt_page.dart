@@ -2,6 +2,7 @@ import 'package:eduquest/features/gamification/data/gamification_repository.dart
 import 'package:eduquest/features/learning/presentation/controllers/qcm_attempt_controller.dart';
 import 'package:eduquest/features/learning/presentation/widgets/qcm_question_stage.dart';
 import 'package:eduquest/features/learning/presentation/widgets/qcm_result_panel.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class QcmAttemptPage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _QcmAttemptPageState extends State<QcmAttemptPage> {
         }
         if (_c.questions.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: Text(widget.title)),
+            appBar: RuachAppBar(title: widget.title),
             body: const Center(child: Text('Aucune question disponible.')),
           );
         }
@@ -50,7 +51,7 @@ class _QcmAttemptPageState extends State<QcmAttemptPage> {
             _gamification.claimQuestByCode('complete_quiz');
           }
           return Scaffold(
-            appBar: AppBar(title: Text(widget.title)),
+            appBar: RuachAppBar(title: widget.title),
             body: QcmResultPanel(
               total: _c.total,
               correct: _c.correct,

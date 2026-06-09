@@ -2,6 +2,7 @@ import 'package:eduquest/features/engagement/domain/engagement_item.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class EngagementList extends StatelessWidget {
   const EngagementList({
@@ -27,7 +28,7 @@ class EngagementList extends StatelessWidget {
       return EmptyState(
         title: 'Aucun resultat',
         subtitle: emptyLabel,
-        icon: Icons.search_off_rounded,
+        icon: PhosphorIconsRegular.magnifyingGlassMinus,
       );
     }
     final s = Theme.of(context).colorScheme;
@@ -52,21 +53,21 @@ class EngagementList extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(AppRadius.card),
-              border: Border.all(color: AppColors.divider),
+              borderRadius: BorderRadius.circular(RuachRadius.lg),
+              border: Border.all(color: RuachColors.cream200),
             ),
             child: InkWell(
               onTap: () => onTap(item),
-              borderRadius: BorderRadius.circular(AppRadius.card),
+              borderRadius: BorderRadius.circular(RuachRadius.lg),
               child: Row(children: [
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: s.primary.withValues(alpha: .08),
-                    borderRadius: BorderRadius.circular(AppRadius.xs),
+                    borderRadius: BorderRadius.circular(RuachRadius.sm),
                   ),
                   child: Icon(
-                    Icons.local_activity_outlined,
+                    PhosphorIconsRegular.ticket,
                     color: s.primary,
                     size: 20,
                   ),
@@ -81,7 +82,7 @@ class EngagementList extends StatelessWidget {
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 15,
-                          color: AppColors.textPrimary,
+                          color: RuachColors.cream900,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -90,7 +91,7 @@ class EngagementList extends StatelessWidget {
                       Text(
                         '$date  ${item.subtitle}',
                         style: const TextStyle(
-                          color: AppColors.textSecondary,
+                          color: RuachColors.cream500,
                           fontSize: 13,
                         ),
                         maxLines: 1,
@@ -109,8 +110,8 @@ class EngagementList extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textTertiary,
+                  PhosphorIconsRegular.caretRight,
+                  color: RuachColors.cream700,
                   size: 20,
                 ),
               ]),

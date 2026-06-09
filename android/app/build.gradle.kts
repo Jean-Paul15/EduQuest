@@ -44,6 +44,17 @@ flutter {
     source = "../.."
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "androidx.glance") {
+            useVersion("1.1.1")
+        }
+        if (requested.group == "androidx.compose.remote") {
+            useTarget("androidx.compose.remote:remote-creation-android:1.0.0-beta01")
+        }
+    }
+}
+
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

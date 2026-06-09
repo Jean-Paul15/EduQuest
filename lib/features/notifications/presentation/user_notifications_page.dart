@@ -1,6 +1,8 @@
 import 'package:eduquest/features/notifications/data/user_notifications_repository.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class UserNotificationsPage extends StatefulWidget {
   const UserNotificationsPage({super.key});
@@ -37,9 +39,9 @@ class _UserNotificationsPageState extends State<UserNotificationsPage> {
   Widget build(BuildContext context) {
     if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     return Scaffold(
-      appBar: AppBar(title: const Text('Notifications')),
+      appBar: const RuachAppBar(title: 'Notifications'),
       body: ListView.builder(
-        padding: const EdgeInsets.all(AppSpace.l),
+        padding: const EdgeInsets.all(RuachSpace.s4),
         itemCount: _rows.length,
         itemBuilder: (_, i) {
           final n = _rows[i];
@@ -49,8 +51,8 @@ class _UserNotificationsPageState extends State<UserNotificationsPage> {
               title: Text(n.title),
               subtitle: Text(n.body),
               trailing: n.readAt == null
-                  ? const Icon(Icons.brightness_1, size: 10, color: AppColors.accent)
-                  : const Icon(Icons.done_all_rounded, size: 18),
+                  ? const Icon(PhosphorIconsFill.circle, size: 10, color: RuachColors.gold600)
+                  : const Icon(PhosphorIconsRegular.checks, size: 18),
             ),
           );
         },

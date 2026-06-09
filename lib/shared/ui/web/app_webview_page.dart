@@ -1,6 +1,8 @@
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class AppWebViewPage extends StatefulWidget {
   const AppWebViewPage({
@@ -35,17 +37,18 @@ class _AppWebViewPageState extends State<AppWebViewPage> {
     final c = _controller;
     if (c == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.title)),
+        appBar: RuachAppBar(title: widget.title, showBack: true),
         body: EmptyState(title: 'Lien invalide', subtitle: widget.emptyLabel),
       );
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
+      appBar: RuachAppBar(
+        title: widget.title,
+        showBack: true,
         actions: [
           IconButton(
             onPressed: c.reload,
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(PhosphorIconsRegular.arrowsClockwise),
           ),
         ],
       ),

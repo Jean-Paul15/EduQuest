@@ -1,12 +1,13 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
     required this.title,
     required this.subtitle,
-    this.icon = Icons.inbox_rounded,
+    this.icon = PhosphorIconsRegular.tray,
     this.actionLabel,
     this.onAction,
   });
@@ -38,7 +39,7 @@ class EmptyState extends StatelessWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: RuachColors.cream900,
             ),
             textAlign: TextAlign.center,
           ),
@@ -46,7 +47,7 @@ class EmptyState extends StatelessWidget {
           Text(
             subtitle,
             style: const TextStyle(
-              color: AppColors.textSecondary,
+              color: RuachColors.cream500,
               fontSize: 14,
             ),
             textAlign: TextAlign.center,
@@ -55,7 +56,7 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton.icon(
               onPressed: onAction,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
+              icon: const Icon(PhosphorIconsRegular.arrowsClockwise, size: 18),
               label: Text(actionLabel!),
             ),
           ],

@@ -3,7 +3,10 @@ import 'package:eduquest/features/home/presentation/widgets/access_banner.dart';
 import 'package:eduquest/features/tickets/data/ticket_repository.dart';
 import 'package:eduquest/features/tickets/presentation/ticket_activation_sheet.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class TicketsPage extends StatefulWidget {
   const TicketsPage({super.key});
@@ -27,23 +30,23 @@ class _TicketsPageState extends State<TicketsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tickets')),
+      appBar: const RuachAppBar(title: 'Tickets'),
       body: ListView(
-        padding: const EdgeInsets.all(AppSpace.l),
+        padding: const EdgeInsets.all(RuachSpace.s4),
         children: [
           AccessBanner(access: _access),
-          const SizedBox(height: AppSpace.l),
+          const SizedBox(height: RuachSpace.s4),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
+            child: RuachButton(
+              label: 'Activer un code ticket',
               onPressed: () => showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
                 builder: (_) =>
                     TicketActivationSheet(repository: TicketRepository()),
               ),
-              icon: const Icon(Icons.confirmation_num_outlined),
-              label: const Text('Activer un code ticket'),
+              icon: PhosphorIconsRegular.ticket,
             ),
           ),
         ],

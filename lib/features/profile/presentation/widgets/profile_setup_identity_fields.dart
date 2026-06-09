@@ -1,5 +1,6 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ProfileSetupIdentityFields extends StatelessWidget {
   const ProfileSetupIdentityFields({
@@ -21,28 +22,28 @@ class ProfileSetupIdentityFields extends StatelessWidget {
           'Nom complet',
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: RuachColors.cream900,
           ),
         ),
-        const SizedBox(height: AppSpace.s),
+        const SizedBox(height: RuachSpace.s2),
         TextField(
           controller: nameCtrl,
           decoration: InputDecoration(
             hintText: 'Ex: Kossi Kodjo',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.s),
+              borderRadius: BorderRadius.circular(RuachRadius.md),
             ),
           ),
         ),
-        const SizedBox(height: AppSpace.m),
+        const SizedBox(height: RuachSpace.s3),
         TextField(
           controller: phoneCtrl,
           keyboardType: TextInputType.phone,
           decoration: InputDecoration(
             hintText: countryCode == 'TG' ? 'Ex: 90123456' : 'Numéro',
-            prefixIcon: const Icon(Icons.phone_rounded, size: 18),
+            prefixIcon: const Icon(PhosphorIconsRegular.phone, size: 18),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.s),
+              borderRadius: BorderRadius.circular(RuachRadius.md),
             ),
           ),
         ),

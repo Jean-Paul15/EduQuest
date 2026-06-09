@@ -8,6 +8,7 @@ import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ChapterQuizListPage extends StatefulWidget {
   const ChapterQuizListPage({
@@ -82,44 +83,44 @@ class _ChapterQuizListPageState extends State<ChapterQuizListPage>
       return const EmptyState(
         title: 'Aucun QCM',
         subtitle: 'Pas de QCM pour ce chapitre.',
-        icon: Icons.quiz_outlined,
+        icon: PhosphorIconsRegular.puzzlePiece,
       );
     }
     return ListView.separated(
-      padding: const EdgeInsets.all(AppSpace.l),
+      padding: const EdgeInsets.all(RuachSpace.s4),
       itemCount: _items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpace.s),
+      separatorBuilder: (_, __) => const SizedBox(height: RuachSpace.s2),
       itemBuilder: (_, i) {
         final e = _items[i];
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            border: Border.all(color: AppColors.divider),
-            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: RuachColors.cream200),
+            borderRadius: BorderRadius.circular(RuachRadius.lg),
           ),
           child: ListTile(
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(AppRadius.xs),
+                color: RuachColors.gold500.withValues(alpha: .08),
+                borderRadius: BorderRadius.circular(RuachRadius.sm),
               ),
               child: const Icon(
-                Icons.quiz_rounded,
+                PhosphorIconsRegular.puzzlePiece,
                 size: 20,
-                color: AppColors.primary,
+                color: RuachColors.gold500,
               ),
             ),
             title: Text(
               e.title,
               style: const TextStyle(
-                color: AppColors.textPrimary,
+                color: RuachColors.cream900,
                 fontWeight: FontWeight.w500,
               ),
             ),
             trailing: const Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.textTertiary,
+              PhosphorIconsRegular.caretRight,
+              color: RuachColors.cream700,
             ),
             onTap: () => Navigator.push(
               context,

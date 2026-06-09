@@ -31,7 +31,7 @@ class _LoadingShimmerPageState extends State<LoadingShimmerPage>
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppSpace.l),
+          padding: const EdgeInsets.all(RuachSpace.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -66,7 +66,7 @@ class _ShimmerStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = AppColors.divider.withValues(alpha: .65);
+    final base = RuachColors.cream200.withValues(alpha: .65);
     return LayoutBuilder(
       builder: (_, c) {
         final w = width ?? c.maxWidth;
@@ -74,7 +74,7 @@ class _ShimmerStrip extends StatelessWidget {
           width: width,
           height: height,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.s),
+            borderRadius: BorderRadius.circular(RuachRadius.md),
             child: Stack(
               children: [
                 Container(color: base),

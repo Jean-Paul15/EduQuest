@@ -4,6 +4,7 @@ import 'package:eduquest/features/gamification/data/revision_tracker.dart';
 import 'package:eduquest/features/offline/data/pdf_runtime_cache.dart';
 import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
@@ -104,7 +105,7 @@ class AppPdfViewerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SensitiveScope(
       child: Scaffold(
-        appBar: AppBar(title: Text(title)),
+        appBar: RuachAppBar(title: title, showBack: true),
         body: AppPdfViewer(url: url, emptyLabel: emptyLabel),
       ),
     );

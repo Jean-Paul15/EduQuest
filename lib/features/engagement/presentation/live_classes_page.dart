@@ -2,8 +2,10 @@ import 'package:eduquest/features/engagement/data/live_classes_repository.dart';
 import 'package:eduquest/features/engagement/domain/live_class_item.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class LiveClassesPage extends StatefulWidget {
   const LiveClassesPage({super.key});
@@ -56,9 +58,9 @@ class _LiveClassesPageState extends State<LiveClassesPage>
     return RefreshIndicator(
       onRefresh: () => _load(forceRefresh: true),
       child: ListView.separated(
-        padding: const EdgeInsets.all(AppSpace.l),
+        padding: const EdgeInsets.all(RuachSpace.s4),
         itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: AppSpace.s),
+        separatorBuilder: (_, __) => const SizedBox(height: RuachSpace.s2),
         itemBuilder: (_, i) => _card(_items[i], s),
       ),
     );
@@ -69,23 +71,23 @@ class _LiveClassesPageState extends State<LiveClassesPage>
 
   Widget _card(LiveClassItem e, ColorScheme s) {
     return Container(
-      padding: const EdgeInsets.all(AppSpace.m),
+      padding: const EdgeInsets.all(RuachSpace.s3),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border.all(color: AppColors.divider),
-        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: RuachColors.cream200),
+        borderRadius: BorderRadius.circular(RuachRadius.lg),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AppSpace.s),
+            padding: const EdgeInsets.all(RuachSpace.s2),
             decoration: BoxDecoration(
               color: s.primary.withValues(alpha: .08),
-              borderRadius: BorderRadius.circular(AppRadius.xs),
+              borderRadius: BorderRadius.circular(RuachRadius.sm),
             ),
-            child: Icon(Icons.videocam_rounded, size: 20, color: s.primary),
+            child: Icon(PhosphorIconsRegular.videoCamera, size: 20, color: s.primary),
           ),
-          const SizedBox(width: AppSpace.m),
+          const SizedBox(width: RuachSpace.s3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +96,7 @@ class _LiveClassesPageState extends State<LiveClassesPage>
                   e.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: RuachColors.cream900,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -102,23 +104,16 @@ class _LiveClassesPageState extends State<LiveClassesPage>
                   '${e.startsAt.toLocal()} — ${e.endsAt.toLocal()}',
                   style: const TextStyle(
                     fontSize: 12,
-                    color: AppColors.textTertiary,
+                    color: RuachColors.cream700,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: AppSpace.s),
-          FilledButton(
+          const SizedBox(width: RuachSpace.s2),
+          RuachButton(
+            label: 'Rejoindre',
             onPressed: () => _open(e.zoomLink),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.m,
-                vertical: AppSpace.s,
-              ),
-              textStyle: const TextStyle(fontSize: 13),
-            ),
-            child: const Text('Rejoindre'),
           ),
         ],
       ),

@@ -1,7 +1,10 @@
 import 'package:eduquest/features/marketplace/domain/marketplace_item.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class MarketplaceItemDetailPage extends StatelessWidget {
   const MarketplaceItemDetailPage({super.key, required this.item});
@@ -14,13 +17,13 @@ class MarketplaceItemDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail')),
+      appBar: const RuachAppBar(title: 'Detail'),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
             ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.card),
+              borderRadius: BorderRadius.circular(RuachRadius.lg),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Image.network(
@@ -37,7 +40,7 @@ class MarketplaceItemDetailPage extends StatelessWidget {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: RuachColors.cream900,
             ),
           ),
           const SizedBox(height: 8),
@@ -50,7 +53,7 @@ class MarketplaceItemDetailPage extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: s.primary.withValues(alpha: .08),
-                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                  borderRadius: BorderRadius.circular(RuachRadius.sm),
                 ),
                 child: Text(
                   item.type.toUpperCase(),
@@ -67,7 +70,7 @@ class MarketplaceItemDetailPage extends StatelessWidget {
                   item.priceLabel!,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: RuachColors.cream900,
                   ),
                 ),
               ],
@@ -76,10 +79,10 @@ class MarketplaceItemDetailPage extends StatelessWidget {
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
+            child: RuachButton(
+              label: 'Acheter sur le site',
               onPressed: _open,
-              icon: const Icon(Icons.open_in_new_rounded, size: 18),
-              label: const Text('Acheter sur le site'),
+              icon: PhosphorIconsRegular.arrowSquareOut,
             ),
           ),
         ],

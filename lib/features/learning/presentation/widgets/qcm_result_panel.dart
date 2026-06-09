@@ -1,5 +1,7 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class QcmResultPanel extends StatelessWidget {
   const QcmResultPanel({
@@ -30,7 +32,7 @@ class QcmResultPanel extends StatelessWidget {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: RuachColors.cream900,
             letterSpacing: -0.3,
           ),
         ),
@@ -43,18 +45,18 @@ class QcmResultPanel extends StatelessWidget {
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
+          child: RuachButton(
+            label: 'Recommencer',
             onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('Recommencer'),
+            icon: PhosphorIconsRegular.arrowsClockwise,
           ),
         ),
         const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,
-          child: OutlinedButton(
+          child: RuachOutlineButton(
+            label: 'Terminer',
             onPressed: () => Navigator.pop(context),
-            child: const Text('Terminer'),
           ),
         ),
       ],
@@ -66,9 +68,9 @@ class QcmResultPanel extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.canvasLight,
-        borderRadius: BorderRadius.circular(AppRadius.s),
-        border: Border.all(color: AppColors.divider),
+        color: RuachColors.cream50,
+        borderRadius: BorderRadius.circular(RuachRadius.md),
+        border: Border.all(color: RuachColors.cream200),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,7 +78,7 @@ class QcmResultPanel extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: AppColors.textSecondary,
+              color: RuachColors.cream500,
               fontSize: 14,
             ),
           ),
@@ -84,7 +86,7 @@ class QcmResultPanel extends StatelessWidget {
             value,
             style: const TextStyle(
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: RuachColors.cream900,
               fontSize: 14,
             ),
           ),

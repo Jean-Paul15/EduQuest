@@ -5,7 +5,7 @@ class CompactPanel extends StatelessWidget {
   const CompactPanel({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(AppSpace.l),
+    this.padding = const EdgeInsets.all(RuachSpace.s4),
     this.margin = const EdgeInsets.only(bottom: 10),
   });
 
@@ -20,8 +20,8 @@ class CompactPanel extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.divider),
+        borderRadius: BorderRadius.circular(RuachRadius.lg),
+        border: Border.all(color: RuachColors.cream200),
       ),
       child: child,
     );

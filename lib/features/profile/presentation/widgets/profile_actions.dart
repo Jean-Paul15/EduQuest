@@ -1,5 +1,6 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ProfileActions extends StatelessWidget {
   const ProfileActions({
@@ -23,28 +24,28 @@ class ProfileActions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _action(
-          Icons.widgets_rounded,
+          PhosphorIconsRegular.squaresFour,
           'Mettre à jour le widget',
           onWidgetUpdate,
         ),
         _action(
-          Icons.add_to_home_screen_rounded,
+          PhosphorIconsRegular.deviceMobile,
           "Ajouter le widget à l'accueil",
           onWidgetPin,
         ),
-        const Divider(color: AppColors.divider, height: AppSpace.xxl),
-        _action(Icons.gavel_rounded, "Conditions d'utilisation", onOpenTerms),
+        const Divider(color: RuachColors.cream200, height: RuachSpace.s6),
+        _action(PhosphorIconsRegular.scales, "Conditions d'utilisation", onOpenTerms),
         _action(
-          Icons.privacy_tip_rounded,
+          PhosphorIconsRegular.shieldCheck,
           'Politique de confidentialité',
           onOpenPrivacy,
         ),
-        const Divider(color: AppColors.divider, height: AppSpace.xxl),
+        const Divider(color: RuachColors.cream200, height: RuachSpace.s6),
         _action(
-          Icons.logout_rounded,
+          PhosphorIconsRegular.signOut,
           'Se déconnecter',
           onSignOut,
-          color: AppColors.error,
+          color: RuachColors.error400,
         ),
       ],
     );
@@ -58,10 +59,10 @@ class ProfileActions extends StatelessWidget {
   }) {
     return TextButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 20, color: color ?? AppColors.textSecondary),
+      icon: Icon(icon, size: 20, color: color ?? RuachColors.cream500),
       label: Text(
         label,
-        style: TextStyle(color: color ?? AppColors.textPrimary),
+        style: TextStyle(color: color ?? RuachColors.cream900),
       ),
     );
   }

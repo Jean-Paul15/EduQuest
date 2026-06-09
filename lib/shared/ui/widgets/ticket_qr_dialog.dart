@@ -1,4 +1,5 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -14,10 +15,10 @@ Future<void> showTicketQrDialog(
     builder: (_) => Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.card),
+        borderRadius: BorderRadius.circular(RuachRadius.lg),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpace.l),
+        padding: const EdgeInsets.all(RuachSpace.s4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -25,16 +26,16 @@ Future<void> showTicketQrDialog(
               title,
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: RuachColors.cream900,
               ),
             ),
-            const SizedBox(height: AppSpace.m),
+            const SizedBox(height: RuachSpace.s3),
             Container(
-              padding: const EdgeInsets.all(AppSpace.s),
+              padding: const EdgeInsets.all(RuachSpace.s2),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(AppRadius.card),
-                border: Border.all(color: AppColors.divider),
+                borderRadius: BorderRadius.circular(RuachRadius.lg),
+                border: Border.all(color: RuachColors.cream200),
               ),
               child: QrImageView(
                 data: value,
@@ -42,21 +43,18 @@ Future<void> showTicketQrDialog(
                 backgroundColor: Colors.white,
               ),
             ),
-            const SizedBox(height: AppSpace.m),
+            const SizedBox(height: RuachSpace.s3),
             SelectableText(
               value,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: RuachColors.cream900,
               ),
             ),
-            const SizedBox(height: AppSpace.m),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Fermer'),
-              ),
+            const SizedBox(height: RuachSpace.s3),
+            RuachButton(
+              label: 'Fermer',
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         ),

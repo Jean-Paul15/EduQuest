@@ -21,8 +21,8 @@ class LocalReminderService {
     await android?.createNotificationChannel(
       const AndroidNotificationChannel(
         'eduquest_alerts',
-        'EduQuest Alerts',
-        description: 'Notifications importantes EduQuest',
+        'RuachEdu Alerts',
+        description: 'Notifications importantes RuachEdu',
         importance: Importance.max,
         playSound: true,
       ),
@@ -60,7 +60,7 @@ class LocalReminderService {
       android: AndroidNotificationDetails(
         'revision_daily',
         'Rappels révision',
-        channelDescription: 'Rappels quotidiens EduQuest',
+        channelDescription: 'Rappels quotidiens RuachEdu',
         importance: Importance.high,
         priority: Priority.high,
       ),
@@ -100,7 +100,7 @@ class LocalReminderService {
         android: AndroidNotificationDetails(
           'revision_daily',
           'Rappels révision',
-          channelDescription: 'Rappels quotidiens EduQuest',
+          channelDescription: 'Rappels quotidiens RuachEdu',
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -122,7 +122,7 @@ class LocalReminderService {
         android: AndroidNotificationDetails(
           'revision_daily',
           'Rappels révision',
-          channelDescription: 'Rappels quotidiens EduQuest',
+          channelDescription: 'Rappels quotidiens RuachEdu',
           importance: Importance.high,
           priority: Priority.high,
         ),

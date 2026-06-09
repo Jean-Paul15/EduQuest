@@ -2,19 +2,17 @@ import 'dart:async';
 import 'package:eduquest/features/access/data/access_repository.dart';
 import 'package:eduquest/features/app_config/data/app_config_repository.dart';
 import 'package:eduquest/features/learning/data/exam_repository.dart';
-import 'package:eduquest/features/learning/domain/exam_category.dart';
 import 'package:eduquest/features/learning/data/learning_catalog_repository.dart';
 import 'package:eduquest/features/learning/data/learning_warmup_service.dart';
+import 'package:eduquest/features/learning/domain/exam_category.dart';
 import 'package:eduquest/features/learning/domain/learning_section.dart';
 import 'package:eduquest/features/learning/domain/learning_subject.dart';
-import 'package:eduquest/features/learning/presentation/pages/chapter_list_page.dart';
-import 'package:eduquest/features/learning/presentation/pages/exam_list_page.dart';
+import 'package:eduquest/features/learning/presentation/pages/load_section_subjects.dart';
+import 'package:eduquest/features/learning/presentation/pages/open_subject_navigation.dart';
+import 'package:eduquest/features/learning/presentation/pages/subject_section_body.dart';
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/shared/network/network_probe.dart';
-import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
-import 'package:eduquest/shared/ui/widgets/empty_state.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SubjectSectionPage extends StatefulWidget {
@@ -26,77 +24,33 @@ class SubjectSectionPage extends StatefulWidget {
 
 class _SubjectSectionPageState extends State<SubjectSectionPage>
     with AutomaticKeepAliveClientMixin {
-  final _catalog = LearningCatalogRepository();
-  final _exams = ExamRepository();
-  final _warmup = LearningWarmupService();
-  final _notif = NotificationService();
-  final _accessRepo = AccessRepository();
-  final _configRepo = AppConfigRepository();
+  final _catalog = LearningCatalogRepository(), _exams = ExamRepository(), _warmup = LearningWarmupService();
+  final _notif = NotificationService(), _accessRepo = AccessRepository(), _configRepo = AppConfigRepository();
   List<LearningSubject> _items = const [];
   bool _loading = true;
   String? _openingId;
   bool _offlineWarned = false;
   Map<String, String> _learningAccess = const {};
-  AccessState _access = const AccessState(
-    tier: 'FREE',
-    hasAccess: true,
-    expiresAt: null,
-  );
-
+  AccessState _access = const AccessState(tier: 'FREE', hasAccess: true, expiresAt: null);
   @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
+  void initState() { super.initState(); _load(); }
   Future<void> _load() async {
     if (mounted && _items.isEmpty) setState(() => _loading = true);
-    final accessF = _accessRepo.resolveAccess();
-    final learningAccessF = _configRepo.loadLearningAccess();
-    final s = widget.section;
-    final hadCache = switch (s) {
-      LearningSection.exams => await _exams.hasSubjectsCache(
-        ExamCategory.national,
-      ),
-      LearningSection.epreuves => await _exams.hasSubjectsCache(
-        ExamCategory.epreuve,
-      ),
-      LearningSection.mockExams => await _exams.hasSubjectsCache(
-        ExamCategory.mock,
-      ),
-      _ => await _catalog.hasSubjectsCacheForCourses(),
-    };
-    final data = switch (s) {
-      LearningSection.exams => await _exams.subjects(ExamCategory.national),
-      LearningSection.epreuves => await _exams.subjects(ExamCategory.epreuve),
-      LearningSection.mockExams => await _exams.subjects(ExamCategory.mock),
-      _ => await _catalog.subjectsForCourses(),
-    };
-    final access = await accessF;
-    final learningAccess = await learningAccessF;
-    if (mounted) {
-      setState(() {
-        _items = data;
-        _loading = false;
-        _access = access;
-        _learningAccess = learningAccess;
-      });
-    }
-    if (data.isEmpty) {
-      await _warnIfOfflineBootstrap(
-        hadCache: hadCache,
-        label: 'les matières de ${widget.section.label}',
-      );
-    }
-    for (final sub in data.take(8)) {
-      unawaited(_warmup.warmBeforeOpenSubject(s, sub.id));
-    }
+    await loadSectionSubjects(
+      section: widget.section, examRepo: _exams, catalogRepo: _catalog,
+      accessRepo: _accessRepo, configRepo: _configRepo, warmupService: _warmup,
+      isMounted: () => mounted,
+      onDataLoaded: (items, access, learningAccess) {
+        if (mounted) {
+          setState(() {
+            _items = items; _loading = false; _access = access; _learningAccess = learningAccess;
+          });
+        }
+      },
+      warnOffline: _warnIfOffline,
+    );
   }
-
-  Future<void> _warnIfOfflineBootstrap({
-    required bool hadCache,
-    required String label,
-  }) async {
+  Future<void> _warnIfOffline({required bool hadCache, required String label}) async {
     if (_offlineWarned || hadCache) return;
     final online = await NetworkProbe.hasConnection();
     if (online || !mounted) return;
@@ -104,182 +58,43 @@ class _SubjectSectionPageState extends State<SubjectSectionPage>
     unawaited(_notif.sendOfflineContentWarning(label));
     await showOfflineBootstrapAlert(context, contentLabel: label);
   }
-
   ExamCategory? get _examCat => switch (widget.section) {
     LearningSection.exams => ExamCategory.national,
     LearningSection.epreuves => ExamCategory.epreuve,
     LearningSection.mockExams => ExamCategory.mock,
     _ => null,
   };
-
-  String get _requiredTier {
-    final key = switch (widget.section) {
-      LearningSection.courses => 'courses',
-      LearningSection.exams => 'exams',
-      LearningSection.epreuves => 'epreuves',
-      LearningSection.mockExams => 'mockExams',
-      LearningSection.videos => 'videos',
-      LearningSection.youtube => 'youtube',
-    };
-    return (_learningAccess[key] ?? 'HALF').toUpperCase();
-  }
-
+  String get _requiredTier => (_learningAccess[switch (widget.section) {
+    LearningSection.courses => 'courses', LearningSection.exams => 'exams',
+    LearningSection.epreuves => 'epreuves', LearningSection.mockExams => 'mockExams',
+    LearningSection.videos => 'videos', LearningSection.youtube => 'youtube',
+  }] ?? 'HALF').toUpperCase();
   bool get _canOpenSection {
     if (_access.hasAccess == false) return false;
-    if (_requiredTier == 'FREE') return true;
-    if (_access.tier == 'ADMIN' || _access.tier == 'CAMPAIGN_FREE') {
-      return true;
-    }
+    if (_requiredTier == 'FREE' || _access.tier == 'ADMIN' || _access.tier == 'CAMPAIGN_FREE') return true;
     const rank = {'FREE': 0, 'HALF': 1, 'FULL': 2};
-    final userRank = rank[_access.tier] ?? -1;
-    final neededRank = rank[_requiredTier] ?? 1;
-    return userRank >= neededRank;
+    return (rank[_access.tier] ?? -1) >= (rank[_requiredTier] ?? 1);
   }
-
-  Future<void> _showAccessDenied() async {
-    if (!mounted) return;
-    await showCupertinoDialog<void>(
-      context: context,
-      builder: (_) => CupertinoAlertDialog(
-        title: const Text('Accès non autorisé'),
-        content: Text(
-          'Ton accès ${_access.tier} ne permet pas d’ouvrir ${widget.section.label}. Ticket requis: $_requiredTier.',
-        ),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Compris'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _open(LearningSubject s) async {
-    if (_canOpenSection == false) {
-      await _showAccessDenied();
-      return;
-    }
-    if (mounted) setState(() => _openingId = s.id);
-    try {
-      if (!mounted) return;
-      final cat = _examCat;
-      if (cat != null) {
-        final papers = await _exams
-            .listBySubject(subjectId: s.id, category: cat)
-            .timeout(const Duration(milliseconds: 1800));
-        if (!mounted) return;
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ExamListPage(
-              subjectId: s.id,
-              subjectLabel: s.label,
-              category: cat,
-              initialEntries: papers,
-            ),
-          ),
-        );
-      } else {
-        final chapters = await _catalog
-            .chaptersBySubject(s.id)
-            .timeout(const Duration(milliseconds: 1800));
-        if (!mounted) return;
-        unawaited(_warmup.warmBeforeOpenSubject(widget.section, s.id));
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChapterListPage(
-              subjectId: s.id,
-              subjectLabel: s.label,
-              section: widget.section,
-              initialChapters: chapters,
-            ),
-          ),
-        );
-      }
-    } catch (_) {
-      if (!mounted) return;
-      final cat = _examCat;
-      if (cat != null) {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ExamListPage(
-              subjectId: s.id,
-              subjectLabel: s.label,
-              category: cat,
-            ),
-          ),
-        );
-      } else {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChapterListPage(
-              subjectId: s.id,
-              subjectLabel: s.label,
-              section: widget.section,
-            ),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _openingId = null);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_items.isEmpty) {
-      return EmptyState(
-        title: 'Aucune matiere',
-        subtitle: 'Aucune matiere disponible dans ${widget.section.label}.',
-      );
-    }
-    return RefreshIndicator(
+    return SubjectSectionBody(
+      loading: _loading, items: _items, sectionLabel: widget.section.label,
+      openingId: _openingId,
+      onItemTap: (s) async {
+        await openSubjectNavigation(
+          context: context, subject: s, section: widget.section,
+          examCategory: _examCat, canOpenSection: _canOpenSection,
+          accessTier: _access.tier, requiredTier: _requiredTier,
+          examRepo: _exams, catalogRepo: _catalog, warmupService: _warmup,
+          onOpeningStarted: () { if (mounted) setState(() => _openingId = s.id); },
+          onOpeningFinished: () { if (mounted) setState(() => _openingId = null); },
+          isMounted: () => mounted,
+        );
+      },
       onRefresh: _load,
-      child: ListView.separated(
-        padding: const EdgeInsets.all(AppSpace.l),
-        itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: AppSpace.s),
-        itemBuilder: (_, i) {
-          final e = _items[i];
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              border: Border.all(color: AppColors.divider),
-              borderRadius: BorderRadius.circular(AppRadius.card),
-            ),
-            child: ListTile(
-              title: Text(
-                e.label,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              trailing: _openingId == e.id
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.textTertiary,
-                    ),
-              onTap: () => _open(e),
-            ),
-          );
-        },
-      ),
     );
   }
-
   @override
   bool get wantKeepAlive => true;
 }

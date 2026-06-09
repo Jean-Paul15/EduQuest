@@ -6,6 +6,7 @@ import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/pdf/app_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class PdfLessonsPage extends StatefulWidget {
   const PdfLessonsPage({super.key});
@@ -63,28 +64,28 @@ class _PdfLessonsPageState extends State<PdfLessonsPage> {
   Widget build(BuildContext context) {
     if (_lessons.isEmpty) return const Center(child: CircularProgressIndicator());
     return ListView.separated(
-      padding: const EdgeInsets.all(AppSpace.l),
+      padding: const EdgeInsets.all(RuachSpace.s4),
       itemCount: _lessons.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpace.s),
+      separatorBuilder: (_, __) => const SizedBox(height: RuachSpace.s2),
       itemBuilder: (_, i) {
         final l = _lessons[i];
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            border: Border.all(color: AppColors.divider),
-            borderRadius: BorderRadius.circular(AppRadius.card)),
+            border: Border.all(color: RuachColors.cream200),
+            borderRadius: BorderRadius.circular(RuachRadius.lg)),
           child: ListTile(
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(AppRadius.xs)),
-              child: const Icon(Icons.picture_as_pdf_rounded, size: 20, color: AppColors.primary)),
+                color: RuachColors.gold500.withValues(alpha: .08),
+                borderRadius: BorderRadius.circular(RuachRadius.sm)),
+              child: const Icon(PhosphorIconsRegular.filePdf, size: 20, color: RuachColors.gold500)),
             title: Text(l.title, style: const TextStyle(
-              color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
+              color: RuachColors.cream900, fontWeight: FontWeight.w500)),
             subtitle: Text(_offline[l.id] == true ? 'Disponible hors ligne' : 'Synchronisation...',
-              style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+              style: const TextStyle(fontSize: 12, color: RuachColors.cream700)),
+            trailing: const Icon(PhosphorIconsRegular.caretRight, color: RuachColors.cream700),
             onTap: () => _open(l)),
         );
       },

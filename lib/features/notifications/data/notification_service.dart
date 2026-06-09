@@ -146,7 +146,7 @@ class NotificationService {
       );
     });
     OneSignal.Notifications.addClickListener((event) {
-      final title = event.notification.title ?? 'Notification EduQuest';
+      final title = event.notification.title ?? 'Notification RuachEdu';
       final body = event.notification.body ?? '';
       final payload = _payload(event.notification.additionalData ?? {});
       payload['deeplink'] = payload['deeplink'] ??
@@ -157,7 +157,7 @@ class NotificationService {
       unawaited(_analytics.track('push_clicked', payload: payload));
     });
     OneSignal.Notifications.addForegroundWillDisplayListener((event) {
-      final title = event.notification.title ?? 'Notification EduQuest';
+      final title = event.notification.title ?? 'Notification RuachEdu';
       final body = event.notification.body ?? '';
       final payload = _payload(event.notification.additionalData ?? {});
       _dispatchPayload(payload, body.isEmpty ? title : '$title • $body');

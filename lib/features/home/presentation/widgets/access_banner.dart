@@ -2,6 +2,7 @@ import 'package:eduquest/features/access/data/access_repository.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/glass_container.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class AccessBanner extends StatelessWidget {
   const AccessBanner({super.key, required this.access});
@@ -30,13 +31,13 @@ class AccessBanner extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: active
-                  ? AppColors.success.withValues(alpha: .1)
-                  : AppColors.error.withValues(alpha: .1),
-              borderRadius: BorderRadius.circular(AppRadius.xs),
+                  ? RuachColors.success600.withValues(alpha: .1)
+                  : RuachColors.error400.withValues(alpha: .1),
+              borderRadius: BorderRadius.circular(RuachRadius.sm),
             ),
             child: Icon(
-              active ? Icons.verified_rounded : Icons.error_outline_rounded,
-              color: active ? AppColors.success : AppColors.error,
+              active ? PhosphorIconsRegular.sealCheck : PhosphorIconsRegular.warningCircle,
+              color: active ? RuachColors.success600 : RuachColors.error400,
               size: 20,
             ),
           ),
@@ -50,14 +51,14 @@ class AccessBanner extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
-                    color: AppColors.textPrimary,
+                    color: RuachColors.cream900,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: RuachColors.cream500,
                     fontSize: 13,
                   ),
                 ),
@@ -68,7 +69,7 @@ class AccessBanner extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: s.primary.withValues(alpha: .08),
-              borderRadius: BorderRadius.circular(AppRadius.xs),
+              borderRadius: BorderRadius.circular(RuachRadius.sm),
             ),
             child: Text(
               active ? 'Actif' : 'Inactif',

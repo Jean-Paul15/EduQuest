@@ -7,6 +7,7 @@ import 'package:eduquest/features/home/presentation/widgets/action_tile.dart';
 import 'package:eduquest/features/home/presentation/widgets/motivational_quote.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class HomeBody extends StatelessWidget {
   const HomeBody({
@@ -46,7 +47,7 @@ class HomeBody extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+                      color: RuachColors.cream900,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -54,7 +55,7 @@ class HomeBody extends StatelessWidget {
                   Text(
                     'Continue ta progression.',
                     style: TextStyle(
-                      color: AppColors.textSecondary,
+                      color: RuachColors.cream500,
                       fontSize: 14,
                     ),
                   ),
@@ -65,10 +66,10 @@ class HomeBody extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: s.primary.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(AppRadius.s),
+                borderRadius: BorderRadius.circular(RuachRadius.md),
               ),
               child: Icon(
-                Icons.local_fire_department_rounded,
+                PhosphorIconsRegular.fire,
                 color: s.primary,
                 size: 22,
               ),
@@ -86,10 +87,10 @@ class HomeBody extends StatelessWidget {
         ActionTile(
           title: 'Activer un ticket',
           subtitle: 'Active ton code ou achete ton ticket sur le site',
-          icon: Icons.confirmation_number_outlined,
+          icon: PhosphorIconsRegular.ticket,
           onTap: onOpenTicket,
           actionLabel: 'Acheter',
-          actionIcon: Icons.shopping_cart_checkout_rounded,
+          actionIcon: PhosphorIconsRegular.shoppingCart,
           onAction: onBuyTicket,
         ),
         const MotivationalQuote(),

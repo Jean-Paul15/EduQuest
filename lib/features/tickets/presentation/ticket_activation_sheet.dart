@@ -1,6 +1,8 @@
 import 'package:eduquest/features/tickets/data/ticket_repository.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class TicketActivationSheet extends StatefulWidget {
   const TicketActivationSheet({
@@ -35,10 +37,10 @@ class _TicketActivationSheetState extends State<TicketActivationSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSpace.l,
-        AppSpace.xxl,
-        AppSpace.l,
-        MediaQuery.of(context).viewInsets.bottom + AppSpace.l,
+        RuachSpace.s4,
+        RuachSpace.s6,
+        RuachSpace.s4,
+        MediaQuery.of(context).viewInsets.bottom + RuachSpace.s4,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -48,45 +50,45 @@ class _TicketActivationSheetState extends State<TicketActivationSheet> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: RuachColors.cream900,
             ),
           ),
-          const SizedBox(height: AppSpace.l),
+          const SizedBox(height: RuachSpace.s4),
           TextField(
             controller: _controller,
             decoration: InputDecoration(
               labelText: 'Code ticket',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.s),
+                borderRadius: BorderRadius.circular(RuachRadius.md),
               ),
             ),
           ),
-          const SizedBox(height: AppSpace.l),
+          const SizedBox(height: RuachSpace.s4),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: _loading ? null : _activate,
-              icon: const Icon(Icons.verified_rounded),
+              icon: const Icon(PhosphorIconsRegular.sealCheck),
               label: Text(_loading ? 'Activation...' : 'Valider'),
             ),
           ),
           if (widget.onBuyTicket != null) ...[
-            const SizedBox(height: AppSpace.s),
+            const SizedBox(height: RuachSpace.s2),
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
+              child: RuachOutlineButton(
+                label: 'Acheter un ticket sur le site',
                 onPressed: widget.onBuyTicket,
-                icon: const Icon(Icons.shopping_cart_checkout_rounded),
-                label: const Text('Acheter un ticket sur le site'),
+                icon: PhosphorIconsRegular.shoppingCart,
               ),
             ),
           ],
           if (_feedback.isNotEmpty) ...[
-            const SizedBox(height: AppSpace.m),
+            const SizedBox(height: RuachSpace.s3),
             Text(
               _feedback,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: const TextStyle(color: RuachColors.cream500),
             ),
           ],
         ],

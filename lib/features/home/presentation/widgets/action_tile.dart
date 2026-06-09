@@ -1,6 +1,8 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/glass_container.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ActionTile extends StatelessWidget {
   const ActionTile({
@@ -34,7 +36,7 @@ class ActionTile extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: s.primary.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(AppRadius.xs),
+                borderRadius: BorderRadius.circular(RuachRadius.sm),
               ),
               child: Icon(icon, color: s.primary, size: 20),
             ),
@@ -48,13 +50,13 @@ class ActionTile extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
-                      color: AppColors.textPrimary,
+                      color: RuachColors.cream900,
                     ),
                   ),
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      color: AppColors.textSecondary,
+                      color: RuachColors.cream500,
                       fontSize: 13,
                     ),
                   ),
@@ -63,15 +65,15 @@ class ActionTile extends StatelessWidget {
             ),
             if (onAction == null)
               Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textTertiary,
+                PhosphorIconsRegular.caretRight,
+                color: RuachColors.cream700,
                 size: 20,
               ),
             if (onAction != null)
-              OutlinedButton.icon(
+              RuachOutlineButton(
+                label: actionLabel ?? 'Voir',
                 onPressed: onAction,
-                icon: Icon(actionIcon ?? Icons.open_in_new_rounded, size: 16),
-                label: Text(actionLabel ?? 'Voir'),
+                icon: actionIcon ?? PhosphorIconsRegular.arrowSquareOut,
               ),
           ],
         ),

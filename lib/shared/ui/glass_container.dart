@@ -38,15 +38,15 @@ class GlassContainer extends StatelessWidget {
                   Colors.white.withValues(alpha: 0.3),
                 ],
         ),
-        borderRadius: BorderRadius.circular(AppRadius.l),
+        borderRadius: BorderRadius.circular(RuachRadius.xl),
         border: Border.all(
-          color: (dark ? Colors.white : AppColors.primary).withValues(
+          color: (dark ? Colors.white : RuachColors.gold500).withValues(
             alpha: 0.12,
           ),
         ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.l),
+        borderRadius: BorderRadius.circular(RuachRadius.xl),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: Padding(padding: padding, child: child),

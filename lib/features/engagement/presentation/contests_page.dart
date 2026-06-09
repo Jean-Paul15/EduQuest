@@ -1,9 +1,9 @@
 import 'package:eduquest/features/engagement/data/engagement_repository.dart';
 import 'package:eduquest/features/engagement/domain/engagement_item.dart';
-import 'package:eduquest/features/engagement/presentation/contest_detail_page.dart';
 import 'package:eduquest/features/engagement/presentation/widgets/engagement_list.dart';
 import 'package:eduquest/shared/analytics/app_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ContestsPage extends StatefulWidget {
   const ContestsPage({super.key});
@@ -42,10 +42,7 @@ class _ContestsPageState extends State<ContestsPage>
       items: _items,
       loading: _loading,
       emptyLabel: 'Aucun concours disponible',
-      onTap: (item) => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ContestDetailPage(id: item.id)),
-      ),
+      onTap: (item) => context.push('/contest/${item.id}'),
       onRefresh: () => _load(forceRefresh: true),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class NetworkMediaPlayer extends StatefulWidget {
   const NetworkMediaPlayer({super.key, required this.url});
@@ -51,8 +52,8 @@ class _NetworkMediaPlayerState extends State<NetworkMediaPlayer> {
                       onPressed: _toggle,
                       icon: Icon(
                         _controller.value.isPlaying
-                            ? Icons.pause_circle
-                            : Icons.play_circle,
+                            ? PhosphorIconsRegular.pauseCircle
+                            : PhosphorIconsRegular.playCircle,
                       ),
                     ),
                   ),

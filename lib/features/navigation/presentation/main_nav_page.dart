@@ -1,26 +1,16 @@
 import 'package:eduquest/features/engagement/data/hub_badge_repository.dart';
-import 'package:eduquest/features/engagement/presentation/contest_detail_page.dart';
-import 'package:eduquest/features/engagement/presentation/engagement_hub_page.dart';
-import 'package:eduquest/features/engagement/presentation/event_detail_page.dart';
-import 'package:eduquest/features/feed/presentation/feed_page.dart';
-import 'package:eduquest/features/home/presentation/home_page.dart';
-import 'package:eduquest/features/learning/presentation/learning_page.dart';
 import 'package:eduquest/features/navigation/data/navigation_prefetch_service.dart';
-import 'package:eduquest/features/navigation/presentation/widgets/nav_badge_icon.dart';
-import 'package:eduquest/features/profile/presentation/profile_page.dart';
+import 'package:eduquest/features/navigation/presentation/widgets/main_nav_bar.dart';
+import 'package:eduquest/features/navigation/presentation/widgets/main_nav_body.dart';
 import 'package:eduquest/shared/deeplink/app_deep_link_command.dart';
 import 'package:eduquest/shared/sync/realtime_auto_sync_service.dart';
 import 'package:eduquest/shared/sync/scope_refresh_bus.dart';
-import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MainNavPage extends StatefulWidget {
-  const MainNavPage({
-    super.key,
-    required this.onThemeToggle,
-    required this.themeMode,
-  });
+  const MainNavPage({super.key, required this.onThemeToggle, required this.themeMode});
   final VoidCallback onThemeToggle;
   final ThemeMode themeMode;
   @override
@@ -38,10 +28,7 @@ class _MainNavPageState extends State<MainNavPage> {
     super.initState();
     _sync = RealtimeAutoSyncService(onSynced: _onSynced);
     _loadBadge();
-    Future<void>.microtask(() async {
-      await _prefetch.tab(0);
-      await _prefetch.neighbors(0);
-    });
+    Future<void>.microtask(() async { await _prefetch.tab(0); await _prefetch.neighbors(0); });
     ScopeRefreshBus.listenable.addListener(_onScopeChanged);
     AppDeepLinkBus.notifier.addListener(_onDeepLinkCommand);
     _sync.start();
@@ -55,16 +42,8 @@ class _MainNavPageState extends State<MainNavPage> {
     super.dispose();
   }
 
-  void _onSynced() {
-    if (!mounted) return;
-    setState(() {});
-    Future<void>.microtask(_loadBadge);
-  }
-
-  Future<void> _loadBadge() async {
-    final n = await _badgeRepo.unseenCount();
-    if (mounted) setState(() => _hubBadge = n);
-  }
+  void _onSynced() { if (mounted) { setState(() {}); Future<void>.microtask(_loadBadge); } }
+  Future<void> _loadBadge() async { final n = await _badgeRepo.unseenCount(); if (mounted) setState(() => _hubBadge = n); }
 
   void _onScopeChanged() {
     if (!mounted) return;
@@ -82,38 +61,20 @@ class _MainNavPageState extends State<MainNavPage> {
       Future<void>.microtask(() => _prefetch.tab(_index));
       Future<void>.microtask(() => _prefetch.neighbors(_index));
     }
-    if (cmd.message.isNotEmpty) {
-      ModernSnackbar.show(context, cmd.message, success: cmd.success);
-    }
-    if (cmd.entityId.isNotEmpty) {
-      Future<void>.microtask(() => _openDeepLinkDetails(cmd.kind, cmd.entityId));
-    }
+    if (cmd.message.isNotEmpty) ModernSnackbar.show(context, cmd.message, success: cmd.success);
+    if (cmd.entityId.isNotEmpty) Future<void>.microtask(() => _openDeepLinkDetails(cmd.kind, cmd.entityId));
     Future<void>.microtask(_loadBadge);
     AppDeepLinkBus.clear();
   }
 
   Future<void> _openDeepLinkDetails(String kind, String id) async {
     if (!mounted) return;
-    if (kind == 'event') {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => EventDetailPage(id: id)),
-      );
-      return;
-    }
-    if (kind == 'contest') {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ContestDetailPage(id: id)),
-      );
-    }
+    if (kind == 'event') { await context.push('/event/$id'); return; }
+    if (kind == 'contest') await context.push('/contest/$id');
   }
 
   Future<void> _onNavTap(int value) async {
-    if (_index == value) {
-      Future<void>.microtask(() => _prefetch.tab(value));
-      return;
-    }
+    if (_index == value) { Future<void>.microtask(() => _prefetch.tab(value)); return; }
     setState(() => _index = value);
     Future<void>.microtask(() => _prefetch.tab(value));
     Future<void>.microtask(() => _prefetch.neighbors(value));
@@ -123,68 +84,8 @@ class _MainNavPageState extends State<MainNavPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: [
-          HomePage(
-            onThemeToggle: widget.onThemeToggle,
-            themeMode: widget.themeMode,
-          ),
-          FeedPage(key: ValueKey('feed-$_scopeRev')),
-          LearningPage(key: ValueKey('learn-$_scopeRev')),
-          EngagementHubPage(key: ValueKey('hub-$_scopeRev')),
-          ProfilePage(
-            onThemeToggle: widget.onThemeToggle,
-            themeMode: widget.themeMode,
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).navigationBarTheme.backgroundColor,
-          border: const Border(
-            top: BorderSide(color: AppColors.divider, width: 0.5),
-          ),
-        ),
-        child: NavigationBar(
-          selectedIndex: _index,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          onDestinationSelected: _onNavTap,
-          destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded),
-              label: 'Accueil',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.explore_outlined),
-              selectedIcon: Icon(Icons.explore_rounded),
-              label: 'Feed',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.auto_stories_outlined),
-              selectedIcon: Icon(Icons.auto_stories_rounded),
-              label: 'Apprendre',
-            ),
-            NavigationDestination(
-              icon: NavBadgeIcon(
-                icon: Icons.grid_view_outlined,
-                count: _hubBadge,
-              ),
-              selectedIcon: NavBadgeIcon(
-                icon: Icons.grid_view_rounded,
-                count: _hubBadge,
-              ),
-              label: 'Hub',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Profil',
-            ),
-          ],
-        ),
-      ),
+      body: MainNavBody(index: _index, scopeRev: _scopeRev, onThemeToggle: widget.onThemeToggle, themeMode: widget.themeMode),
+      bottomNavigationBar: MainNavBar(selectedIndex: _index, hubBadge: _hubBadge, onDestinationSelected: _onNavTap),
     );
   }
 }

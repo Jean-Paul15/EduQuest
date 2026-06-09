@@ -2,10 +2,13 @@ import 'package:eduquest/features/class_selection/presentation/class_selection_p
 import 'package:eduquest/features/profile/data/profile_setup_repository.dart';
 import 'package:eduquest/features/profile/presentation/widgets/profile_setup_identity_fields.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:eduquest/shared/ui/widgets/loading_shimmer_page.dart';
 import 'package:eduquest/shared/validation/phone_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ProfileSetupGatePage extends StatefulWidget {
   const ProfileSetupGatePage({super.key, required this.onDone});
@@ -76,24 +79,24 @@ class _ProfileSetupGatePageState extends State<ProfileSetupGatePage> {
   Widget build(BuildContext context) {
     if (_loading) return const LoadingShimmerPage();
     return Scaffold(
-      appBar: AppBar(title: const Text('Completer ton profil')),
+      appBar: const RuachAppBar(title: 'Completer ton profil'),
       body: ListView(
-        padding: const EdgeInsets.all(AppSpace.l),
+        padding: const EdgeInsets.all(RuachSpace.s4),
         children: [
           ProfileSetupIdentityFields(
             nameCtrl: _nameCtrl,
             phoneCtrl: _phoneCtrl,
             countryCode: _countryCode,
           ),
-          const SizedBox(height: AppSpace.l),
+          const SizedBox(height: RuachSpace.s4),
           ClassSelectionPanel(onChanged: _reload),
-          const SizedBox(height: AppSpace.xxl),
+          const SizedBox(height: RuachSpace.s6),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
+            child: RuachButton(
+              label: _saving ? 'Validation...' : 'Continuer',
               onPressed: _saving ? null : _continue,
-              icon: const Icon(Icons.check_circle_rounded),
-              label: Text(_saving ? 'Validation...' : 'Continuer'),
+              icon: PhosphorIconsRegular.checkCircle,
             ),
           ),
         ],

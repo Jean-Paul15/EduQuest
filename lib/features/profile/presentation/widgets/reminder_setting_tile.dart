@@ -1,5 +1,6 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ReminderSettingTile extends StatelessWidget {
   const ReminderSettingTile({
@@ -27,13 +28,13 @@ class ReminderSettingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.m,
-        vertical: AppSpace.s,
+        horizontal: RuachSpace.s3,
+        vertical: RuachSpace.s2,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border.all(color: AppColors.divider),
-        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: RuachColors.cream200),
+        borderRadius: BorderRadius.circular(RuachRadius.lg),
       ),
       child: Row(
         children: [
@@ -45,7 +46,7 @@ class ReminderSettingTile extends StatelessWidget {
                   'Rappel quotidien',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: RuachColors.cream900,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -53,7 +54,7 @@ class ReminderSettingTile extends StatelessWidget {
                   enabled ? 'Heure : ${_label()}' : 'Désactivé',
                   style: const TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: RuachColors.cream500,
                   ),
                 ),
               ],
@@ -62,7 +63,7 @@ class ReminderSettingTile extends StatelessWidget {
           Switch(value: enabled, onChanged: onToggle),
           IconButton(
             onPressed: enabled ? onPickTime : null,
-            icon: const Icon(Icons.schedule_rounded),
+            icon: const Icon(PhosphorIconsRegular.clock),
             tooltip: "Choisir l'heure",
           ),
         ],

@@ -1,32 +1,37 @@
-import 'package:eduquest/app/app_shell.dart';
+import 'package:eduquest/app/router/app_router.dart';
 import 'package:eduquest/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class EduQuestApp extends StatefulWidget {
-  const EduQuestApp({super.key});
+class RuachEduApp extends StatefulWidget {
+  const RuachEduApp({super.key});
 
   @override
-  State<EduQuestApp> createState() => _EduQuestAppState();
+  State<RuachEduApp> createState() => _RuachEduAppState();
 }
 
-class _EduQuestAppState extends State<EduQuestApp> {
-  ThemeMode _themeMode = ThemeMode.light;
+class _RuachEduAppState extends State<RuachEduApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+  late var _router = appRouter(
+    onThemeToggle: _toggleTheme,
+    themeMode: _themeMode,
+  );
 
   void _toggleTheme() {
     setState(() {
       _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+      _router = appRouter(onThemeToggle: _toggleTheme, themeMode: _themeMode);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'EduQuest',
+    return MaterialApp.router(
+      title: 'RuachEdu',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: _themeMode,
-      home: AppShell(onThemeToggle: _toggleTheme, themeMode: _themeMode),
+      routerConfig: _router,
     );
   }
 }

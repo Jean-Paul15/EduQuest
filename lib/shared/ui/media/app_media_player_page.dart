@@ -3,6 +3,7 @@ import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/shared/ui/media/network_media_player.dart';
 import 'package:eduquest/shared/ui/media/youtube_media_player.dart';
 import 'package:eduquest/shared/ui/media/youtube_url_parser.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class AppMediaPlayerPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _AppMediaPlayerPageState extends State<AppMediaPlayerPage> {
   Widget build(BuildContext context) {
     return SensitiveScope(
       child: Scaffold(
-        appBar: AppBar(title: Text(widget.title)),
+        appBar: RuachAppBar(title: widget.title, showBack: true),
         body: _playYoutube
             ? YoutubeMediaPlayer(url: widget.url)
             : NetworkMediaPlayer(url: widget.url),

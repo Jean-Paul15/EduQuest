@@ -12,7 +12,7 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await dotenv.load(fileName: '.env');
   await SupabaseBootstrap.initialize();
-  runApp(const EduQuestApp());
+  runApp(const RuachEduApp());
   unawaited(_startBackgroundInit());
 }
 

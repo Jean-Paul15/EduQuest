@@ -4,6 +4,9 @@ import 'package:eduquest/features/surveys/domain/survey_question.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_chip.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_progress.dart';
 import 'package:flutter/material.dart';
 
 class OrientationPage extends StatefulWidget {
@@ -74,20 +77,13 @@ class _OrientationPageState extends State<OrientationPage> {
     }
     final cur = _q[_i];
     return ListView(padding: const EdgeInsets.all(20), children: [
-      ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: LinearProgressIndicator(
-          value: (_i + 1) / _q.length,
-          minHeight: 4,
-          backgroundColor: AppColors.divider,
-        ),
-      ),
+      RuachProgressBar(value: (_i + 1) / _q.length),
       const SizedBox(height: 12),
       Text(
         'Question ${_i + 1} / ${_q.length}',
         style: const TextStyle(
           fontWeight: FontWeight.w600,
-          color: AppColors.textSecondary,
+          color: RuachColors.cream500,
           fontSize: 13,
         ),
       ),
@@ -97,7 +93,7 @@ class _OrientationPageState extends State<OrientationPage> {
         style: const TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
+          color: RuachColors.cream900,
           height: 1.4,
         ),
       ),
@@ -107,10 +103,10 @@ class _OrientationPageState extends State<OrientationPage> {
           spacing: 8,
           runSpacing: 8,
           children: cur.options
-              .map((o) => ChoiceChip(
-                    label: Text(o),
+              .map((o) => RuachChip(
+                    label: o,
                     selected: _answers[cur.id] == o,
-                    onSelected: (_) =>
+                    onTap: () =>
                         setState(() => _answers[cur.id] = o),
                   ))
               .toList(),
@@ -124,13 +120,11 @@ class _OrientationPageState extends State<OrientationPage> {
       const SizedBox(height: 16),
       SizedBox(
         width: double.infinity,
-        child: FilledButton(
+        child: RuachButton(
+          label: _sending
+              ? 'Analyse...'
+              : (_i == _q.length - 1 ? 'Terminer' : 'Suivant'),
           onPressed: _sending ? null : _next,
-          child: Text(
-            _sending
-                ? 'Analyse...'
-                : (_i == _q.length - 1 ? 'Terminer' : 'Suivant'),
-          ),
         ),
       ),
       if (_result.isNotEmpty) ...[
@@ -138,7 +132,7 @@ class _OrientationPageState extends State<OrientationPage> {
         Text(
           _result,
           style: const TextStyle(
-            color: AppColors.textPrimary,
+            color: RuachColors.cream900,
             height: 1.5,
           ),
         ),

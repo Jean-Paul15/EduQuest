@@ -7,6 +7,7 @@ import 'package:eduquest/shared/ui/pdf/app_pdf_viewer.dart';
 import 'package:eduquest/shared/ui/web/app_webview_page.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ResourceLearningPage extends StatefulWidget {
   const ResourceLearningPage({
@@ -91,31 +92,31 @@ class _ResourceLearningPageState extends State<ResourceLearningPage> {
       return EmptyState(
         title: 'Section vide',
         subtitle: widget.emptyLabel,
-        icon: Icons.menu_book_rounded,
+        icon: PhosphorIconsRegular.bookOpen,
       );
     }
     return ListView.separated(
-      padding: const EdgeInsets.all(AppSpace.l),
+      padding: const EdgeInsets.all(RuachSpace.s4),
       itemCount: _items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpace.s),
+      separatorBuilder: (_, __) => const SizedBox(height: RuachSpace.s2),
       itemBuilder: (_, i) {
         final e = _items[i];
         final icon = _pdfMode
-            ? Icons.picture_as_pdf_rounded
+            ? PhosphorIconsRegular.filePdf
             : _videoMode
-            ? Icons.play_circle_outlined
-            : Icons.open_in_browser_rounded;
+            ? PhosphorIconsRegular.playCircle
+            : PhosphorIconsRegular.browser;
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            border: Border.all(color: AppColors.divider),
-            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: RuachColors.cream200),
+            borderRadius: BorderRadius.circular(RuachRadius.lg),
           ),
           child: ListTile(
             title: Text(
               e.title,
               style: const TextStyle(
-                color: AppColors.textPrimary,
+                color: RuachColors.cream900,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -123,10 +124,10 @@ class _ResourceLearningPageState extends State<ResourceLearningPage> {
               e.subtitle,
               style: const TextStyle(
                 fontSize: 12,
-                color: AppColors.textTertiary,
+                color: RuachColors.cream700,
               ),
             ),
-            trailing: Icon(icon, color: AppColors.primary),
+            trailing: Icon(icon, color: RuachColors.gold500),
             onTap: () => _open(e),
           ),
         );

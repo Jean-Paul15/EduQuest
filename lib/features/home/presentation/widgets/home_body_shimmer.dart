@@ -61,7 +61,7 @@ class _ShimmerLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = AppColors.divider.withValues(alpha: .65);
+    final base = RuachColors.cream200.withValues(alpha: .65);
     return LayoutBuilder(
       builder: (_, c) {
         final w = width ?? c.maxWidth;
@@ -69,7 +69,7 @@ class _ShimmerLine extends StatelessWidget {
           width: width,
           height: height,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.s),
+            borderRadius: BorderRadius.circular(RuachRadius.md),
             child: Stack(
               children: [
                 Container(color: base),

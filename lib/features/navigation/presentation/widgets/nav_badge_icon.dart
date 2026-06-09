@@ -22,7 +22,7 @@ class NavBadgeIcon extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
             constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
             decoration: BoxDecoration(
-              color: AppColors.accent,
+              color: RuachColors.gold600,
               borderRadius: BorderRadius.circular(999),
             ),
             alignment: Alignment.center,
