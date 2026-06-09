@@ -30,10 +30,8 @@ class _ChapterResourceListPageState extends State<ChapterResourceListPage>
   final _pdf = PdfRuntimeCache();
   List<ChapterResource> _items = const [];
   bool _loading = true, _offlineWarned = false;
-  bool get _pdfMode =>
-      const {'pdf', 'exercise_set', 'summary'}.contains(widget.type);
+  bool get _pdfMode => const {'pdf', 'exercise_set', 'summary'}.contains(widget.type);
   bool get _videoMode => const {'video', 'youtube'}.contains(widget.type);
-
   @override
   void initState() {
     super.initState();
@@ -56,7 +54,6 @@ class _ChapterResourceListPageState extends State<ChapterResourceListPage>
     }
     _load();
   }
-
   Future<void> _load({bool background = false}) async {
     if (mounted && !background && _items.isEmpty) {
       setState(() => _loading = true);
@@ -80,7 +77,6 @@ class _ChapterResourceListPageState extends State<ChapterResourceListPage>
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);

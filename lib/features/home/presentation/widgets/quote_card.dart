@@ -33,7 +33,7 @@ class QuoteCard extends StatelessWidget {
           offset: Offset(0, -floatOffset),
           child: Text(
             '\u00AB',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.fraunces(
               fontSize: 36,
               fontWeight: FontWeight.w800,
               height: 0.7,
@@ -46,7 +46,7 @@ class QuoteCard extends StatelessWidget {
           'La réussite, c\'est d\'abord et surtout '
           'd\'être au travail quand les autres '
           'vont à la pêche.',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.fraunces(
             fontSize: 15,
             fontStyle: FontStyle.italic,
             fontWeight: FontWeight.w500,
@@ -75,7 +75,7 @@ class QuoteCard extends StatelessWidget {
         const Spacer(),
         Text(
           '— Philippe Bouvard',
-          style: GoogleFonts.cormorantGaramond(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             fontStyle: FontStyle.italic,

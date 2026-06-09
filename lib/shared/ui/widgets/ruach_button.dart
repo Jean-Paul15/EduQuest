@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/ruach_animations.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_tap_scale.dart';
 
 /// Primary CTA button — pill-shaped, gold bg, dark text, 52dp height.
 class RuachButton extends StatelessWidget {

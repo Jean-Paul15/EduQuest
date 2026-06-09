@@ -1,12 +1,9 @@
-import 'dart:async';
 import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/chapter_content_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_quiz.dart';
 import 'package:eduquest/features/learning/presentation/widgets/quiz_list_item.dart';
-import 'package:eduquest/features/notifications/data/notification_service.dart';
-import 'package:eduquest/shared/network/network_probe.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
+import 'package:eduquest/shared/ui/offline_content_guard.dart';
 import 'package:eduquest/shared/ui/ruach_animations.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +25,6 @@ class ChapterQuizListPage extends StatefulWidget {
 class _ChapterQuizListPageState extends State<ChapterQuizListPage>
     with AutomaticKeepAliveClientMixin {
   final _repo = ChapterContentRepository();
-  final _notif = NotificationService();
   List<LearningQuiz> _items = const [];
   bool _loading = true;
   bool _offlineWarned = false;
@@ -64,18 +60,9 @@ class _ChapterQuizListPageState extends State<ChapterQuizListPage>
       _items = data;
       _loading = false;
     });
-    if (data.isEmpty) {
-      await _warnIfOfflineBootstrap(hadCache: hadCache);
+    if (data.isEmpty && !_offlineWarned && !hadCache) {
+      _offlineWarned = await guardOfflineContent(context: context, contentLabel: 'les QCM');
     }
-  }
-
-  Future<void> _warnIfOfflineBootstrap({required bool hadCache}) async {
-    if (_offlineWarned || hadCache) return;
-    final online = await NetworkProbe.hasConnection();
-    if (online || !mounted) return;
-    _offlineWarned = true;
-    unawaited(_notif.sendOfflineContentWarning('les QCM'));
-    await showOfflineBootstrapAlert(context, contentLabel: 'les QCM');
   }
 
   @override

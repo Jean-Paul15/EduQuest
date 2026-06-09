@@ -21,11 +21,7 @@ class _HomeBodyShimmerState extends State<HomeBodyShimmer>
   }
 
   @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
+  void dispose() { _c.dispose(); super.dispose(); }
   Widget _box({required double h, double? w}) =>
       _ShimmerLine(progress: _c, height: h, width: w);
 
@@ -58,7 +54,6 @@ class _ShimmerLine extends StatelessWidget {
   final Animation<double> progress;
   final double height;
   final double? width;
-
   @override
   Widget build(BuildContext context) {
     final base = RuachColors.cream200.withValues(alpha: .65);

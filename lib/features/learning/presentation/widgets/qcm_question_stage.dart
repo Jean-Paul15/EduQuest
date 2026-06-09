@@ -1,9 +1,9 @@
 import 'package:eduquest/features/learning/domain/qcm_question.dart';
 import 'package:eduquest/features/learning/presentation/widgets/qcm_option_tile.dart';
+import 'package:eduquest/features/learning/presentation/widgets/qcm_progress_strip.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class QcmQuestionStage extends StatelessWidget {
   const QcmQuestionStage({
@@ -44,26 +44,7 @@ class QcmQuestionStage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: ratio,
-              minHeight: 4,
-              backgroundColor: RuachColors.cream200,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(children: [
-            Icon(PhosphorIconsRegular.timer, size: 16, color: RuachColors.gold600),
-            const SizedBox(width: 4),
-            Text(
-              '${left}s',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: RuachColors.cream900,
-              ),
-            ),
-          ]),
+          QcmProgressStrip(ratio: ratio, leftSeconds: left),
           const SizedBox(height: 16),
           Text(
             question.prompt,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_card_banner.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_chip.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_progress.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -39,30 +40,7 @@ class RuachCourseCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Banner
-            SizedBox(
-              height: 140,
-              width: double.infinity,
-              child: imageUrl != null
-                  ? Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholder(isDark)),
-                        Positioned.fill(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.transparent, isDark ? RuachColors.ink300 : RuachColors.cream100],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : _placeholder(isDark),
-            ),
+            CourseCardBanner(imageUrl: imageUrl, isDark: isDark),
             // Content
             Padding(
               padding: const EdgeInsets.all(RuachSpace.s4),
@@ -103,10 +81,5 @@ class RuachCourseCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _placeholder(bool isDark) => Container(
-    color: isDark ? RuachColors.ink400 : RuachColors.cream100,
-    child: const Center(child: Icon(PhosphorIconsRegular.book, size: 32, color: RuachColors.cream500)),
-  );
 }
 

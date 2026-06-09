@@ -11,7 +11,6 @@ mixin EventDetailApplyActionsMixin<T extends StatefulWidget> on State<T> {
   set busy(bool v);
   String get eventId;
   Future<void> reload();
-
   Future<bool> confirmApply() async {
     final ok = await showCupertinoDialog<bool>(
       context: context,
@@ -66,7 +65,6 @@ mixin EventDetailApplyActionsMixin<T extends StatefulWidget> on State<T> {
     }
     await reload();
   }
-
   Future<void> handlePaymentIfNeeded(double fee) async {
     if (!mounted) return;
     final go = await showCupertinoDialog<bool>(

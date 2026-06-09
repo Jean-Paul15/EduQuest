@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/ruach_animations.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_tap_scale.dart';
 
 /// Secondary outlined button — transparent bg, gold border, 44dp height.
 class RuachOutlineButton extends StatelessWidget {

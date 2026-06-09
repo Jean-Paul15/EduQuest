@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/ruach_animations.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_tap_scale.dart';
 
 /// Tertiary text button — no border, gold text, 36dp height.
 class RuachTextButton extends StatelessWidget {

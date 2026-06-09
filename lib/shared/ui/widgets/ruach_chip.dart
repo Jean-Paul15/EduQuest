@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/ruach_animations.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_tap_scale.dart';
 
 /// Category chip — 28dp height, 8dp radius.
 class RuachChip extends StatelessWidget {

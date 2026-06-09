@@ -1,6 +1,7 @@
 import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/learning_content_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_item.dart';
+import 'package:eduquest/features/learning/presentation/pages/resource_list_tile.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/media/youtube_url_parser.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
@@ -80,39 +81,12 @@ class _ResourceLearningPageState extends State<ResourceLearningPage> {
       padding: const EdgeInsets.all(RuachSpace.s4),
       itemCount: _items.length,
       separatorBuilder: (_, __) => const SizedBox(height: RuachSpace.s2),
-      itemBuilder: (_, i) {
-        final e = _items[i];
-        final icon = _pdfMode
-            ? PhosphorIconsRegular.filePdf
-            : _videoMode
-            ? PhosphorIconsRegular.playCircle
-            : PhosphorIconsRegular.browser;
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            border: Border.all(color: RuachColors.cream200),
-            borderRadius: BorderRadius.circular(RuachRadius.lg),
-          ),
-          child: ListTile(
-            title: Text(
-              e.title,
-              style: const TextStyle(
-                color: RuachColors.cream900,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            subtitle: Text(
-              e.subtitle,
-              style: const TextStyle(
-                fontSize: 12,
-                color: RuachColors.cream700,
-              ),
-            ),
-            trailing: Icon(icon, color: RuachColors.gold500),
-            onTap: () => _open(e),
-          ),
-        );
-      },
+      itemBuilder: (_, i) => ResourceListTile(
+        item: _items[i],
+        isPdfMode: _pdfMode,
+        isVideoMode: _videoMode,
+        onTap: () => _open(_items[i]),
+      ),
     );
   }
 }

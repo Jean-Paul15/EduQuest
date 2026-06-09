@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+
 import 'package:eduquest/features/engagement/data/engagement_repository.dart';
 import 'package:eduquest/features/engagement/domain/engagement_detail.dart';
 import 'package:eduquest/features/engagement/domain/event_pass.dart';
 import 'package:eduquest/features/engagement/presentation/event_detail_apply_actions.dart';
 import 'package:eduquest/features/engagement/presentation/event_detail_nav_actions.dart';
-import 'package:eduquest/features/engagement/presentation/widgets/event_action_buttons.dart';
-import 'package:eduquest/features/engagement/presentation/widgets/event_detail_fee_info.dart';
-import 'package:eduquest/features/engagement/presentation/widgets/event_detail_header.dart';
-import 'package:eduquest/features/engagement/presentation/widgets/event_passes_section.dart';
-import 'package:eduquest/features/engagement/presentation/widgets/event_pending_payment_card.dart';
+import 'package:eduquest/features/engagement/presentation/widgets/event_detail_page_view.dart';
 import 'package:eduquest/shared/external/web_checkout_handoff.dart';
-import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 
 class EventDetailPage extends StatefulWidget {
   const EventDetailPage({super.key, required this.id});
@@ -74,30 +68,23 @@ class _EventDetailPageState extends State<EventDetailPage>
     final pending = regStatus == 'pending_payment';
     final pendingFee = (_registration?['attendance_fee'] as num?)?.toDouble();
     final canPay = pending && !applied && (pendingFee ?? 0) > 0;
-    if (d == null || _busy) {
+    if (d == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    return Scaffold(
-      appBar: RuachAppBar(
-        title: 'Détail événement',
-        actions: [
-          IconButton(onPressed: _load, icon: const Icon(PhosphorIconsRegular.arrowsClockwise)),
-        ],
-        showBack: true,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(RuachSpace.s4),
-        children: [
-          EventDetailHeader(detail: d, colorScheme: s, onMeeting: openMeeting, onMaps: openMaps),
-          EventDetailFeeInfo(detail: d, colorScheme: s),
-          if (canPay) ...[
-            const SizedBox(height: RuachSpace.s3),
-            EventPendingPaymentCard(pendingFee: pendingFee),
-          ],
-          EventActionButtons(busy: _busy, applied: applied, canPay: canPay, onApply: apply, onPayShop: openShop),
-          EventPassesSection(passes: _passes, colorScheme: s),
-        ],
-      ),
+    return EventDetailPageView(
+      detail: d,
+      colorScheme: s,
+      hasPass: hasPass,
+      applied: applied,
+      canPay: canPay,
+      pendingFee: pendingFee,
+      busy: _busy,
+      onRefresh: _load,
+      onApply: apply,
+      onPayShop: openShop,
+      openMeeting: openMeeting,
+      openMaps: openMaps,
+      passes: _passes,
     );
   }
 }

@@ -8,7 +8,7 @@ import 'package:eduquest/shared/ui/ruach_animations.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:eduquest/features/learning/presentation/widgets/pdf_lesson_tile.dart';
 
 class PdfLessonsPage extends StatefulWidget {
   const PdfLessonsPage({super.key});
@@ -76,25 +76,10 @@ class _PdfLessonsPageState extends State<PdfLessonsPage> {
         final l = _lessons[i];
         return staggerItem(
           index: i,
-          child: Container(
-            key: ValueKey(l.id),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              border: Border.all(color: RuachColors.cream200),
-              borderRadius: BorderRadius.circular(RuachRadius.lg)),
-            child: ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: RuachColors.gold500.withValues(alpha: .08),
-                  borderRadius: BorderRadius.circular(RuachRadius.sm)),
-                child: const Icon(PhosphorIconsRegular.filePdf, size: 20, color: RuachColors.gold500)),
-              title: Text(l.title, style: const TextStyle(
-                color: RuachColors.cream900, fontWeight: FontWeight.w500)),
-              subtitle: Text(_offline[l.id] == true ? 'Disponible hors ligne' : 'Synchronisation...',
-                style: const TextStyle(fontSize: 12, color: RuachColors.cream700)),
-              trailing: const Icon(PhosphorIconsRegular.caretRight, color: RuachColors.cream700),
-              onTap: () => _open(l)),
+          child: PdfLessonTile(
+            lesson: l,
+            isOffline: _offline[l.id] == true,
+            onTap: () => _open(l),
           ),
         );
       },
