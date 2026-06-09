@@ -1,6 +1,6 @@
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/auth/data/auth_repository.dart';
 import 'package:eduquest/features/class_selection/presentation/class_selection_panel.dart';
-import 'package:eduquest/features/legal/presentation/legal_document_page.dart';
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/features/profile/presentation/widgets/profile_actions.dart';
 import 'package:eduquest/features/profile/presentation/widgets/profile_header_card.dart';
@@ -11,6 +11,7 @@ import 'package:eduquest/features/user/data/user_profile_repository.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.onThemeToggle, required this.themeMode});
@@ -69,8 +70,8 @@ class _ProfilePageState extends State<ProfilePage> {
       ProfileActions(
         onWidgetUpdate: () => _widget.update(title: 'RuachEdu • $_name', focusLabel: 'Rappel', focusValue: 'Révision du jour'),
         onWidgetPin: _pinWidget,
-        onOpenTerms: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalDocumentPage(docType: 'terms'))),
-        onOpenPrivacy: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalDocumentPage(docType: 'privacy'))),
+        onOpenTerms: () => context.pushNamed(AppRoutes.legal, pathParameters: {'docType': 'terms'}),
+        onOpenPrivacy: () => context.pushNamed(AppRoutes.legal, pathParameters: {'docType': 'privacy'}),
         onSignOut: _auth.signOut,
       ),
     ]),

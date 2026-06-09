@@ -3,6 +3,7 @@ import 'package:eduquest/features/surveys/data/survey_repository.dart';
 import 'package:eduquest/features/surveys/domain/survey_question.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'survey_detail_view.dart';
 
 class SurveyDetailPage extends StatefulWidget {
@@ -76,7 +77,7 @@ class _SurveyDetailPageState extends State<SurveyDetailPage> {
     if (ok) {
       await EngagementRepository().clearSurveysCache();
       if (!mounted) return;
-      Navigator.pop(context, true);
+      context.pop(true);
     }
   }
   @override

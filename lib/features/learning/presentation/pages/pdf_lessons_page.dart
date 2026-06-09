@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/pdf_lesson_repository.dart';
 import 'package:eduquest/features/learning/domain/pdf_lesson.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/pdf/app_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class PdfLessonsPage extends StatefulWidget {
@@ -56,8 +57,11 @@ class _PdfLessonsPageState extends State<PdfLessonsPage> {
   }
 
   Future<void> _open(PdfLesson l) async {
-    await Navigator.push(context, MaterialPageRoute(
-      builder: (_) => AppPdfViewerPage(title: l.title, url: l.url, emptyLabel: 'PDF non disponible.')));
+    await context.pushNamed(AppRoutes.pdfViewer, queryParameters: {
+      'title': l.title,
+      'url': l.url,
+      'emptyLabel': 'PDF non disponible.',
+    });
   }
 
   @override

@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/chapter_content_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_quiz.dart';
-import 'package:eduquest/features/learning/presentation/pages/qcm_attempt_page.dart';
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/shared/network/network_probe.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ChapterQuizListPage extends StatefulWidget {
@@ -122,12 +123,7 @@ class _ChapterQuizListPageState extends State<ChapterQuizListPage>
               PhosphorIconsRegular.caretRight,
               color: RuachColors.cream700,
             ),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => QcmAttemptPage(quizId: e.id, title: e.title),
-              ),
-            ),
+            onTap: () => context.pushNamed(AppRoutes.qcmAttempt, pathParameters: {'quizId': e.id}, queryParameters: {'title': e.title}),
           ),
         );
       },

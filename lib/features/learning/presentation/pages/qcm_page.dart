@@ -1,9 +1,10 @@
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/learning_content_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_item.dart';
-import 'package:eduquest/features/learning/presentation/pages/qcm_attempt_page.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class QcmPage extends StatefulWidget {
@@ -52,8 +53,7 @@ class _QcmPageState extends State<QcmPage> {
             subtitle: Text('${e.count ?? 0} questions',
               style: const TextStyle(fontSize: 12, color: RuachColors.cream700)),
             trailing: const Icon(PhosphorIconsRegular.caretRight, color: RuachColors.cream700),
-            onTap: () => Navigator.push(context, MaterialPageRoute(
-              builder: (_) => QcmAttemptPage(quizId: e.id, title: e.title)))),
+            onTap: () => context.pushNamed(AppRoutes.qcmAttempt, pathParameters: {'quizId': e.id}, queryParameters: {'title': e.title})),
         );
       },
     );

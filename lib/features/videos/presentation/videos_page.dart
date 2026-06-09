@@ -1,13 +1,14 @@
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/user/data/user_profile_repository.dart';
 import 'package:eduquest/features/videos/data/video_filter_repository.dart';
 import 'package:eduquest/features/videos/data/video_repository.dart';
 import 'package:eduquest/features/videos/domain/chapter_video.dart';
 import 'package:eduquest/features/videos/presentation/widgets/video_filters.dart';
 import 'package:eduquest/features/videos/presentation/widgets/video_list_body.dart';
-import 'package:eduquest/shared/ui/media/app_media_player_page.dart';
 import 'package:eduquest/shared/ui/media/youtube_url_parser.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class VideosPage extends StatefulWidget {
   const VideosPage({super.key});
@@ -54,9 +55,11 @@ class _VideosPageState extends State<VideosPage> {
   }
 
   Future<void> _openVideo(ChapterVideo v) async {
-    await Navigator.push(context, MaterialPageRoute(
-      builder: (_) => AppMediaPlayerPage(title: v.title, url: v.url, isYoutube: isYoutubeUrl(v.url)),
-    ));
+    await context.pushNamed(AppRoutes.mediaPlayer, queryParameters: {
+      'title': v.title,
+      'url': v.url,
+      'isYoutube': isYoutubeUrl(v.url).toString(),
+    });
   }
 
   @override

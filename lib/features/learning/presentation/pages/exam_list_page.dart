@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/exam_repository.dart';
 import 'package:eduquest/features/learning/domain/exam_category.dart';
 import 'package:eduquest/features/learning/domain/exam_entry.dart';
-import 'package:eduquest/features/learning/presentation/pages/exam_detail_page.dart';
 import 'package:eduquest/features/learning/presentation/pages/widgets/exam_list_body.dart';
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/shared/network/network_probe.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ExamListPage extends StatefulWidget {
   const ExamListPage({
@@ -71,9 +72,11 @@ class _ExamListPageState extends State<ExamListPage> with AutomaticKeepAliveClie
   }
 
   void _onEntryTap(ExamEntry e) {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (_) => ExamDetailPage(title: e.title, paperUrl: e.paperUrl, correctionUrl: e.correctionUrl),
-    ));
+    context.pushNamed(AppRoutes.examDetail, queryParameters: {
+      'title': e.title,
+      'paperUrl': e.paperUrl,
+      if (e.correctionUrl != null) 'correctionUrl': e.correctionUrl!,
+    });
   }
 
   @override

@@ -1,9 +1,10 @@
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/engagement/data/engagement_repository.dart';
 import 'package:eduquest/features/engagement/domain/engagement_item.dart';
 import 'package:eduquest/features/engagement/presentation/widgets/engagement_list.dart';
-import 'package:eduquest/features/surveys/presentation/survey_detail_page.dart';
 import 'package:eduquest/shared/analytics/app_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class SurveysPage extends StatefulWidget {
   const SurveysPage({super.key});
@@ -43,11 +44,9 @@ class _SurveysPageState extends State<SurveysPage>
       loading: _loading,
       emptyLabel: 'Aucune enquête disponible',
       onTap: (item) async {
-        final done = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => SurveyDetailPage(id: item.id, title: item.title),
-          ),
+        final done = await context.pushNamed<bool>(AppRoutes.surveyDetail,
+          pathParameters: {'surveyId': item.id},
+          queryParameters: {'title': item.title},
         );
         if (done == true) _load(forceRefresh: true);
       },

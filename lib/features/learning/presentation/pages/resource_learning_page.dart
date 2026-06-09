@@ -1,12 +1,11 @@
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/learning_content_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_item.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/media/app_media_player_page.dart';
 import 'package:eduquest/shared/ui/media/youtube_url_parser.dart';
-import 'package:eduquest/shared/ui/pdf/app_pdf_viewer.dart';
-import 'package:eduquest/shared/ui/web/app_webview_page.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class ResourceLearningPage extends StatefulWidget {
@@ -50,39 +49,21 @@ class _ResourceLearningPageState extends State<ResourceLearningPage> {
     final url = item.url;
     if (url == null || url.isEmpty) return;
     if (_pdfMode) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => AppPdfViewerPage(
-            title: item.title,
-            url: url,
-            emptyLabel: widget.emptyLabel,
-          ),
-        ),
-      );
+      await context.pushNamed(AppRoutes.pdfViewer, queryParameters: {
+        'title': item.title, 'url': url, 'emptyLabel': widget.emptyLabel,
+      });
       return;
     }
     if (_videoMode) {
       final yt = isYoutubeUrl(url);
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              AppMediaPlayerPage(title: item.title, url: url, isYoutube: yt),
-        ),
-      );
+      await context.pushNamed(AppRoutes.mediaPlayer, queryParameters: {
+        'title': item.title, 'url': url, 'isYoutube': yt.toString(),
+      });
       return;
     }
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => AppWebViewPage(
-          title: item.title,
-          url: url,
-          emptyLabel: widget.emptyLabel,
-        ),
-      ),
-    );
+    await context.pushNamed(AppRoutes.webView, queryParameters: {
+      'title': item.title, 'url': url, 'emptyLabel': widget.emptyLabel,
+    });
   }
 
   @override

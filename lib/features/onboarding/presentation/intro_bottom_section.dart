@@ -1,7 +1,8 @@
-import 'package:eduquest/features/legal/presentation/legal_document_page.dart';
+import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class IntroBottomSection extends StatelessWidget {
   const IntroBottomSection({
@@ -33,13 +34,7 @@ class IntroBottomSection extends StatelessWidget {
             TextButton(
               onPressed: legalLoading
                   ? null
-                  : () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const LegalDocumentPage(docType: 'terms'),
-                        ),
-                      ),
+                  : () => context.pushNamed(AppRoutes.legal, pathParameters: {'docType': 'terms'}),
               style: TextButton.styleFrom(
                 textStyle: const TextStyle(fontSize: 12),
               ),
@@ -48,13 +43,7 @@ class IntroBottomSection extends StatelessWidget {
             TextButton(
               onPressed: legalLoading
                   ? null
-                  : () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const LegalDocumentPage(docType: 'privacy'),
-                        ),
-                      ),
+                  : () => context.pushNamed(AppRoutes.legal, pathParameters: {'docType': 'privacy'}),
               style: TextButton.styleFrom(
                 textStyle: const TextStyle(fontSize: 12),
               ),
