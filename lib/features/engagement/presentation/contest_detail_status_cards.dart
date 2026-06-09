@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_outline_button.dart';
 import 'package:eduquest/shared/ui/widgets/ticket_qr_dialog.dart';
 
 class ContestDetailAppliedCard extends StatelessWidget {

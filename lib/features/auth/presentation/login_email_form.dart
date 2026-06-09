@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_text_button.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class LoginEmailForm extends StatelessWidget {

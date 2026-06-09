@@ -2,6 +2,7 @@ import 'package:eduquest/app/router/app_routes.dart';
 import 'package:eduquest/features/learning/data/learning_content_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_item.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/ruach_animations.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -36,24 +37,28 @@ class _QcmPageState extends State<QcmPage> {
       separatorBuilder: (_, __) => const SizedBox(height: RuachSpace.s2),
       itemBuilder: (_, i) {
         final e = _items[i];
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            border: Border.all(color: RuachColors.cream200),
-            borderRadius: BorderRadius.circular(RuachRadius.lg)),
-          child: ListTile(
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: RuachColors.gold500.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(RuachRadius.sm)),
-              child: const Icon(PhosphorIconsRegular.puzzlePiece, size: 20, color: RuachColors.gold500)),
-            title: Text(e.title, style: const TextStyle(
-              color: RuachColors.cream900, fontWeight: FontWeight.w500)),
-            subtitle: Text('${e.count ?? 0} questions',
-              style: const TextStyle(fontSize: 12, color: RuachColors.cream700)),
-            trailing: const Icon(PhosphorIconsRegular.caretRight, color: RuachColors.cream700),
-            onTap: () => context.pushNamed(AppRoutes.qcmAttempt, pathParameters: {'quizId': e.id}, queryParameters: {'title': e.title})),
+        return staggerItem(
+          index: i,
+          child: Container(
+            key: ValueKey(e.id),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              border: Border.all(color: RuachColors.cream200),
+              borderRadius: BorderRadius.circular(RuachRadius.lg)),
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: RuachColors.gold500.withValues(alpha: .08),
+                  borderRadius: BorderRadius.circular(RuachRadius.sm)),
+                child: const Icon(PhosphorIconsRegular.puzzlePiece, size: 20, color: RuachColors.gold500)),
+              title: Text(e.title, style: const TextStyle(
+                color: RuachColors.cream900, fontWeight: FontWeight.w500)),
+              subtitle: Text('${e.count ?? 0} questions',
+                style: const TextStyle(fontSize: 12, color: RuachColors.cream700)),
+              trailing: const Icon(PhosphorIconsRegular.caretRight, color: RuachColors.cream700),
+              onTap: () => context.pushNamed(AppRoutes.qcmAttempt, pathParameters: {'quizId': e.id}, queryParameters: {'title': e.title})),
+          ),
         );
       },
     );

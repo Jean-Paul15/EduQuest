@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:eduquest/features/learning/data/learning_warmup_service.dart';
 import 'package:eduquest/features/learning/domain/learning_section.dart';
-import 'package:eduquest/features/learning/presentation/pages/subject_section_page.dart';
-import 'package:eduquest/shared/security/sensitive_scope.dart';
+import 'package:eduquest/features/learning/presentation/widgets/learning_page_body.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class LearningPage extends StatefulWidget {
@@ -74,87 +72,18 @@ class _LearningPageState extends State<LearningPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SensitiveScope(
-      child: Scaffold(
-        backgroundColor: RuachColors.cream50,
-        appBar: const RuachAppBar(title: 'Apprendre'),
-        body: Column(
-          children: [
-            Container(
-              color: RuachColors.white,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: SizedBox(
-                height: 36,
-                child: ListView.separated(
-                  controller: _tabsController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _sections.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (_, i) => _Chip(
-                    key: _tabKeys[i],
-                    label: _sections[i].label,
-                    selected: _index == i,
-                    onTap: () => _go(i),
-                  ),
-                ),
-              ),
-            ),
-            const Divider(height: 1, color: RuachColors.cream200),
-            Expanded(
-              child: PageView.builder(
-                controller: _controller,
-                onPageChanged: (i) {
-                  setState(() => _index = i);
-                  _syncTabVisibility(i);
-                  unawaited(_prime(i));
-                },
-                itemCount: _sections.length,
-                itemBuilder: (_, i) =>
-                    SubjectSectionPage(section: _sections[i]),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: RuachMotion.tap,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: selected ? RuachColors.gold500 : RuachColors.white,
-          borderRadius: BorderRadius.circular(RuachRadius.full),
-          border: Border.all(
-            color: selected ? RuachColors.gold500 : RuachColors.cream200,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: selected ? RuachColors.white : RuachColors.cream500,
-          ),
-        ),
-      ),
+    return LearningPageBody(
+      pageController: _controller,
+      tabsController: _tabsController,
+      sections: _sections,
+      currentIndex: _index,
+      tabKeys: _tabKeys,
+      onTabSelected: _go,
+      onPageChanged: (i) {
+        setState(() => _index = i);
+        _syncTabVisibility(i);
+        unawaited(_prime(i));
+      },
     );
   }
 }

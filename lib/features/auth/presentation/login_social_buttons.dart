@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_outline_button.dart';
 
 class LoginSocialButtons extends StatelessWidget {
   const LoginSocialButtons({

@@ -4,13 +4,12 @@ import 'package:eduquest/features/auth/data/auth_repository.dart';
 import 'package:eduquest/features/gamification/data/gamification_repository.dart';
 import 'package:eduquest/features/home/data/home_snapshot_cache.dart';
 import 'package:eduquest/features/home/domain/home_snapshot.dart';
+import 'package:eduquest/features/home/presentation/home_realtime.dart';
 import 'package:eduquest/features/notifications/data/notification_preferences_repository.dart';
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/features/user/data/user_profile_repository.dart';
 import 'package:eduquest/features/user/domain/user_profile.dart';
 import 'package:eduquest/shared/analytics/app_analytics.dart';
-import 'package:eduquest/shared/config/env.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeController {
   final _auth = AuthRepository();
@@ -21,7 +20,7 @@ class HomeController {
   final _gamificationRepo = GamificationRepository();
   final _profileRepo = UserProfileRepository();
   final _cache = HomeSnapshotCache();
-  RealtimeChannel? _channel;
+  late final HomeRealtime _realtime = HomeRealtime(_auth);
 
   Future<HomeSnapshot?> loadCachedSnapshot() => _cache.read();
 
@@ -87,53 +86,6 @@ class HomeController {
     } catch (_) {}
   }
 
-  void startRealtime(void Function() onChange) {
-    if (!Env.hasSupabase) return;
-    final uid = _auth.currentUser?.id;
-    if (uid == null) return;
-    final c = Supabase.instance.client;
-    _channel = c
-        .channel('home-$uid')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'gamification_profiles',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'profile_id',
-            value: uid,
-          ),
-          callback: (_) => onChange(),
-        )
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'ticket_codes',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'activated_by',
-            value: uid,
-          ),
-          callback: (_) => onChange(),
-        )
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'quest_completions',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'profile_id',
-            value: uid,
-          ),
-          callback: (_) => onChange(),
-        )
-        .subscribe();
-  }
-
-  void stopRealtime() {
-    final ch = _channel;
-    if (ch == null) return;
-    Supabase.instance.client.removeChannel(ch);
-    _channel = null;
-  }
+  void startRealtime(void Function() onChange) => _realtime.subscribe(onChange);
+  void stopRealtime() => _realtime.unsubscribe();
 }

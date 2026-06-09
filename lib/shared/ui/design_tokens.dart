@@ -55,33 +55,6 @@ class RuachColors {
   static const transparent = Colors.transparent;
 }
 
-// ──────────────────────────────────────────
-// Deprecated aliases — backward compatibility
-// ──────────────────────────────────────────
-
-@Deprecated('Use RuachColors')
-class AppColors {
-  AppColors._();
-
-  static const primary = RuachColors.gold500;
-  static const primaryLight = RuachColors.gold400;
-  static const accent = RuachColors.gold600;
-  static const accentLight = RuachColors.gold400;
-  static const canvasLight = RuachColors.cream50;
-  static const navLight = RuachColors.cream100;
-  static const inputDark = RuachColors.ink300;
-  static const white = RuachColors.white;
-  static const black = RuachColors.black;
-  static const cyanSoft = RuachColors.info400;
-  static const textPrimary = RuachColors.cream900;
-  static const textSecondary = RuachColors.cream500;
-  static const textTertiary = RuachColors.cream700;
-  static const surfaceCard = RuachColors.cream50;
-  static const success = RuachColors.success600;
-  static const error = RuachColors.error400;
-  static const divider = RuachColors.cream200;
-}
-
 // ── Spacing (4dp base) ──
 
 class RuachSpace {

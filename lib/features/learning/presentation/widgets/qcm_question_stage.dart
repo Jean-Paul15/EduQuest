@@ -1,4 +1,5 @@
 import 'package:eduquest/features/learning/domain/qcm_question.dart';
+import 'package:eduquest/features/learning/presentation/widgets/qcm_option_tile.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,6 @@ class QcmQuestionStage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = Theme.of(context).colorScheme;
     final ratio = (index + 1) / total;
     final msg = timeout
         ? 'Temps ecoule.'
@@ -75,42 +75,14 @@ class QcmQuestionStage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          ...question.options.map((o) {
-            final correct = locked && o == question.answer;
-            final wrong = locked && o == selected && o != question.answer;
-            return GestureDetector(
-              onTap: locked ? null : () => onPick(o),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: correct
-                      ? RuachColors.success600.withValues(alpha: .08)
-                      : wrong
-                          ? RuachColors.error400.withValues(alpha: .08)
-                          : Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(RuachRadius.md),
-                  border: Border.all(
-                    color: correct
-                        ? RuachColors.success600
-                        : wrong
-                            ? RuachColors.error400
-                            : o == selected
-                                ? s.primary
-                                : RuachColors.cream200,
-                    width: o == selected || correct || wrong ? 1.5 : 1,
-                  ),
-                ),
-                child: Text(
-                  o,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: RuachColors.cream900,
-                  ),
-                ),
-              ),
-            );
-          }),
+          ...question.options.map((o) => QcmOptionTile(
+            label: o,
+            selected: o == selected,
+            correct: locked && o == question.answer,
+            wrong: locked && o == selected && o != question.answer,
+            locked: locked,
+            onTap: () => onPick(o),
+          )),
           if (msg.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(

@@ -1,6 +1,6 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/glass_container.dart';
-import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_outline_button.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -27,7 +27,9 @@ class ActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
-    return GestureDetector(
+    return Semantics(
+      label: title,
+      child: GestureDetector(
       onTap: onTap,
       child: GlassContainer(
         child: Row(
@@ -78,6 +80,7 @@ class ActionTile extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }

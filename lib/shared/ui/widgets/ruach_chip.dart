@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/ruach_animations.dart';
 
 /// Category chip — 28dp height, 8dp radius.
 class RuachChip extends StatelessWidget {
@@ -14,7 +15,7 @@ class RuachChip extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final bg = selected ? RuachColors.gold500 : scheme.surfaceContainerHighest;
     final fg = selected ? RuachColors.ink100 : scheme.onSurfaceVariant;
-    return GestureDetector(
+    return TapScale(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),

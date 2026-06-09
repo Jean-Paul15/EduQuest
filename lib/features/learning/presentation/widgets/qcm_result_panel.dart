@@ -1,5 +1,7 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/ruach_animations.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_outline_button.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -24,42 +26,46 @@ class QcmResultPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rate = total == 0 ? 0 : ((correct / total) * 100).round();
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        const Text(
-          'Resultats',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: RuachColors.cream900,
-            letterSpacing: -0.3,
+    final success = rate >= 50;
+    return ConfettiOverlay(
+      active: success,
+      child: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const Text(
+            'Resultats',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: RuachColors.cream900,
+              letterSpacing: -0.3,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        _stat('Score', '$correct / $total'),
-        _stat('Reussite', '$rate%'),
-        _stat('Fausses', '$wrong'),
-        _stat('Passees', '$skipped'),
-        _stat('Temps', '${seconds}s'),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: RuachButton(
-            label: 'Recommencer',
-            onPressed: onRetry,
-            icon: PhosphorIconsRegular.arrowsClockwise,
+          const SizedBox(height: 16),
+          _stat('Score', '$correct / $total'),
+          _stat('Reussite', '$rate%'),
+          _stat('Fausses', '$wrong'),
+          _stat('Passees', '$skipped'),
+          _stat('Temps', '${seconds}s'),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: RuachButton(
+              label: 'Recommencer',
+              onPressed: onRetry,
+              icon: PhosphorIconsRegular.arrowsClockwise,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: RuachOutlineButton(
-            label: 'Terminer',
-            onPressed: () => Navigator.pop(context),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: RuachOutlineButton(
+              label: 'Terminer',
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

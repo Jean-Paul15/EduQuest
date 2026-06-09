@@ -1,5 +1,6 @@
 import 'package:eduquest/features/gamification/domain/daily_quest.dart';
 import 'package:eduquest/features/gamification/domain/gamification_state.dart';
+import 'package:eduquest/features/gamification/presentation/widgets/quest_badge.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/glass_container.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
@@ -82,52 +83,7 @@ class GamificationPanel extends StatelessWidget {
             Wrap(
               spacing: 6,
               runSpacing: 6,
-              children: quests
-                  .map(
-                    (q) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: q.completedToday
-                            ? RuachColors.success600.withValues(alpha: .08)
-                            : s.primary.withValues(alpha: .06),
-                        borderRadius: BorderRadius.circular(RuachRadius.sm),
-                        border: Border.all(
-                          color: q.completedToday
-                              ? RuachColors.success600.withValues(alpha: .2)
-                              : RuachColors.cream200,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            q.completedToday
-                                ? PhosphorIconsRegular.checkCircle
-                                : PhosphorIconsRegular.circle,
-                            size: 14,
-                            color: q.completedToday
-                                ? RuachColors.success600
-                                : RuachColors.cream700,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${q.label} +${q.xpReward}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: q.completedToday
-                                  ? RuachColors.success600
-                                  : RuachColors.cream500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+              children: quests.map((q) => QuestBadge(quest: q)).toList(),
             ),
           ],
           const SizedBox(height: 12),

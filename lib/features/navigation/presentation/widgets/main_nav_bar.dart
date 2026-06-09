@@ -27,11 +27,11 @@ class MainNavBar extends StatelessWidget {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         onDestinationSelected: onDestinationSelected,
         destinations: [
-          const NavigationDestination(icon: Icon(PhosphorIconsRegular.house), selectedIcon: Icon(PhosphorIconsFill.house), label: 'Accueil'),
-          const NavigationDestination(icon: Icon(PhosphorIconsRegular.compass), selectedIcon: Icon(PhosphorIconsFill.compass), label: 'Feed'),
-          const NavigationDestination(icon: Icon(PhosphorIconsRegular.books), selectedIcon: Icon(PhosphorIconsFill.books), label: 'Apprendre'),
-          NavigationDestination(icon: NavBadgeIcon(icon: PhosphorIconsRegular.squaresFour, count: hubBadge), selectedIcon: NavBadgeIcon(icon: PhosphorIconsFill.squaresFour, count: hubBadge), label: 'Hub'),
-          const NavigationDestination(icon: Icon(PhosphorIconsRegular.user), selectedIcon: Icon(PhosphorIconsFill.user), label: 'Profil'),
+          NavigationDestination(icon: Semantics(label: 'Accueil', child: const Icon(PhosphorIconsRegular.house)), selectedIcon: Semantics(label: 'Accueil', child: const Icon(PhosphorIconsFill.house)), label: 'Accueil'),
+          NavigationDestination(icon: Semantics(label: 'Fil d\'actualité', child: const Icon(PhosphorIconsRegular.compass)), selectedIcon: Semantics(label: 'Fil d\'actualité', child: const Icon(PhosphorIconsFill.compass)), label: 'Feed'),
+          NavigationDestination(icon: Semantics(label: 'Apprendre', child: const Icon(PhosphorIconsRegular.books)), selectedIcon: Semantics(label: 'Apprendre', child: const Icon(PhosphorIconsFill.books)), label: 'Apprendre'),
+          NavigationDestination(icon: Semantics(label: 'Hub', child: NavBadgeIcon(icon: PhosphorIconsRegular.squaresFour, count: hubBadge)), selectedIcon: Semantics(label: 'Hub', child: NavBadgeIcon(icon: PhosphorIconsFill.squaresFour, count: hubBadge)), label: 'Hub'),
+          NavigationDestination(icon: Semantics(label: 'Profil', child: const Icon(PhosphorIconsRegular.user)), selectedIcon: Semantics(label: 'Profil', child: const Icon(PhosphorIconsFill.user)), label: 'Profil'),
         ],
       ),
     );

@@ -1,12 +1,9 @@
 import 'package:eduquest/features/orientation/data/gemini_orientation_service.dart';
 import 'package:eduquest/features/orientation/data/orientation_repository.dart';
+import 'package:eduquest/features/orientation/presentation/orientation_page_body.dart';
 import 'package:eduquest/features/surveys/domain/survey_question.dart';
-import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:eduquest/shared/ui/widgets/empty_state.dart';
-import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
-import 'package:eduquest/shared/ui/widgets/ruach_chip.dart';
-import 'package:eduquest/shared/ui/widgets/ruach_progress.dart';
 import 'package:flutter/material.dart';
 
 class OrientationPage extends StatefulWidget {
@@ -75,68 +72,15 @@ class _OrientationPageState extends State<OrientationPage> {
         subtitle: 'Pas de questionnaire orientation actif.',
       );
     }
-    final cur = _q[_i];
-    return ListView(padding: const EdgeInsets.all(20), children: [
-      RuachProgressBar(value: (_i + 1) / _q.length),
-      const SizedBox(height: 12),
-      Text(
-        'Question ${_i + 1} / ${_q.length}',
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: RuachColors.cream500,
-          fontSize: 13,
-        ),
-      ),
-      const SizedBox(height: 12),
-      Text(
-        cur.prompt,
-        style: const TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w700,
-          color: RuachColors.cream900,
-          height: 1.4,
-        ),
-      ),
-      const SizedBox(height: 14),
-      if (cur.type == 'mcq')
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: cur.options
-              .map((o) => RuachChip(
-                    label: o,
-                    selected: _answers[cur.id] == o,
-                    onTap: () =>
-                        setState(() => _answers[cur.id] = o),
-                  ))
-              .toList(),
-        ),
-      if (cur.type == 'text')
-        TextField(
-          controller: _text,
-          maxLines: 4,
-          decoration: const InputDecoration(hintText: 'Ta reponse...'),
-        ),
-      const SizedBox(height: 16),
-      SizedBox(
-        width: double.infinity,
-        child: RuachButton(
-          label: _sending
-              ? 'Analyse...'
-              : (_i == _q.length - 1 ? 'Terminer' : 'Suivant'),
-          onPressed: _sending ? null : _next,
-        ),
-      ),
-      if (_result.isNotEmpty) ...[
-        const SizedBox(height: 16),
-        Text(
-          _result,
-          style: const TextStyle(
-            color: RuachColors.cream900,
-            height: 1.5,
-          ),
-        ),
-      ],
-    ]);
+    return OrientationPageBody(
+      questions: _q,
+      currentIndex: _i,
+      answers: _answers,
+      sending: _sending,
+      result: _result,
+      textController: _text,
+      onAnswerSelected: (v) => setState(() => _answers[_q[_i].id] = v),
+      onNext: _next,
+    );
   }
 }
