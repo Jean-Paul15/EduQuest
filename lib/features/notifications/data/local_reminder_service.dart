@@ -21,8 +21,8 @@ class LocalReminderService {
     await android?.createNotificationChannel(
       const AndroidNotificationChannel(
         'eduquest_alerts',
-        'RuachEdu Alerts',
-        description: 'Notifications importantes RuachEdu',
+        'RuachNova Alerts',
+        description: 'Notifications importantes RuachNova',
         importance: Importance.max,
         playSound: true,
       ),
@@ -60,7 +60,7 @@ class LocalReminderService {
       android: AndroidNotificationDetails(
         'revision_daily',
         'Rappels révision',
-        channelDescription: 'Rappels quotidiens RuachEdu',
+        channelDescription: 'Rappels quotidiens RuachNova',
         importance: Importance.high,
         priority: Priority.high,
       ),
@@ -69,7 +69,7 @@ class LocalReminderService {
     try {
       await _plugin.zonedSchedule(
         _id,
-        'EduQuest • Rappel de révision',
+        'RuachNova • Rappel de révision',
         '$displayName, il est temps de réviser un chapitre.',
         next,
         details,
@@ -79,7 +79,7 @@ class LocalReminderService {
     } catch (_) {
       await _plugin.zonedSchedule(
         _id,
-        'EduQuest • Rappel de révision',
+        'RuachNova • Rappel de révision',
         '$displayName, il est temps de réviser un chapitre.',
         next,
         details,
@@ -94,13 +94,13 @@ class LocalReminderService {
   Future<void> showPreview(String displayName) async {
     await _plugin.show(
       _previewId,
-      'EduQuest • Test rappel',
+      'RuachNova • Test rappel',
       '$displayName, les rappels sont bien actifs.',
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'revision_daily',
           'Rappels révision',
-          channelDescription: 'Rappels quotidiens RuachEdu',
+          channelDescription: 'Rappels quotidiens RuachNova',
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -122,7 +122,7 @@ class LocalReminderService {
         android: AndroidNotificationDetails(
           'revision_daily',
           'Rappels révision',
-          channelDescription: 'Rappels quotidiens RuachEdu',
+          channelDescription: 'Rappels quotidiens RuachNova',
           importance: Importance.high,
           priority: Priority.high,
         ),

@@ -18,7 +18,7 @@ class EduQuestHomeWidgetProvider : HomeWidgetProvider() {
     ) {
         appWidgetIds.forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.eduquest_home_widget).apply {
-                val title = widgetData.getString("eduquest_title", "EduQuest") ?: "EduQuest"
+                val title = widgetData.getString("eduquest_title", "RuachNova") ?: "RuachNova"
                 val focusLabel = widgetData.getString("eduquest_focus_label", "Niveau") ?: "Niveau"
                 val focusValue = widgetData.getString("eduquest_focus_value", "-") ?: "-"
                 val footer = widgetData.getString("eduquest_footer", "") ?: ""

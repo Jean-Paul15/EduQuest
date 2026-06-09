@@ -59,7 +59,7 @@ class LegalRepository {
         ? '''
 ## Conditions d’utilisation
 
-En utilisant EduQuest, tu acceptes les règles de la plateforme.
+En utilisant RuachNova, tu acceptes les règles de la plateforme.
 
 ### 1. Compte
 - Les informations du profil doivent être exactes.
@@ -80,7 +80,7 @@ En utilisant EduQuest, tu acceptes les règles de la plateforme.
         : '''
 ## Politique de confidentialité
 
-EduQuest protège les données personnelles des utilisateurs.
+RuachNova protège les données personnelles des utilisateurs.
 
 ### 1. Données collectées
 - Profil: nom, classe, série, téléphone (si fourni).

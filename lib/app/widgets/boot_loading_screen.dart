@@ -21,7 +21,7 @@ class BootLoadingScreen extends StatelessWidget {
             children: [
               Icon(PhosphorIconsRegular.graduationCap, size: 42, color: Color(0xFF1D5EFF)),
               SizedBox(height: 10),
-              Text('RuachEdu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              Text('RuachNova', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
               SizedBox(height: 16),
               SizedBox(
                 width: 22,

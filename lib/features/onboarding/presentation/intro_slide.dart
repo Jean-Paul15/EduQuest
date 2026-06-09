@@ -5,7 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 const introItems = [
   (
     'Ta réussite,\nton combat',
-    'RuachEdu est fait pour ceux qui refusent la médiocrité. '
+    'RuachNova est fait pour ceux qui refusent la médiocrité. '
         'Des cours solides, des exercices ciblés, un suivi rigoureux '
         '— ici, chaque effort te rapproche de l\'excellence.',
     PhosphorIconsRegular.trendUp,

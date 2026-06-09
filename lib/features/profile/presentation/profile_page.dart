@@ -68,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ClassSelectionPanel(onChanged: _reloadProfile),
       const SizedBox(height: 12),
       ProfileActions(
-        onWidgetUpdate: () => _widget.update(title: 'RuachEdu • $_name', focusLabel: 'Rappel', focusValue: 'Révision du jour'),
+        onWidgetUpdate: () => _widget.update(title: 'RuachNova • $_name', focusLabel: 'Rappel', focusValue: 'Révision du jour'),
         onWidgetPin: _pinWidget,
         onOpenTerms: () => context.pushNamed(AppRoutes.legal, pathParameters: {'docType': 'terms'}),
         onOpenPrivacy: () => context.pushNamed(AppRoutes.legal, pathParameters: {'docType': 'privacy'}),

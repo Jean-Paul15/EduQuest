@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="EduQuest"
+            android:text="RuachNova"
             android:textColor="#0B1220"
             android:textSize="15sp"
             android:textStyle="bold" />
