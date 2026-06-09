@@ -17,7 +17,7 @@ class EventPassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: RuachColors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(RuachRadius.lg),
         onTap: () => showTicketQrDialog(

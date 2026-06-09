@@ -29,7 +29,7 @@ class CourseCardBanner extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.transparent,
+                          RuachColors.transparent,
                           isDark ? RuachColors.ink300 : RuachColors.cream100,
                         ],
                       ),

@@ -36,7 +36,7 @@ class ProfileHeaderCard extends StatelessWidget {
           radius: 26,
           backgroundColor: cs.primary,
           child: Text(_initials(name),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+              style: const TextStyle(color: RuachColors.white, fontWeight: FontWeight.w700, fontSize: 16)),
         ),
         const SizedBox(width: 14),
         Expanded(

@@ -52,7 +52,7 @@ class QuoteCard extends StatelessWidget {
             fontWeight: FontWeight.w500,
             height: 1.55,
             letterSpacing: 0.1,
-            color: dark ? Colors.white70 : RuachColors.cream900,
+            color: dark ? RuachColors.cream100 : RuachColors.cream900,
           ),
         ),
         const SizedBox(height: 10),

@@ -29,7 +29,7 @@ class NavBadgeIcon extends StatelessWidget {
             child: Text(
               n,
               style: const TextStyle(
-                color: Colors.white,
+                color: RuachColors.white,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 height: 1,

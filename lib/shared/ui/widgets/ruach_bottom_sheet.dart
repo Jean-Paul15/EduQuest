@@ -11,7 +11,7 @@ class RuachBottomSheet extends StatelessWidget {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: RuachColors.transparent,
       builder: (_) => RuachBottomSheet(title: title, child: child),
     );
   }

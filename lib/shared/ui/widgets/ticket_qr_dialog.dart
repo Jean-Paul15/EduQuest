@@ -33,14 +33,14 @@ Future<void> showTicketQrDialog(
             Container(
               padding: const EdgeInsets.all(RuachSpace.s2),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: RuachColors.white,
                 borderRadius: BorderRadius.circular(RuachRadius.lg),
                 border: Border.all(color: RuachColors.cream200),
               ),
               child: QrImageView(
                 data: value,
                 size: 240,
-                backgroundColor: Colors.white,
+                backgroundColor: RuachColors.white,
               ),
             ),
             const SizedBox(height: RuachSpace.s3),

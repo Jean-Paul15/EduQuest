@@ -26,7 +26,7 @@ class HubTabTitle extends StatelessWidget {
           child: Text(
             '${tab.count}',
             style: const TextStyle(
-              color: Colors.white,
+              color: RuachColors.white,
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),

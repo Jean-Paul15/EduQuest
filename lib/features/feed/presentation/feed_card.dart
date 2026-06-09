@@ -19,7 +19,7 @@ class FeedCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Material(
-        color: Colors.transparent,
+        color: RuachColors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(RuachRadius.lg),
           onTap: onTap,

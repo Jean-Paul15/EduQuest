@@ -38,7 +38,7 @@ class RuachHeroCard extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, RuachColors.ink100],
+                    colors: [RuachColors.transparent, RuachColors.ink100],
                   ),
                 ),
               ),
