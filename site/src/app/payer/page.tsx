@@ -3,6 +3,7 @@ import { ShieldCheck, Zap } from "lucide-react";
 import { PaymentRunner } from "@/components/payment-runner";
 import { env } from "@/lib/env";
 import { getViewerContext } from "@/lib/data/profile";
+import { normalizeAppReturnUrl } from "@/lib/app-return";
 
 type Params = { kind?: string; id?: string; next?: string; idempotencyKey?: string };
 type Props = { searchParams: Promise<Params> };
@@ -22,9 +23,7 @@ export default async function PayerPage({ searchParams }: Props) {
   const params = await searchParams;
   const kind = normalizeKind(params.kind);
   const id = params.id;
-  const appReturnUrl = (params.next || "").startsWith("eduquest://")
-    ? String(params.next)
-    : env.appDeepLink;
+  const appReturnUrl = normalizeAppReturnUrl(params.next, env.appDeepLink);
   if (kind === "ticket" && !id) redirect(`/tickets/checkout?next=${encodeURIComponent(appReturnUrl)}`);
   if (!kind || !id) redirect("/dashboard");
   const viewer = await getViewerContext();

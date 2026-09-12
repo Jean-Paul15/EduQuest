@@ -12,6 +12,8 @@ class LearningWarmupService {
 
   Future<void> warmSection(LearningSection section) =>
       _run('sec:${section.name}', () async {
+        // "Pour toi" se charge lui-même (ReviewRepository) : rien à préchauffer ici.
+        if (section == LearningSection.forYou) return;
         if (section == LearningSection.courses ||
             section == LearningSection.videos ||
             section == LearningSection.youtube) {

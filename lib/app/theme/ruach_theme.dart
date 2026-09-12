@@ -37,6 +37,7 @@ class RuachTheme {
       outlinedButtonTheme: RuachButtonThemes.outlinedButtonTheme(scheme: scheme),
       textButtonTheme: RuachButtonThemes.textButtonTheme(scheme: scheme),
       snackBarTheme: RuachComponentThemes.snackBarTheme(scheme: scheme),
+      switchTheme: RuachComponentThemes.switchTheme(scheme: scheme),
       dividerTheme: RuachComponentThemes.dividerTheme(scheme: scheme),
       tabBarTheme: RuachComponentThemes.tabBarTheme(scheme: scheme),
       extensions: const [RuachSpaceTokens(), RuachMotionTokens(), RuachShadowTokens()],

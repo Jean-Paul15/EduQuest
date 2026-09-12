@@ -6,21 +6,30 @@ import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:flutter/material.dart';
 
 class ClassSelectionPanel extends StatefulWidget {
-  const ClassSelectionPanel({super.key, this.onChanged});
+  const ClassSelectionPanel({
+    super.key,
+    this.onChanged,
+    this.repository,
+  });
   final VoidCallback? onChanged;
+  final ClassSelectionRepository? repository;
   @override
   State<ClassSelectionPanel> createState() => _ClassSelectionPanelState();
 }
 
 class _ClassSelectionPanelState extends State<ClassSelectionPanel> {
-  final _repo = ClassSelectionRepository();
+  late final ClassSelectionRepository _repo;
   List<LevelOption> _levels = const [];
   List<SeriesOption> _series = const [];
   String? _levelId, _seriesId;
   bool _busy = false;
 
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() {
+    super.initState();
+    _repo = widget.repository ?? ClassSelectionRepository();
+    _load();
+  }
 
   Future<void> _load() async {
     final levels = await _repo.activeLevels();
@@ -32,10 +41,13 @@ class _ClassSelectionPanelState extends State<ClassSelectionPanel> {
     setState(() { _levels = levels; _levelId = levelId; _series = series; _seriesId = seriesId; });
   }
 
-  Future<void> _onLevelTap(String v) async {
+  Future<void> _onLevelChanged(String v) async {
+    if (v == _levelId) return;
+    setState(() { _levelId = v; _series = const []; _seriesId = null; });
     final s = await _repo.activeSeries(v);
     if (!mounted) return;
-    setState(() { _levelId = v; _series = s; _seriesId = s.isEmpty ? null : s.first.id; });
+    setState(() => _seriesId = s.isEmpty ? null : s.first.id);
+    setState(() => _series = s);
   }
 
   Future<void> _save() async {
@@ -53,7 +65,7 @@ class _ClassSelectionPanelState extends State<ClassSelectionPanel> {
     if (_levels.isEmpty) return const SizedBox.shrink();
     return ClassSelectionForm(
       levels: _levels, levelId: _levelId, series: _series, seriesId: _seriesId, busy: _busy,
-      onLevelTap: _onLevelTap, onSeriesSelected: (e) => setState(() => _seriesId = e.id), onSave: _save,
+      onLevelChanged: _onLevelChanged, onSeriesChanged: (e) => setState(() => _seriesId = e.id), onSave: _save,
     );
   }
 }

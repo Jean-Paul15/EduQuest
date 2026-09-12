@@ -11,7 +11,7 @@ const keys = ["courses", "exams", "epreuves", "mockExams", "videos", "youtube"];
 
 export const LearningSecurityAccessManager = () => {
   const supabase = getSupabaseBrowserClient();
-  const [sec, setSec] = useState<Sec>({ capture_allowed: true, keep_awake: true });
+  const [sec, setSec] = useState<Sec>({ capture_allowed: false, keep_awake: true });
   const [access, setAccess] = useState<Access>({});
   const [message, setMessage] = useState("");
 
@@ -20,7 +20,7 @@ export const LearningSecurityAccessManager = () => {
     const rows = new Map((r.data || []).map((x: { key: string; value: unknown }) => [x.key, x.value as Record<string, unknown>]));
     const s = rows.get("learning_security") || {};
     const a = rows.get("learning_access") || {};
-    setSec({ capture_allowed: !!s.capture_allowed, keep_awake: s.keep_awake !== false });
+    setSec({ capture_allowed: false, keep_awake: s.keep_awake !== false });
     setAccess(Object.fromEntries(keys.map((k) => [k, String((a[k] || "HALF")).toUpperCase()])));
   }, [supabase]);
 
@@ -39,7 +39,7 @@ export const LearningSecurityAccessManager = () => {
   return (
     <Card className="space-y-3 p-4">
       <h2 className="font-semibold">Contenus: protection et accès</h2>
-      <label className="flex items-center justify-between rounded border p-2 text-sm"><span>Capture autorisée</span><input type="checkbox" checked={sec.capture_allowed} onChange={(e) => setSec({ ...sec, capture_allowed: e.target.checked })} /></label>
+      <div className="rounded border p-2 text-sm text-slate-600">Capture écran / vidéo bloquée sur les contenus sensibles.</div>
       <label className="flex items-center justify-between rounded border p-2 text-sm"><span>Garder écran actif</span><input type="checkbox" checked={sec.keep_awake} onChange={(e) => setSec({ ...sec, keep_awake: e.target.checked })} /></label>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => allTier("FREE")}>Tout FREE</Button>

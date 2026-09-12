@@ -11,21 +11,35 @@ class IntroBottomSection extends StatelessWidget {
     required this.isSubmitting,
     required this.hasNext,
     required this.onContinuePressed,
+    required this.onSkip,
   });
 
   final bool legalLoading;
   final bool isSubmitting;
   final bool hasNext;
   final VoidCallback onContinuePressed;
+  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
     return Column(
       children: [
-        const Text(
-          'En continuant, tu acceptes nos conditions.',
+        // Toujours proposer une sortie explicite du tunnel d'onboarding
+        // (bonne pratique quasi unanime) — masqué sur le dernier slide où
+        // il ferait doublon avec le CTA "Commencer".
+        if (hasNext)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: isSubmitting ? null : onSkip,
+              child: const Text('Passer'),
+            ),
+          ),
+        Text(
+          'En continuant, tu acceptes nos conditions et notre politique de confidentialité.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: RuachColors.cream700, fontSize: 12),
+          style: TextStyle(color: s.onSurfaceVariant, fontSize: 12),
         ),
         const SizedBox(height: 4),
         Row(
@@ -47,7 +61,7 @@ class IntroBottomSection extends StatelessWidget {
               style: TextButton.styleFrom(
                 textStyle: const TextStyle(fontSize: 12),
               ),
-              child: const Text('Confidentialite'),
+              child: const Text('Confidentialité'),
             ),
             if (legalLoading)
               const Padding(

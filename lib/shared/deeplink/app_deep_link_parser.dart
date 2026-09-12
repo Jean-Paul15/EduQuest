@@ -16,6 +16,7 @@ class AppDeepLinkParser {
       message: message,
       kind: kind,
       entityId: entityId,
+      params: uri.queryParameters,
     );
   }
 
@@ -43,6 +44,7 @@ class AppDeepLinkParser {
                   : fromLink.message,
               kind: fromLink.kind,
               entityId: fromLink.entityId,
+              params: fromLink.params,
             );
     }
     final tab = _tabFromText(payload['tab']?.toString() ?? '');
@@ -61,7 +63,8 @@ class AppDeepLinkParser {
     switch (v.toLowerCase().trim()) {
       case 'home':
         return 0;
-      case 'feed':
+      case 'feed': // ancien nom de l'onglet, conservé en compat — index 1 = Assistant aujourd'hui.
+      case 'assistant':
         return 1;
       case 'learn':
       case 'learning':

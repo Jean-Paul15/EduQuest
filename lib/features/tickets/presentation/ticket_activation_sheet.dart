@@ -1,5 +1,6 @@
 import 'package:eduquest/features/tickets/data/ticket_repository.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_outline_button.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -45,12 +46,12 @@ class _TicketActivationSheetState extends State<TicketActivationSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Activer un ticket',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: RuachColors.cream900,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: RuachSpace.s4),
@@ -66,10 +67,11 @@ class _TicketActivationSheetState extends State<TicketActivationSheet> {
           const SizedBox(height: RuachSpace.s4),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _loading ? null : _activate,
-              icon: const Icon(PhosphorIconsRegular.sealCheck),
-              label: Text(_loading ? 'Activation...' : 'Valider'),
+            child: RuachButton(
+              label: 'Valider',
+              loading: _loading,
+              onPressed: _activate,
+              icon: PhosphorIconsRegular.sealCheck,
             ),
           ),
           if (widget.onBuyTicket != null) ...[
@@ -88,7 +90,7 @@ class _TicketActivationSheetState extends State<TicketActivationSheet> {
             Text(
               _feedback,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: RuachColors.cream500),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ],

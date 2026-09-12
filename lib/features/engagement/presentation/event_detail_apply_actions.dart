@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:eduquest/features/engagement/data/engagement_repository.dart';
+import 'package:eduquest/features/engagement/presentation/engagement_confirm_dialogs.dart';
 import 'package:eduquest/shared/external/web_checkout_handoff.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
 import 'package:eduquest/shared/ui/widgets/ticket_qr_dialog.dart';
@@ -11,27 +12,12 @@ mixin EventDetailApplyActionsMixin<T extends StatefulWidget> on State<T> {
   set busy(bool v);
   String get eventId;
   Future<void> reload();
-  Future<bool> confirmApply() async {
-    final ok = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => CupertinoAlertDialog(
-        title: const Text('Confirmer la postulation'),
-        content: const Text('Veux-tu postuler à cet événement maintenant ?'),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Annuler'),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.pop(dialogCtx, true),
-            child: const Text('Confirmer'),
-          ),
-        ],
-      ),
-    );
-    return ok == true;
-  }
+  Future<bool> confirmApply() => confirmEngagementAction(
+    context,
+    title: 'Confirmer la postulation',
+    message: 'Veux-tu postuler à cet événement maintenant ?',
+    confirmLabel: 'Confirmer',
+  );
 
   Future<void> apply() async {
     if (busy) return;
@@ -67,25 +53,8 @@ mixin EventDetailApplyActionsMixin<T extends StatefulWidget> on State<T> {
   }
   Future<void> handlePaymentIfNeeded(double fee) async {
     if (!mounted) return;
-    final go = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('Paiement requis'),
-        content: Text('Tu vas être redirigé vers le site pour payer ${fee.toStringAsFixed(0)} FCFA.'),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Plus tard'),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Payer maintenant'),
-          ),
-        ],
-      ),
-    );
-    if (go != true) return;
+    final go = await confirmEngagementPayment(context, fee);
+    if (!go) return;
     final launched = await handoff.openPayment(kind: 'event', id: eventId);
     if (!launched) {
       if (!mounted) return;

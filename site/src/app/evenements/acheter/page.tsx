@@ -3,15 +3,14 @@ import { CalendarDays, ShieldCheck } from "lucide-react";
 import { PublicEventBuyForm } from "@/components/public-event-buy-form";
 import { env } from "@/lib/env";
 import { listEvents } from "@/lib/data/events";
+import { normalizeAppReturnUrl } from "@/lib/app-return";
 
 type Props = { searchParams: Promise<{ eventId?: string; next?: string }> };
 
 export default async function EventBuyPage({ searchParams }: Props) {
   const params = await searchParams;
   const eventId = params.eventId;
-  const appReturnUrl = (params.next || "").startsWith("eduquest://")
-    ? String(params.next)
-    : env.appDeepLink;
+  const appReturnUrl = normalizeAppReturnUrl(params.next, env.appDeepLink);
   if (!eventId) redirect("/evenements");
 
   const events = await listEvents();

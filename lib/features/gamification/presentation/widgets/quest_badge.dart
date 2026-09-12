@@ -11,7 +11,7 @@ class QuestBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: RuachSpace.s2, vertical: RuachSpace.s1),
       decoration: BoxDecoration(
         color: quest.completedToday
             ? RuachColors.success600.withValues(alpha: .08)
@@ -20,7 +20,7 @@ class QuestBadge extends StatelessWidget {
         border: Border.all(
           color: quest.completedToday
               ? RuachColors.success600.withValues(alpha: .2)
-              : RuachColors.cream200,
+              : s.outlineVariant,
         ),
       ),
       child: Row(
@@ -31,15 +31,15 @@ class QuestBadge extends StatelessWidget {
                 ? PhosphorIconsRegular.checkCircle
                 : PhosphorIconsRegular.circle,
             size: 14,
-            color: quest.completedToday ? RuachColors.success600 : RuachColors.cream700,
+            color: quest.completedToday ? RuachColors.success600 : s.onSurfaceVariant,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: RuachSpace.s1),
           Text(
             '${quest.label} +${quest.xpReward}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: quest.completedToday ? RuachColors.success600 : RuachColors.cream500,
+              color: quest.completedToday ? RuachColors.success600 : s.onSurfaceVariant,
             ),
           ),
         ],

@@ -19,7 +19,7 @@ export const NotificationCenterManager = () => {
   const supabase = getSupabaseBrowserClient();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [deeplink, setDeeplink] = useState("eduquest://hub");
+  const [deeplink, setDeeplink] = useState("ruachedu://hub");
   const [level, setLevel] = useState("");
   const [serie, setSerie] = useState("");
   const [topic, setTopic] = useState("");
@@ -43,7 +43,7 @@ export const NotificationCenterManager = () => {
       ...(topic ? { topic } : {}),
     };
     const display_payload = {
-      existing_android_channel_id: "eduquest_alerts",
+      existing_android_channel_id: "ruachedu_alerts",
       android_sound: "default",
       ios_sound: "default",
       silent: false,
@@ -62,9 +62,14 @@ export const NotificationCenterManager = () => {
   };
 
   const queue = async (id: string) => {
-    const r = await supabase.rpc("queue_notification_campaign", { p_campaign_id: id });
-    setMessage(r.error ? r.error.message : (r.data?.message || "Campagne programmée."));
-    load();
+    const res = await fetch("/api/backoffice/notification-campaigns/queue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ campaignId: id }),
+    });
+    const out = (await res.json()) as { message?: string };
+    setMessage(out.message || (res.ok ? "Campagne programmée." : "Erreur."));
+    if (res.ok) load();
   };
 
   return (

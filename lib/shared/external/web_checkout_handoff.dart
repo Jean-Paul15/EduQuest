@@ -31,6 +31,9 @@ class WebCheckoutHandoff {
 
   Future<bool> openSupport() async {
     final links = await _config.loadAppLinks();
+    final raw = (links['support_url'] ?? '').trim();
+    final base = (links['site_base_url'] ?? '').trim();
+    if (_isExternalSupportLink(raw, base)) return _openUrl(Uri.parse(raw));
     final supportPath = _toRelativePath(links['support_url'] ?? '/support');
     final nextPath = _withQuery(supportPath, {
       'next': _returnLink(kind: 'support', id: 'home'),
@@ -139,6 +142,14 @@ class WebCheckoutHandoff {
     return '$b$p';
   }
 
+  bool _isExternalSupportLink(String raw, String base) {
+    if (!raw.startsWith('http://') && !raw.startsWith('https://')) return false;
+    if (base.isEmpty) return true;
+    final support = Uri.tryParse(raw);
+    final site = Uri.tryParse(base);
+    return support == null || site == null || support.host != site.host;
+  }
+
   Future<bool> _openUrl(Uri uri) async {
     try {
       if (await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) return true;
@@ -156,7 +167,7 @@ class WebCheckoutHandoff {
   String _returnLink({required String kind, required String id}) {
     final hub = kind == 'ticket' || kind == 'support' ? 'home' : 'hub';
     return Uri(
-      scheme: 'eduquest',
+      scheme: 'ruachedu',
       host: hub,
       queryParameters: {'tab': hub, 'kind': kind, 'id': id},
     ).toString();

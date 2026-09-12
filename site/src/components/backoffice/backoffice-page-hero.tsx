@@ -14,7 +14,7 @@ type Props = {
 export const BackofficePageHero = ({ title, subtitle, badges = [], actions = [] }: Props) => (
   <Card className="overflow-hidden border-slate-200/70 bg-white/85 p-0 shadow-sm backdrop-blur">
     <div className="bg-[radial-gradient(circle_at_0%_0%,rgba(59,130,246,.18),transparent_45%),radial-gradient(circle_at_100%_0%,rgba(249,115,22,.15),transparent_45%)] p-5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Backoffice EduQuest</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Backoffice RuachEdu</p>
       <h1 className="mt-1 text-2xl font-semibold text-slate-900">{title}</h1>
       <p className="mt-1 text-sm text-slate-600">{subtitle}</p>
       {badges.length ? (

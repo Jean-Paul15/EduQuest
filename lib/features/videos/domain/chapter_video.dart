@@ -1,3 +1,5 @@
+import 'package:eduquest/shared/ui/media/youtube_url_parser.dart';
+
 class ChapterVideo {
   const ChapterVideo({
     required this.id,
@@ -12,5 +14,9 @@ class ChapterVideo {
   final String title;
   final String url;
   final bool sharedAcrossLevels;
-}
 
+  String? get thumbnailUrl {
+    final videoId = parseYoutubeId(url);
+    return videoId == null ? null : 'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+  }
+}

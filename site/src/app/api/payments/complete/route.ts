@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordServerEvent } from "@/lib/analytics/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { claimIdempotency, storeIdempotencyResult } from "@/lib/security/idempotency";
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
       const joined = await supabase.rpc("join_event", { p_event_id: body.id });
       if (joined.error) {
         const out = { message: joined.error.message };
+        await recordServerEvent({ name: "payment_failed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, reason: "join_event" } });
         await storeIdempotencyResult(claim.rowId, 400, out);
         return NextResponse.json(out, { status: 400 });
       }
@@ -55,12 +57,14 @@ export async function POST(request: Request) {
           passCode: joined.data?.pass_code ?? null,
           qrCode: joined.data?.pass_code ?? null,
         };
+        await recordServerEvent({ name: "payment_confirmed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, mode: "free" } });
         await storeIdempotencyResult(claim.rowId, 200, out);
         return NextResponse.json(out);
       }
       const confirmed = await admin.rpc("confirm_event_payment", { p_event_id: body.id, p_profile_id: auth.user.id });
       if (confirmed.error) {
         const out = { message: confirmed.error.message };
+        await recordServerEvent({ name: "payment_failed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, reason: "confirm_event" } });
         await storeIdempotencyResult(claim.rowId, 400, out);
         return NextResponse.json(out, { status: 400 });
       }
@@ -70,6 +74,7 @@ export async function POST(request: Request) {
         passCode: confirmed.data?.pass_code ?? joined.data?.pass_code ?? null,
         qrCode: confirmed.data?.pass_code ?? joined.data?.pass_code ?? null,
       };
+      await recordServerEvent({ name: "payment_confirmed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, mode: "paid" } });
       await storeIdempotencyResult(claim.rowId, 200, out);
       return NextResponse.json(out);
     }
@@ -78,6 +83,7 @@ export async function POST(request: Request) {
       const joined = await joinContestRpc(supabase, body.id);
       if (joined.error) {
         const out = { message: joined.error };
+        await recordServerEvent({ name: "payment_failed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, reason: "join_contest" } });
         await storeIdempotencyResult(claim.rowId, 400, out);
         return NextResponse.json(out, { status: 400 });
       }
@@ -88,12 +94,14 @@ export async function POST(request: Request) {
           message: joined.data?.message ?? "Inscription validée.",
           qrCode: joined.data?.qr_code ?? null,
         };
+        await recordServerEvent({ name: "payment_confirmed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, mode: "free" } });
         await storeIdempotencyResult(claim.rowId, 200, out);
         return NextResponse.json(out);
       }
       const confirmed = await admin.rpc("confirm_contest_payment", { p_contest_id: body.id, p_profile_id: auth.user.id });
       if (confirmed.error) {
         const out = { message: confirmed.error.message };
+        await recordServerEvent({ name: "payment_failed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, reason: "confirm_contest" } });
         await storeIdempotencyResult(claim.rowId, 400, out);
         return NextResponse.json(out, { status: 400 });
       }
@@ -102,6 +110,7 @@ export async function POST(request: Request) {
         message: "Paiement validé.",
         qrCode: confirmed.data?.qr_code ?? joined.data?.qr_code ?? null,
       };
+      await recordServerEvent({ name: "payment_confirmed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, mode: "paid" } });
       await storeIdempotencyResult(claim.rowId, 200, out);
       return NextResponse.json(out);
     }
@@ -113,6 +122,7 @@ export async function POST(request: Request) {
     });
     if (error) {
       const out = { message: error.message };
+      await recordServerEvent({ name: "payment_failed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, reason: "confirm_ticket" } });
       await storeIdempotencyResult(claim.rowId, 400, out);
       return NextResponse.json(out, { status: 400 });
     }
@@ -122,10 +132,12 @@ export async function POST(request: Request) {
       activationCode: data?.activation_code ?? null,
       expiresAt: data?.expires_at ?? null,
     };
+    await recordServerEvent({ name: "payment_confirmed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, mode: "ticket" } });
     await storeIdempotencyResult(claim.rowId, 200, out);
     return NextResponse.json(out);
   } catch (error) {
     const out = { message: String(error) };
+    await recordServerEvent({ name: "payment_failed", profileId: auth.user.id, category: "payment", payload: { kind: body.kind, id: body.id, reason: "unexpected" } });
     await storeIdempotencyResult(claim.rowId, 500, out);
     return NextResponse.json(out, { status: 500 });
   }

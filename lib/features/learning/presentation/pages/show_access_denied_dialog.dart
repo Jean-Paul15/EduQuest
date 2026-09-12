@@ -1,3 +1,4 @@
+import 'package:eduquest/shared/copy/app_copy.dart';
 import 'package:flutter/cupertino.dart';
 
 Future<void> showAccessDeniedDialog({
@@ -9,7 +10,7 @@ Future<void> showAccessDeniedDialog({
   await showCupertinoDialog<void>(
     context: context,
     builder: (_) => CupertinoAlertDialog(
-      title: const Text('Accès non autorisé'),
+      title: const Text(AppCopy.accessDeniedTitle),
       content: Text(
         'Ton accès $accessTier ne permet pas d\'ouvrir $sectionLabel. Ticket requis: $requiredTier.',
       ),
@@ -17,7 +18,7 @@ Future<void> showAccessDeniedDialog({
         CupertinoDialogAction(
           isDefaultAction: true,
           onPressed: () => Navigator.pop(context),
-          child: const Text('Compris'),
+          child: const Text(AppCopy.understood),
         ),
       ],
     ),

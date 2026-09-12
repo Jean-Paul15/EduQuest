@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -22,8 +23,9 @@ export const SiteHeader = ({ email }: Props) => {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="text-xl font-black tracking-tight text-[var(--eq-blue)]">
-          EduQuest
+        <Link href="/" className="flex items-center gap-2 text-xl font-black tracking-tight text-[var(--eq-blue)]">
+          <Image src="/ruachedu-logo.svg" alt="RuachEdu" width={32} height={32} priority />
+          RuachEdu
         </Link>
 
         {/* Desktop nav */}

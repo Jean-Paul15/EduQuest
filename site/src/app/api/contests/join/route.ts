@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordServerEvent } from "@/lib/analytics/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { claimIdempotency, storeIdempotencyResult } from "@/lib/security/idempotency";
 import { joinContestRpc } from "@/lib/data/join-contest-rpc";
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return NextResponse.json({ message: "Session requise." }, { status: 401 });
   const key = body.idempotencyKey ?? request.headers.get("x-idempotency-key");
+  await recordServerEvent({ name: "contest_join_requested", profileId: auth.user.id, category: "site", payload: { contestId: body.contestId } });
   const claim = await claimIdempotency(
     "api:contests:join",
     key,
@@ -40,6 +42,7 @@ export async function POST(request: Request) {
 
   if (error) {
     const out = { message: error };
+    await recordServerEvent({ name: "contest_join_failed", profileId: auth.user.id, category: "site", payload: { contestId: body.contestId, reason: error } });
     await storeIdempotencyResult(claim.rowId, 400, out);
     return NextResponse.json(out, { status: 400 });
   }
@@ -51,6 +54,7 @@ export async function POST(request: Request) {
     status: data?.status ?? null,
     qrCode: data?.qr_code ?? null,
   };
+  await recordServerEvent({ name: "contest_join_succeeded", profileId: auth.user.id, category: "site", payload: { contestId: body.contestId, feeDue: out.feeDue, status: out.status } });
   await storeIdempotencyResult(claim.rowId, 200, out);
   return NextResponse.json(out);
 }

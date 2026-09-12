@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_widget_label">RuachEdu</string>
+    <string name="home_widget_description">Ton objectif du jour, ta série et ta progression RuachEdu, en un coup d\'œil.</string>
+</resources>

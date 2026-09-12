@@ -2,6 +2,7 @@ import 'package:eduquest/features/learning/domain/pdf_lesson.dart';
 import 'package:eduquest/features/offline/data/encrypted_pdf_cache.dart';
 import 'package:eduquest/features/offline/data/pdf_offline_repository.dart';
 import 'package:eduquest/shared/config/env.dart';
+import 'package:eduquest/shared/data/storage_url_resolver.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,7 +22,9 @@ class PdfLessonRepository {
         .eq('published', true);
     return (rows as List).map((r) {
       final e = Map<String, dynamic>.from(r as Map);
-      final url = e['storage_path']?.toString() ?? e['external_url']?.toString() ?? '';
+      final url = resolveContentUrl(e['storage_path']?.toString()) ??
+          e['external_url']?.toString() ??
+          '';
       return PdfLesson(id: '${e['id']}', title: '${e['title']}', version: '${e['version']}', url: url);
     }).where((e) => e.url.isNotEmpty).toList();
   }
@@ -30,8 +33,8 @@ class PdfLessonRepository {
     for (final l in lessons) {
       final key = 'pdf_ver_${l.id}';
       final old = await _storage.read(key: key);
-      final ok = await _offline.syncPdf(resourceId: l.id, pdfUrl: l.url, version: l.version, oldVersion: old);
-      if (ok) await _storage.write(key: key, value: l.version);
+      final res = await _offline.syncPdf(resourceId: l.id, pdfUrl: l.url, version: l.version, oldVersion: old);
+      if (res.fresh && res.bytes != null) await _storage.write(key: key, value: l.version);
     }
   }
 

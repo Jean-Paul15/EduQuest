@@ -42,12 +42,15 @@ class FeedDataService {
         _catalog.subjectsForCourses(),
         _engagement.listContests(forceRefresh: true),
         _engagement.listEvents(forceRefresh: true),
+        _catalog.fetchRecommendedChapters(),
       ]);
       final items = buildFeedItems(
         feedCfg: feedCfg,
         subjects: data[0] as List<LearningSubject>,
         contests: data[1] as List<EngagementItem>,
         events: data[2] as List<EngagementItem>,
+        recommendedChapters: data[3]
+            as List<({String chapterId, String subjectId, String title})>,
       );
       _mem[key] = items;
       await _local.writeList(key, items.map((e) => e.toMap()).toList());

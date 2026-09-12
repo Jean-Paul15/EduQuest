@@ -12,6 +12,7 @@ class AccessBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
     final promo = access.tier == 'CAMPAIGN_FREE';
+    final trial = access.isTrialFull;
     final expiry =
         access.expiresAt?.toLocal().toString().split(' ').first ?? '--';
     final active = access.hasAccess;
@@ -19,16 +20,20 @@ class AccessBanner extends StatelessWidget {
         ? access.expiresAt == null
               ? 'Promotion active: accès ouvert à tous'
               : 'Promotion active jusqu’au $expiry'
+        : trial
+        ? 'Accès complet offert jusqu’au $expiry'
+        : access.isFreeLight
+        ? 'Orientation, assistant et contenus gratuits restent ouverts'
         : active && access.expiresAt == null
-        ? 'Acces actif'
+        ? 'Accès actif'
         : active
         ? 'Expire le $expiry'
-        : 'Acces inactif';
+        : 'Accès inactif';
     return GlassContainer(
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(RuachSpace.s2),
             decoration: BoxDecoration(
               color: active
                   ? RuachColors.success600.withValues(alpha: .1)
@@ -36,9 +41,11 @@ class AccessBanner extends StatelessWidget {
               borderRadius: BorderRadius.circular(RuachRadius.sm),
             ),
             child: Icon(
-              active ? PhosphorIconsRegular.sealCheck : PhosphorIconsRegular.warningCircle,
+              active
+                  ? PhosphorIconsRegular.sealCheck
+                  : PhosphorIconsRegular.warningCircle,
               color: active ? RuachColors.success600 : RuachColors.error400,
-              size: 20,
+              size: 24,
             ),
           ),
           const SizedBox(width: 12),
@@ -47,26 +54,26 @@ class AccessBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  access.tier,
-                  style: const TextStyle(
+                  access.displayTier,
+                  style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
-                    color: RuachColors.cream900,
+                    color: s.onSurface,
                   ),
                 ),
                 const SizedBox(height: RuachSpace.s1),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    color: RuachColors.cream500,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: s.onSurfaceVariant, fontSize: 13),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: RuachSpace.s3, vertical: RuachSpace.s1),
+            padding: const EdgeInsets.symmetric(
+              horizontal: RuachSpace.s3,
+              vertical: RuachSpace.s1,
+            ),
             decoration: BoxDecoration(
               color: s.primary.withValues(alpha: .08),
               borderRadius: BorderRadius.circular(RuachRadius.sm),

@@ -1,27 +1,33 @@
 @import "tailwindcss";
 
-/* ======= EduQuest Design System — v2 ======= */
+/* ======= RuachEdu Design System — v3 (Gold/Ink/Cream) ======= */
 
 :root {
-  --eq-blue: #1e40af;
-  --eq-blue-deep: #0a1628;
-  --eq-blue-mid: #1d3a6e;
-  --eq-blue-light: #3b82f6;
-  --eq-blue-pale: #dbeafe;
-  --eq-orange: #f97316;
-  --eq-orange-hot: #ea580c;
-  --eq-orange-pale: #fff7ed;
+  --eq-gold: #C89A5A;
+  --eq-gold-light: #D4B06A;
+  --eq-ink: #12161E;
+  --eq-ink-light: #1A1E2B;
+  --eq-cream: #F5EFE7;
+  --eq-cream-dark: #A09888;
+  --eq-blue: var(--eq-gold);
+  --eq-blue-deep: var(--eq-ink);
+  --eq-blue-mid: #2A2520;
+  --eq-blue-light: var(--eq-gold-light);
+  --eq-blue-pale: rgba(200, 154, 90, 0.12);
+  --eq-orange: var(--eq-gold);
+  --eq-orange-hot: #B8860B;
+  --eq-orange-pale: rgba(200, 154, 90, 0.08);
   --eq-surface: #ffffff;
   --eq-bg: #fafbfd;
   --eq-text: #0f172a;
   --eq-muted: #64748b;
   --eq-radius: 1rem;
   --eq-radius-lg: 1.5rem;
-  --loading-start: var(--eq-orange);
-  --loading-mid: #fb923c;
-  --loading-end: var(--eq-blue-light);
-  --loading-glow-start: color-mix(in srgb, var(--eq-orange) 55%, transparent);
-  --loading-glow-end: color-mix(in srgb, var(--eq-blue-light) 55%, transparent);
+  --loading-start: var(--eq-gold);
+  --loading-mid: #D4B06A;
+  --loading-end: var(--eq-cream-dark);
+  --loading-glow-start: color-mix(in srgb, var(--eq-gold) 55%, transparent);
+  --loading-glow-end: color-mix(in srgb, var(--eq-cream-dark) 55%, transparent);
 }
 
 /* ======= Base ======= */

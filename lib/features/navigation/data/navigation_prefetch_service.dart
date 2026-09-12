@@ -48,7 +48,11 @@ class NavigationPrefetchService {
         _engagement.listContests(),
         _engagement.listEvents(),
         _engagement.listSurveys(),
-        _orientation.activeQuestionnaire(),
+        Future<void>(() async {
+          try {
+            await _orientation.activeQuestionnaire();
+          } catch (_) {}
+        }),
         _market.search(limit: 30),
       ]);
       return;

@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   supabase_flutter: ^2.10.3
-  onesignal_flutter: ^5.3.4
+  onesignal_flutter: 5.3.5
   flutter_dotenv: ^6.0.0
   home_widget: ^0.9.0
   screen_protector: ^1.4.2
@@ -48,10 +48,15 @@ dependencies:
   url_launcher: ^6.3.2
   path_provider: ^2.1.5
   path: ^1.9.1
-  flutter_markdown: ^0.7.7+1
+  flutter_markdown_plus: ^1.0.6
+  image_picker: ^1.1.2
+  intl: ^0.20.2
+  share_plus: ^10.1.4
   shared_preferences: ^2.5.3
   sqflite: ^2.4.2
   syncfusion_flutter_pdfviewer: ^31.1.21
+  pdf: ^3.11.1
+  printing: ^5.13.4
   video_player: ^2.10.0
   youtube_player_iframe: ^5.2.1
   webview_flutter: ^4.13.0
@@ -66,9 +71,22 @@ dependencies:
   go_router: ^14.8.1
   shimmer: ^3.0.0
   cached_network_image: ^3.4.1
+  flutter_cache_manager: ^3.4.1
+  connectivity_plus: ^6.1.4
+  workmanager: ^0.9.0
+  get_it: ^8.0.3
+  ruach_quiz_engine:
+    path: packages/ruach_quiz_engine
+  firebase_core: ^4.11.0
+  firebase_crashlytics: ^5.2.4
+  gpt_markdown: ^1.2.1
+  flutter_math_fork: ^0.7.4
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -91,24 +109,28 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/images/
+    - assets/fonts/
 
 flutter_launcher_icons:
   android: true
   ios: true
   web:
     generate: true
-  image_path: "logo.png"
+  image_path: "assets/images/ruachedu-logo-1024.png"
   remove_alpha_ios: true
 
 flutter_native_splash:
+  # Couleur et logo fixes, identiques en mode clair et sombre (demande
+  # explicite) -- pas de `color_dark`/`image_dark`. Fond Ink (RuachColors.ink200)
+  # avec le logo transparent Gold par-dessus -- un fond Gold rendait le logo
+  # (etoile Gold) invisible, meme couleur sur meme couleur.
   color: "#12161E"
-  image: logo.png
-  color_dark: "#12161E"
-  image_dark: logo.png
+  image: assets/images/ruachedu-mark-transparent.png
   android_12:
-    image: logo.png
+    image: assets/images/ruachedu-mark-transparent.png
     color: "#12161E"
-    icon_background_color: "#C89A5A"
+    icon_background_color: "#12161E"
 
   # To add assets to your application, add an assets section, like this:
   # assets:

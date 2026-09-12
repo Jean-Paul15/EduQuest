@@ -1,31 +1,33 @@
 import 'package:eduquest/app/app_shell.dart';
 import 'package:eduquest/app/router/app_router_extra_routes.dart';
 import 'package:eduquest/app/router/app_router_routes.dart';
-import 'package:eduquest/app/router/app_routes.dart';
+import 'package:eduquest/shared/navigation/app_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Central GoRouter configuration for RuachEdu.
+/// Central GoRouter for RuachEdu.
 ///
-/// Route `/` hosts AppShell (auth/onboarding → MainNavPage with 5-tab IndexedStack).
+/// Route `/` hosts AppShell (auth/onboarding → MainNavPage).
 /// Detail pages push on top as sub-routes with custom slide transitions.
-/// Pages that receive complex domain objects (ChapterListPage, ChapterCoursePage,
-/// MarketplaceItemDetailPage, etc.) keep using Navigator.push — go_router's `extra`
-/// would lose type safety.
+/// Uses `ValueNotifier<ThemeMode>` so the router itself is created once
+/// and theme changes don't tear down the navigation tree.
 GoRouter appRouter({
+  required ValueNotifier<ThemeMode> themeNotifier,
   required VoidCallback onThemeToggle,
-  required ThemeMode themeMode,
 }) {
   return GoRouter(
     initialLocation: '/',
+    navigatorKey: appNavigatorKey,
     routes: [
       GoRoute(
         path: '/',
-        name: AppRoutes.splash,
         pageBuilder: (_, __) => NoTransitionPage(
-          child: AppShell(
-            onThemeToggle: onThemeToggle,
-            themeMode: themeMode,
+          child: ValueListenableBuilder<ThemeMode>(
+            valueListenable: themeNotifier,
+            builder: (_, mode, __) => AppShell(
+              onThemeToggle: onThemeToggle,
+              themeMode: mode,
+            ),
           ),
         ),
         routes: [

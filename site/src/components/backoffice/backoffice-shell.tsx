@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Bell, BookOpen, Calendar, ChevronDown, LayoutDashboard, LifeBuoy, Shield } from "lucide-react";
+import { Bell, BookOpen, Calendar, ChevronDown, LayoutDashboard, LifeBuoy, Scale, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Section = { id: string; label: string; path: string; icon: string | null };
@@ -15,6 +15,7 @@ const icons = {
   calendar: Calendar,
   "life-buoy": LifeBuoy,
   bell: Bell,
+  scale: Scale,
 } as const;
 
 const subNav: Record<string, Array<{ label: string; hash: string }>> = {

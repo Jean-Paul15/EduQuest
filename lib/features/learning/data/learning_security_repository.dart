@@ -74,11 +74,11 @@ class LearningSecurityRepository {
 
   LearningSecurityPolicy _fromMap(Map<String, dynamic> value) {
     return LearningSecurityPolicy(
-      captureAllowed: value['capture_allowed'] as bool? ?? true,
+      captureAllowed: false,
       keepAwake: value['keep_awake'] as bool? ?? true,
     );
   }
 
   LearningSecurityPolicy _fallback() =>
-      const LearningSecurityPolicy(captureAllowed: true, keepAwake: true);
+      const LearningSecurityPolicy(captureAllowed: false, keepAwake: true);
 }

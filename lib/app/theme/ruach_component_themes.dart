@@ -52,6 +52,28 @@ class RuachComponentThemes {
     );
   }
 
+  /// Le défaut Material 3 rend le bouton du switch éteint quasi invisible avec
+  /// notre palette (`outline` ≈ `surfaceContainerHighest`, tous deux crème).
+  /// On force un contraste net dans les deux états.
+  static SwitchThemeData switchTheme({required ColorScheme scheme}) {
+    return SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return scheme.onSurface.withValues(alpha: .28);
+        if (states.contains(WidgetState.selected)) return scheme.onPrimary;
+        return scheme.onSurfaceVariant; // éteint : bouton bien plus foncé que le rail
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return scheme.surfaceContainerHighest.withValues(alpha: .5);
+        if (states.contains(WidgetState.selected)) return scheme.primary;
+        return scheme.surfaceContainerHighest;
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return Colors.transparent;
+        return scheme.outline;
+      }),
+    );
+  }
+
   static TabBarThemeData tabBarTheme({required ColorScheme scheme}) {
     return TabBarThemeData(
       labelColor: scheme.primary,

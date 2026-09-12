@@ -4,14 +4,20 @@ import { env } from "@/lib/env";
 import { getViewerContext } from "@/lib/data/profile";
 import { listTicketCheckoutOptions } from "@/lib/data/tickets";
 import { TicketCheckoutFlow } from "@/components/ticket-checkout-flow";
+import { normalizeAppReturnUrl } from "@/lib/app-return";
 
 type Props = { searchParams: Promise<{ next?: string }> };
 
 export default async function TicketCheckoutPage({ searchParams }: Props) {
   const viewer = await getViewerContext();
   const params = await searchParams;
-  const appReturnUrl = (params.next || "").startsWith("eduquest://") ? String(params.next) : env.appDeepLink;
-  if (!viewer.user) redirect("/login?error=session_required&next=/tickets/checkout");
+  const appReturnUrl = normalizeAppReturnUrl(params.next, env.appDeepLink);
+  if (!viewer.user) {
+    const next = encodeURIComponent(
+      `/tickets/checkout?next=${encodeURIComponent(appReturnUrl)}`,
+    );
+    redirect(`/login?error=session_required&next=${next}`);
+  }
   const options = await listTicketCheckoutOptions();
 
   if (!options.length) {

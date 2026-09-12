@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { BackofficeInlineFeedback } from "@/components/backoffice/backoffice-inl
 
 type Item = { id: string; code: string; label: string };
 type Level = { id: string; code: string; label: string };
+type SeriesOpt = { id: string; label: string; education_level_id: string };
 type CountryRow = { id: string; code: string; name: string };
 type Chapter = { id: string; title: string; position: number; subject_id: string; education_level_id: string };
 
@@ -18,7 +19,9 @@ export const SubjectChapterManager = () => {
   const [subjectId, setSubjectId] = useState("");
   const [countries, setCountries] = useState<Item[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
+  const [seriesOptions, setSeriesOptions] = useState<SeriesOpt[]>([]);
   const [subjects, setSubjects] = useState<Item[]>([]);
+  const [targetSeriesIds, setTargetSeriesIds] = useState<string[]>([]);
   const [subCode, setSubCode] = useState(""); const [subLabel, setSubLabel] = useState("");
   const [chTitle, setChTitle] = useState(""); const [chPos, setChPos] = useState(1);
   const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -28,13 +31,15 @@ export const SubjectChapterManager = () => {
   const [sortMode, setSortMode] = useState<"code_asc" | "code_desc" | "label_asc" | "chapter_pos">("code_asc");
 
   const load = useCallback(async () => {
-    const [c, l, s, ch] = await Promise.all([
+    const [c, l, se, s, ch] = await Promise.all([
       supabase.from("countries").select("id,code,name"),
       supabase.from("education_levels").select("id,code,label").order("code"),
+      supabase.from("series").select("id,code,label,education_level_id").eq("is_active", true).order("code"),
       supabase.from("subjects").select("id,code,label").order("code"),
       supabase.from("chapters").select("id,title,position,subject_id,education_level_id").order("position"),
     ]);
     setCountries((((c.data || []) as CountryRow[])).map((x) => ({ id: x.id, code: x.code, label: x.name })));
+    setSeriesOptions((((se.data || []) as { id: string; code: string; label: string; education_level_id: string }[])).map((x) => ({ id: x.id, label: `${x.code} - ${x.label}`, education_level_id: x.education_level_id })));
     setLevels((l.data as Level[]) || []); setSubjects((s.data as Item[]) || []);
     setChapters((ch.data as Chapter[]) || []);
     if (!countryId && c.data?.length) setCountryId(String(c.data[0].id));
@@ -53,7 +58,10 @@ export const SubjectChapterManager = () => {
     if (!r.error) { setSubCode(""); setSubLabel(""); await load(); }
   };
   const createChapter = async () => {
-    const r = await supabase.from("chapters").insert({ subject_id: subjectId, education_level_id: levelId, title: chTitle, position: chPos });
+    const r = await supabase.from("chapters").insert({ subject_id: subjectId, education_level_id: levelId, title: chTitle, position: chPos }).select("id").single();
+    if (!r.error && r.data?.id && targetSeriesIds.length) {
+      await supabase.from("chapter_series_targets").insert(targetSeriesIds.map((series_id) => ({ chapter_id: r.data.id, series_id })));
+    }
     setMessage(r.error ? r.error.message : "Chapitre créé.");
     setTone(r.error ? "error" : "success");
     if (!r.error) { setChTitle(""); setChPos(1); await load(); }
@@ -75,6 +83,16 @@ export const SubjectChapterManager = () => {
   };
   const canCreateSubject = !!countryId && !!subCode.trim() && !!subLabel.trim();
   const canCreateChapter = !!levelId && !!subjectId && !!chTitle.trim();
+  const levelSeries = useMemo(() => seriesOptions.filter((x) => x.education_level_id === levelId), [levelId, seriesOptions]);
+  useEffect(() => {
+    // Reinitialise la selection de series quand le niveau change (pas un etat derive pur).
+    if (!levelSeries.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTargetSeriesIds([]);
+      return;
+    }
+    setTargetSeriesIds((prev) => prev.length ? prev.filter((id) => levelSeries.some((serie) => serie.id === id)) : levelSeries.map((serie) => serie.id));
+  }, [levelSeries]);
   const filteredSubjects = subjects
     .filter((x) => `${x.code} ${x.label}`.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => (sortMode === "code_desc" ? b.code.localeCompare(a.code, "fr") : sortMode === "label_asc" ? a.label.localeCompare(b.label, "fr") : a.code.localeCompare(b.code, "fr")));
@@ -104,6 +122,22 @@ export const SubjectChapterManager = () => {
         <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2">
           <input value={chTitle} onChange={(e) => setChTitle(e.target.value)} placeholder="Titre chapitre (ex: Fonctions)" className="rounded border p-2 text-sm" />
           <input value={chPos} type="number" min={1} onChange={(e) => setChPos(Number(e.target.value) || 1)} className="rounded border p-2 text-sm" />
+        </div>
+        <div className="mt-2 rounded-xl border border-dashed p-2 text-xs">
+          <p className="mb-2 font-semibold text-slate-600">Séries ciblées</p>
+          <div className="flex flex-wrap gap-2">
+            {levelSeries.map((serie) => (
+              <label key={serie.id} className="flex items-center gap-2 rounded-full border px-3 py-1">
+                <input
+                  type="checkbox"
+                  checked={targetSeriesIds.includes(serie.id)}
+                  onChange={() => setTargetSeriesIds((prev) => prev.includes(serie.id) ? prev.filter((id) => id !== serie.id) : [...prev, serie.id])}
+                />
+                <span>{serie.label}</span>
+              </label>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-slate-500">Laisser vide masque le chapitre côté app. Sélection multiple autorisée.</p>
         </div>
         <Button onClick={createChapter} variant="outline" disabled={!canCreateChapter} className="mt-2">Créer chapitre</Button>
       </div>

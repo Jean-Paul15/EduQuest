@@ -1,34 +1,34 @@
 import 'package:eduquest/features/home/domain/home_snapshot.dart';
+import 'package:eduquest/features/home/domain/motivational_quote.dart';
+import 'package:eduquest/features/widget/data/home_widget_service.dart';
 
-(String, String, String?) widgetFocus(HomeSnapshot s) {
+/// Assemble tous les ingrédients du widget écran d'accueil. Le choix de LA
+/// face à afficher (quête / progression / série / ticket ⇄ citation) est fait
+/// côté natif selon l'heure et l'urgence — ici on ne fait que fournir la
+/// matière fraîche.
+WidgetPayload widgetPayload(HomeSnapshot s, {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  final xpPct = (s.gamification.levelProgress * 100).round().clamp(0, 100);
+
   final pending = s.quests.where((q) => !q.completedToday).toList();
-  if (pending.isNotEmpty) {
-    final q = pending.first;
-    return (
-      'Defi du jour',
-      '${q.label} • +${q.xpReward} XP',
-      'Touchez pour ouvrir RuachEdu',
-    );
-  }
+  final hasQuest = pending.isNotEmpty;
+  final quest = hasQuest ? pending.first : null;
+
   final exp = s.access.expiresAt;
-  final d = exp?.difference(DateTime.now()).inDays;
-  if (d != null && d <= 7) {
-    return (
-      'Ticket',
-      '${s.access.tier} • Expire dans ${d < 0 ? 0 : d}j',
-      'Touchez pour ouvrir RuachEdu',
-    );
-  }
-  if (s.gamification.streakDays > 0) {
-    return (
-      'Serie active',
-      '${s.gamification.streakDays} jours',
-      'Touchez pour continuer',
-    );
-  }
-  return (
-    'Niveau',
-    '${s.gamification.level} • ${s.gamification.xp} XP',
-    'Touchez pour ouvrir RuachEdu',
+  final rawDays = exp?.difference(n).inDays;
+  final ticketDays = (rawDays != null && rawDays <= 7) ? (rawDays < 0 ? 0 : rawDays) : -1;
+
+  return WidgetPayload(
+    name: s.displayName,
+    xpPct: xpPct,
+    xpLabel: '$xpPct % vers Niv. ${s.gamification.level + 1}',
+    level: s.gamification.level,
+    streak: s.gamification.streakDays,
+    questLabel: hasQuest ? 'Défi du jour' : '',
+    questValue: hasQuest ? '${quest!.label} · +${quest.xpReward} XP' : '',
+    ticketTier: ticketDays >= 0 ? s.access.tier : '',
+    ticketDays: ticketDays,
+    quote: kMotivationalQuote,
+    quoteAuthor: kMotivationalQuoteAuthor,
   );
 }

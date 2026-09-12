@@ -6,6 +6,7 @@ import 'package:eduquest/features/learning/domain/learning_subject.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:eduquest/shared/realtime/cache_signal.dart';
 
 class ExamRepository {
   final _scopeRepo = LearningScopeRepository();
@@ -13,17 +14,25 @@ class ExamRepository {
   static final Map<String, List<LearningSubject>> _subjectCache = {};
   static final Map<String, List<ExamEntry>> _paperCache = {};
 
+
   static void clearMemory() {
     _subjectCache.clear();
     _paperCache.clear();
   }
 
+  static void evictKeys(CacheTargets t) {
+    if (t.exact.any((k) => k.startsWith('exam:')) ||
+        t.prefixes.any((p) => p.startsWith('exam:'))) {
+      clearMemory();
+    }
+  }
+
   Future<bool> hasSubjectsCache(ExamCategory category) async {
     final s = await _scopeRepo.current();
-    if (s == null) return false;
-    return _local.hasKey(
-      'exam:subjects:${category.name}:${s.countryId}:${s.levelId}',
-    );
+    if (s == null || !s.hasSeries) return false;
+    final memKey = '${category.name}:${s.countryId}:${s.levelId}:${s.seriesId}';
+    if (_subjectCache.containsKey(memKey)) return true;
+    return _local.hasKey('exam:subjects:$memKey');
   }
 
   Future<bool> hasPapersCache({
@@ -31,10 +40,11 @@ class ExamRepository {
     required ExamCategory category,
   }) async {
     final s = await _scopeRepo.current();
-    if (s == null) return false;
-    return _local.hasKey(
-      'exam:papers:${category.name}:${s.countryId}:${s.levelId}:$subjectId',
-    );
+    if (s == null || !s.hasSeries) return false;
+    final memKey =
+        '${category.name}:${s.countryId}:${s.levelId}:${s.seriesId}:$subjectId';
+    if (_paperCache.containsKey(memKey)) return true;
+    return _local.hasKey('exam:papers:$memKey');
   }
 
   List<ExamEntry>? peekPapers({
@@ -50,20 +60,22 @@ class ExamRepository {
     return null;
   }
 
-  Future<List<LearningSubject>> subjects(ExamCategory category) async {
+  Future<List<LearningSubject>> subjects(
+    ExamCategory category, {
+    bool forceRefresh = false,
+  }) async {
     final s = await _scopeRepo.current();
-    if (s == null) return const [];
-    final key = '${category.name}:${s.countryId}:${s.levelId}';
+    if (s == null || !s.hasSeries) return const [];
+    final key = '${category.name}:${s.countryId}:${s.levelId}:${s.seriesId}';
+    final cacheKey = 'exam:subjects:$key';
     final cached = _subjectCache[key];
-    if (cached != null) {
-      if (Env.hasSupabase) {
-        unawaited(_refreshSubjects(s.countryId, s.levelId, category, key));
-      }
+    // Un cache VIDE ne doit jamais suppr le refetch : il peut dater d'avant l'ajout
+    // du contenu (ex. annales chargees apres coup) -> on le traite comme un cache-miss.
+    if (cached != null && cached.isNotEmpty && !forceRefresh) {
       return cached;
     }
-    final cacheKey = 'exam:subjects:$key';
-    final localRows = await _local.readList(cacheKey);
-    if (localRows != null) {
+    final localRows = forceRefresh ? null : await _local.readList(cacheKey);
+    if (localRows != null && localRows.isNotEmpty) {
       final out = localRows
           .map(
             (e) => LearningSubject(
@@ -74,58 +86,38 @@ class ExamRepository {
           )
           .toList();
       _subjectCache[key] = out;
-      if (Env.hasSupabase) {
-        unawaited(_refreshSubjects(s.countryId, s.levelId, category, key));
-      }
       return out;
     }
     if (!Env.hasSupabase) return const [];
-    final fresh = await _refreshSubjects(s.countryId, s.levelId, category, key);
-    return fresh ?? const [];
+    final fresh = await _refreshSubjects(
+      s.countryId,
+      s.levelId,
+      s.seriesId!,
+      category,
+      key,
+    );
+    if (fresh != null) return fresh;
+    return cached ?? const [];
   }
 
   Future<List<LearningSubject>?> _refreshSubjects(
     String countryId,
     String levelId,
+    String seriesId,
     ExamCategory category,
     String key,
   ) async {
     try {
-      final rows = switch (category) {
-        ExamCategory.national =>
-          await Supabase.instance.client
-              .from('exam_papers')
-              .select('subject_id')
-              .eq('country_id', countryId)
-              .eq('education_level_id', levelId)
-              .eq('is_national_exam', true),
-        ExamCategory.mock =>
-          await Supabase.instance.client
-              .from('exam_papers')
-              .select('subject_id')
-              .eq('country_id', countryId)
-              .eq('education_level_id', levelId)
-              .eq('is_national_exam', false)
-              .isFilter('semester', null),
-        ExamCategory.epreuve =>
-          await Supabase.instance.client
-              .from('exam_papers')
-              .select('subject_id')
-              .eq('country_id', countryId)
-              .eq('education_level_id', levelId)
-              .not('semester', 'is', null),
-      };
-      final ids = (rows as List)
-          .map((e) => '${e['subject_id']}')
-          .toSet()
-          .toList();
-      if (ids.isEmpty) return const [];
-      final sub = await Supabase.instance.client
-          .from('subjects')
-          .select('id,code,label')
-          .inFilter('id', ids)
-          .order('label');
-      final out = (sub as List)
+      final rows = await Supabase.instance.client.rpc(
+        'list_exam_subjects',
+        params: {
+          'p_country_id': countryId,
+          'p_level_id': levelId,
+          'p_series_id': seriesId,
+          'p_category': category.name,
+        },
+      );
+      final out = (rows as List)
           .map(
             (e) => LearningSubject(
               id: '${e['id']}',
@@ -148,22 +140,19 @@ class ExamRepository {
   Future<List<ExamEntry>> listBySubject({
     required String subjectId,
     required ExamCategory category,
+    bool forceRefresh = false,
   }) async {
     final s = await _scopeRepo.current();
-    if (s == null) return const [];
-    final key = '${category.name}:${s.countryId}:${s.levelId}:$subjectId';
+    if (s == null || !s.hasSeries) return const [];
+    final key =
+        '${category.name}:${s.countryId}:${s.levelId}:${s.seriesId}:$subjectId';
+    final cacheKey = 'exam:papers:$key';
     final cached = _paperCache[key];
-    if (cached != null) {
-      if (Env.hasSupabase) {
-        unawaited(
-          _refreshPapers(s.countryId, s.levelId, subjectId, category, key),
-        );
-      }
+    if (cached != null && cached.isNotEmpty && !forceRefresh) {
       return cached;
     }
-    final cacheKey = 'exam:papers:$key';
-    final localRows = await _local.readList(cacheKey);
-    if (localRows != null) {
+    final localRows = forceRefresh ? null : await _local.readList(cacheKey);
+    if (localRows != null && localRows.isNotEmpty) {
       final out = localRows
           .map(
             (e) => ExamEntry(
@@ -176,72 +165,48 @@ class ExamRepository {
           )
           .toList();
       _paperCache[key] = out;
-      if (Env.hasSupabase) {
-        unawaited(
-          _refreshPapers(s.countryId, s.levelId, subjectId, category, key),
-        );
-      }
       return out;
     }
     if (!Env.hasSupabase) return const [];
     final fresh = await _refreshPapers(
       s.countryId,
       s.levelId,
+      s.seriesId!,
       subjectId,
       category,
       key,
     );
-    return fresh ?? const [];
+    if (fresh != null) return fresh;
+    return cached ?? const [];
   }
 
   Future<List<ExamEntry>?> _refreshPapers(
     String countryId,
     String levelId,
+    String seriesId,
     String subjectId,
     ExamCategory category,
     String key,
   ) async {
     try {
-      final rows = switch (category) {
-        ExamCategory.national =>
-          await Supabase.instance.client
-              .from('exam_papers')
-              .select(
-                'id,year,semester,source_school,paper_path,correction_path',
-              )
-              .eq('country_id', countryId)
-              .eq('education_level_id', levelId)
-              .eq('subject_id', subjectId)
-              .eq('is_national_exam', true)
-              .order('year', ascending: false),
-        ExamCategory.mock =>
-          await Supabase.instance.client
-              .from('exam_papers')
-              .select(
-                'id,year,semester,source_school,paper_path,correction_path',
-              )
-              .eq('country_id', countryId)
-              .eq('education_level_id', levelId)
-              .eq('subject_id', subjectId)
-              .eq('is_national_exam', false)
-              .isFilter('semester', null)
-              .order('year', ascending: false),
-        ExamCategory.epreuve =>
-          await Supabase.instance.client
-              .from('exam_papers')
-              .select(
-                'id,year,semester,source_school,paper_path,correction_path',
-              )
-              .eq('country_id', countryId)
-              .eq('education_level_id', levelId)
-              .eq('subject_id', subjectId)
-              .not('semester', 'is', null)
-              .order('year', ascending: false),
-      };
+      final rows = await Supabase.instance.client.rpc(
+        'list_exam_papers',
+        params: {
+          'p_country_id': countryId,
+          'p_level_id': levelId,
+          'p_series_id': seriesId,
+          'p_subject_id': subjectId,
+          'p_category': category.name,
+        },
+      );
       final out = (rows as List)
           .map((e) {
-            final title =
-                '${e['year'] ?? 'Sans année'} • ${e['semester'] ?? 'Session'} • ${e['source_school'] ?? 'Source locale'}';
+            // `semester`/`source_school` sont toujours nuls sur les sujets nationaux
+            // (BAC/Probatoire) : on affiche le niveau d'examen à la place, plus
+            // parlant que le placeholder "Session • Source locale".
+            final title = category == ExamCategory.national
+                ? '${e['year'] ?? 'Sans année'} • ${e['exam_level_label'] ?? 'Examen national'}'
+                : '${e['year'] ?? 'Sans année'} • ${e['semester'] ?? 'Session'} • ${e['source_school'] ?? 'Source locale'}';
             return ExamEntry(
               id: '${e['id']}',
               title: title,

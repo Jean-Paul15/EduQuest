@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 200 200">
+  <title>RuachEdu App Icon</title>
+  <desc>Rising 8-pointed star above horizon — RuachEdu by RuachNova Group</desc>
+
+  <!-- Background rounded square -->
+  <rect width="200" height="200" rx="44" fill="#1C1000"/>
+
+  <!-- Clip: show only above horizon at y=128 -->
+  <defs>
+    <clipPath id="above-horizon">
+      <rect x="0" y="0" width="200" height="128"/>
+    </clipPath>
+  </defs>
+
+  <!-- 8-pointed star rising — center (100,110), long r=62, short r=42, inner r=20 -->
+  <!-- Long cardinal points: N(100,48) E(162,110) S(100,172) W(38,110)           -->
+  <!-- Short diagonal points: NE(131,80) SE(131,140) SW(69,140) NW(69,80)        -->
+  <!-- Inner valleys: 8 points connecting them                                    -->
+  <path
+    d="M162,110 L119,103 L131,80 L108,92 L100,48 L92,92 L69,80 L81,103
+       L38,110 L81,117 L69,140 L92,128 L100,172 L108,128 L131,140 L119,117 Z"
+    fill="#C89A5A"
+    clip-path="url(#above-horizon)"
+  />
+
+  <!-- Horizon line -->
+  <line
+    x1="18" y1="128" x2="182" y2="128"
+    stroke="#C89A5A"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    opacity="0.38"
+  />
+
+</svg>

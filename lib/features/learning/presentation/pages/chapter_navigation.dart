@@ -3,7 +3,7 @@ import 'package:eduquest/features/gamification/data/gamification_repository.dart
 import 'package:eduquest/features/learning/data/chapter_content_repository.dart';
 import 'package:eduquest/features/learning/domain/chapter_resource.dart';
 import 'package:eduquest/features/learning/domain/learning_chapter.dart';
-import 'package:eduquest/features/learning/domain/learning_quiz.dart';
+import 'package:ruach_quiz_engine/ruach_quiz_engine.dart';
 import 'package:eduquest/features/learning/domain/learning_section.dart';
 import 'package:eduquest/features/learning/presentation/pages/chapter_course_page.dart';
 import 'package:eduquest/features/learning/presentation/pages/chapter_media_page.dart';
@@ -34,9 +34,9 @@ class ChapterNavigator {
         final summaries = loaded[0] as List<ChapterResource>;
         final exercises = loaded[1] as List<ChapterResource>;
         final corrections = loaded[2] as List<ChapterResource>;
-        final quizzes = loaded[3] as List<LearningQuiz>;
+        final quizzes = loaded[3] as List<QuizSummary>;
         unawaited(gamification.claimQuestByCode('open_lesson'));
-        // ignore: use_build_context_synchronously — guarded by isMounted() above
+        if (!context.mounted) return;
         await Navigator.push(
           context,
           MaterialPageRoute(
@@ -57,7 +57,7 @@ class ChapterNavigator {
           .resources(chapterId: chapter.id, type: type)
           .timeout(const Duration(milliseconds: 1800));
       if (!isMounted()) return;
-      // ignore: use_build_context_synchronously — guarded by isMounted() above
+      if (!context.mounted) return;
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -71,9 +71,9 @@ class ChapterNavigator {
       );
     } catch (_) {
       if (!isMounted()) return;
+      if (!context.mounted) return;
       final type = section == LearningSection.youtube ? 'youtube' : 'video';
       final isCourse = section == LearningSection.courses;
-      // ignore: use_build_context_synchronously — guarded by isMounted() above
       await Navigator.push(
         context,
         MaterialPageRoute(

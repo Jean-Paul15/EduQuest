@@ -10,6 +10,7 @@ class ContestDetailActionButtons extends StatelessWidget {
     required this.isBusy,
     required this.hasApplied,
     required this.canPay,
+    required this.isCancelled,
     required this.onJoin,
     required this.onCancel,
     required this.onPayOnSite,
@@ -18,6 +19,7 @@ class ContestDetailActionButtons extends StatelessWidget {
   final bool isBusy;
   final bool hasApplied;
   final bool canPay;
+  final bool isCancelled;
   final VoidCallback onJoin;
   final VoidCallback onCancel;
   final VoidCallback onPayOnSite;
@@ -29,10 +31,13 @@ class ContestDetailActionButtons extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: RuachButton(
-            label: isBusy
-                ? 'Postulation...'
-                : (hasApplied ? 'Déjà inscrit' : (canPay ? 'Reprendre le paiement' : 'Postuler')),
-            onPressed: (isBusy || hasApplied) ? null : onJoin,
+            label: hasApplied
+                ? 'Déjà inscrit'
+                : isCancelled
+                ? 'Repostuler'
+                : (canPay ? 'Reprendre le paiement' : 'Postuler'),
+            loading: isBusy,
+            onPressed: hasApplied ? null : onJoin,
             icon: PhosphorIconsRegular.userCheck,
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ticket_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 Future<void> showTicketQrDialog(
   BuildContext context, {
@@ -24,31 +24,27 @@ Future<void> showTicketQrDialog(
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
-                color: RuachColors.cream900,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: RuachSpace.s3),
-            Container(
-              padding: const EdgeInsets.all(RuachSpace.s2),
-              decoration: BoxDecoration(
-                color: RuachColors.white,
-                borderRadius: BorderRadius.circular(RuachRadius.lg),
-                border: Border.all(color: RuachColors.cream200),
-              ),
-              child: QrImageView(
-                data: value,
-                size: 240,
-                backgroundColor: RuachColors.white,
-              ),
-            ),
+            TicketQrView(data: value),
             const SizedBox(height: RuachSpace.s3),
             SelectableText(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: RuachColors.cream900,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: RuachSpace.s1),
+            Text(
+              "Présente ce billet à l'entrée.",
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: RuachSpace.s3),

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget écran d'accueil — thème sombre. Tokens RuachColors :
+         cream100 / cream500 / gold300 / gold200. -->
+    <color name="ruach_w_ink">#F5EFE4</color>
+    <color name="ruach_w_muted">#9C8E7A</color>
+    <color name="ruach_w_gold">#E8C88A</color>
+    <color name="ruach_w_streak">#F7E5B8</color>
+</resources>

@@ -1,7 +1,7 @@
 import 'package:eduquest/features/engagement/domain/engagement_item.dart';
 import 'package:eduquest/features/learning/domain/learning_subject.dart';
 
-enum FeedKind { course, contest, event, unknown }
+enum FeedKind { course, contest, event, recommendedChapter, unknown }
 
 class FeedItem {
   const FeedItem({
@@ -10,12 +10,19 @@ class FeedItem {
     required this.tag,
     required this.title,
     required this.subtitle,
+    this.subjectId = '',
   });
   final String id;
   final FeedKind kind;
   final String tag;
   final String title;
   final String subtitle;
+
+  /// Utilisé uniquement par [FeedKind.recommendedChapter] : le chapitre
+  /// recommandé pointe vers la liste de chapitres de son sujet (navigation
+  /// existante, pas de deep-link direct vers le chapitre — voir
+  /// `FeedNavigator`).
+  final String subjectId;
 
   factory FeedItem.fromMap(Map<String, dynamic> raw) {
     final kindName = raw['kind']?.toString() ?? '';
@@ -29,6 +36,7 @@ class FeedItem {
       tag: raw['tag']?.toString() ?? '',
       title: raw['title']?.toString() ?? '',
       subtitle: raw['subtitle']?.toString() ?? '',
+      subjectId: raw['subject_id']?.toString() ?? '',
     );
   }
 
@@ -38,6 +46,7 @@ class FeedItem {
     'tag': tag,
     'title': title,
     'subtitle': subtitle,
+    'subject_id': subjectId,
   };
 }
 
@@ -46,6 +55,8 @@ List<FeedItem> buildFeedItems({
   required List<LearningSubject> subjects,
   required List<EngagementItem> contests,
   required List<EngagementItem> events,
+  List<({String chapterId, String subjectId, String title})>
+      recommendedChapters = const [],
 }) {
   final showCourses = feedCfg['courses'] as bool? ?? true;
   final showContests = feedCfg['contests'] as bool? ?? true;
@@ -54,6 +65,18 @@ List<FeedItem> buildFeedItems({
   final limitContests = feedCfg['contests_limit'] as int? ?? 5;
   final limitEvents = feedCfg['events_limit'] as int? ?? 5;
   return <FeedItem>[
+    // Pas de section vide si l'élève n'a aucun signal déclaratif : la liste
+    // est simplement vide, jamais de contenu générique en substitution.
+    ...recommendedChapters.map(
+      (r) => FeedItem(
+        id: r.chapterId,
+        kind: FeedKind.recommendedChapter,
+        tag: 'Recommandé pour toi',
+        title: r.title,
+        subtitle: 'D\'après tes matières préférées',
+        subjectId: r.subjectId,
+      ),
+    ),
     if (showCourses)
       ...subjects.take(limitCourses).map(
         (s) => FeedItem(

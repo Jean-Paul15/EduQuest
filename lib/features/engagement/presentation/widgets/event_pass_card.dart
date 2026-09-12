@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/format/engagement_date_format.dart';
 import 'package:eduquest/shared/ui/widgets/ticket_qr_dialog.dart';
 import 'package:eduquest/features/engagement/domain/event_pass.dart';
 
@@ -16,6 +17,7 @@ class EventPassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
     return Material(
       color: RuachColors.transparent,
       child: InkWell(
@@ -30,7 +32,7 @@ class EventPassCard extends StatelessWidget {
           padding: const EdgeInsets.all(RuachSpace.s3),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            border: Border.all(color: RuachColors.cream200),
+            border: Border.all(color: s.outlineVariant),
             borderRadius: BorderRadius.circular(RuachRadius.lg),
           ),
           child: Row(
@@ -54,25 +56,25 @@ class EventPassCard extends StatelessWidget {
                   children: [
                     Text(
                       pass.passCode,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: RuachColors.cream900,
+                        color: s.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Billet généré le ${pass.createdAt.toLocal()}',
-                      style: const TextStyle(
+                      'Billet généré le ${formatEngagementDate(pass.createdAt)}',
+                      style: TextStyle(
                         fontSize: 12,
-                        color: RuachColors.cream700,
+                        color: s.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       'Touchez pour afficher le QR en grand',
                       style: TextStyle(
                         fontSize: 12,
-                        color: RuachColors.cream500,
+                        color: s.onSurfaceVariant,
                       ),
                     ),
                   ],

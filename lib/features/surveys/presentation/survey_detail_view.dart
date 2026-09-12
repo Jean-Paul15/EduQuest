@@ -1,8 +1,9 @@
 import 'package:eduquest/features/surveys/domain/survey_question.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
-import 'package:eduquest/shared/ui/widgets/empty_state.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_empty_state.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_button.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'survey_question_card.dart';
@@ -46,8 +47,9 @@ class SurveyDetailView extends StatelessWidget {
     return SafeArea(
       minimum: const EdgeInsets.all(RuachSpace.s4),
       child: RuachButton(
-        label: isSending ? 'Envoi...' : 'Envoyer toutes les réponses',
-        onPressed: isSending ? null : onSubmit,
+        label: 'Envoyer toutes les réponses',
+        loading: isSending,
+        onPressed: onSubmit,
         icon: PhosphorIconsRegular.paperPlaneTilt,
       ),
     );
@@ -55,10 +57,12 @@ class SurveyDetailView extends StatelessWidget {
 
   Widget _body(BuildContext context) {
     if (loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: RuachLoader(label: 'Chargement de l\'enquete'),
+      );
     }
     if (questions.isEmpty) {
-      return const EmptyState(
+      return const RuachEmptyState(
         title: 'Enquete vide',
         subtitle: 'Aucune question publiee.',
         icon: PhosphorIconsRegular.chartBar,

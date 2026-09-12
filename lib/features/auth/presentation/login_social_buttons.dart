@@ -9,12 +9,14 @@ class LoginSocialButtons extends StatelessWidget {
     super.key,
     required this.google,
     required this.apple,
+    required this.loading,
     required this.onGoogleTap,
     required this.onAppleTap,
   });
 
   final bool google;
   final bool apple;
+  final bool loading;
   final VoidCallback onGoogleTap;
   final VoidCallback onAppleTap;
 
@@ -28,6 +30,7 @@ class LoginSocialButtons extends StatelessWidget {
             width: double.infinity,
             child: RuachButton(
               label: 'Continuer avec Google',
+              loading: loading,
               onPressed: onGoogleTap,
               icon: PhosphorIconsRegular.googleLogo,
             ),
@@ -39,6 +42,7 @@ class LoginSocialButtons extends StatelessWidget {
             width: double.infinity,
             child: RuachOutlineButton(
               label: 'Continuer avec Apple',
+              loading: loading,
               onPressed: onAppleTap,
               icon: PhosphorIconsRegular.appleLogo,
             ),

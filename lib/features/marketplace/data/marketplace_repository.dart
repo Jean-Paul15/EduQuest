@@ -3,10 +3,21 @@ import 'package:eduquest/features/marketplace/domain/marketplace_item.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:eduquest/shared/realtime/cache_signal.dart';
 
 class MarketplaceRepository {
   final _local = LocalJsonCache();
   static final Map<String, List<MarketplaceItem>> _mem = {};
+
+  static void evictKeys(CacheTargets t) {
+    for (final k in t.exact) {
+      _mem.remove(k);
+    }
+    for (final p in t.prefixes) {
+      _mem.removeWhere((k, _) => k.startsWith(p));
+    }
+  }
+
 
   Future<List<MarketplaceItem>> search({
     String? query,
@@ -17,17 +28,11 @@ class MarketplaceRepository {
     final key = 'market:$q:${type ?? 'all'}:$limit';
     final mem = _mem[key];
     if (mem != null) {
-      if (Env.hasSupabase) {
-        unawaited(_refresh(key: key, q: q, type: type, limit: limit));
-      }
       return mem;
     }
     final local = await _fromLocal(key);
     if (local.isNotEmpty) {
       _mem[key] = local;
-      if (Env.hasSupabase) {
-        unawaited(_refresh(key: key, q: q, type: type, limit: limit));
-      }
       return local;
     }
     if (!Env.hasSupabase) return const [];

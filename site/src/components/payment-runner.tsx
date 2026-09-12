@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Loader2, CheckCircle2, AlertCircle, Copy, Download,
   ArrowRight, QrCode, Ticket, FileText,
 } from "lucide-react";
+import { trackSiteEvent } from "@/lib/analytics/client";
 import { useIdempotentPost } from "@/lib/security/use-idempotent-post";
+import { appendAppReturnParams } from "@/lib/app-return";
+import { copyToClipboard } from "@/lib/clipboard";
 
 type Kind = "event" | "contest" | "ticket";
 type Props = {
@@ -30,8 +33,18 @@ export const PaymentRunner = ({ kind, id, appReturnUrl, initialIdempotencyKey }:
   const [returnUrl, setReturnUrl] = useState(appReturnUrl);
   const [success, setSuccess] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!success) return;
+    const timeout = window.setTimeout(() => {
+      window.location.assign(returnUrl);
+    }, 900);
+    return () => window.clearTimeout(timeout);
+  }, [returnUrl, success]);
 
   const payNow = async () => {
+    void trackSiteEvent({ name: "payment_redirected", category: "payment", payload: { kind, id } });
     const { response, data } = await run<PayResult>({
       scope: "payments-complete",
       keyId: `${kind}:${id}`,
@@ -46,18 +59,25 @@ export const PaymentRunner = ({ kind, id, appReturnUrl, initialIdempotencyKey }:
     if (data?.qrCode) setQrCode(String(data.qrCode));
     if (response?.ok) {
       setSuccess(true);
-      const sep = appReturnUrl.includes("?") ? "&" : "?";
-      const code = data?.activationCode ? `&activation_code=${encodeURIComponent(String(data.activationCode))}` : "";
-      const pass = data?.passCode ? `&pass_code=${encodeURIComponent(String(data.passCode))}` : "";
-      const qr = data?.qrCode ? `&qr_code=${encodeURIComponent(String(data.qrCode))}` : "";
-      setReturnUrl(`${appReturnUrl}${sep}payment_status=ok&kind=${kind}${code}${pass}${qr}`);
+      setReturnUrl(appendAppReturnParams(appReturnUrl, {
+        payment_status: "ok",
+        kind,
+        activation_code: data?.activationCode ? String(data.activationCode) : null,
+        pass_code: data?.passCode ? String(data.passCode) : null,
+        qr_code: data?.qrCode ? String(data.qrCode) : null,
+      }));
     }
   };
 
-  const copyText = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(label);
-    setTimeout(() => setCopied(null), 2000);
+  const copyText = async (text: string, label: string) => {
+    try {
+      await copyToClipboard(text);
+      setCopied(label);
+      setCopyError(null);
+      window.setTimeout(() => setCopied(null), 2000);
+    } catch {
+      setCopyError("Copie impossible sur cet appareil.");
+    }
   };
 
   const isError = !busy && !success && message.length > 0;
@@ -98,7 +118,17 @@ export const PaymentRunner = ({ kind, id, appReturnUrl, initialIdempotencyKey }:
             <div>
               <p className="text-lg font-bold text-slate-900">Paiement confirmé</p>
               <p className="text-sm text-slate-500 mt-0.5">{message}</p>
+              <p className="mt-2 text-xs font-medium text-slate-400" aria-live="polite">
+                Retour vers l&apos;application en cours…
+              </p>
             </div>
+          </div>
+        )}
+
+        {copyError && (
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-100 bg-amber-50 p-3.5">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <p className="text-sm text-amber-800">{copyError}</p>
           </div>
         )}
 
@@ -108,7 +138,7 @@ export const PaymentRunner = ({ kind, id, appReturnUrl, initialIdempotencyKey }:
             icon={<Ticket className="w-4 h-4" />}
             code={activationCode}
             copied={copied === "activation"}
-            onCopy={() => copyText(activationCode, "activation")}
+            onCopy={() => void copyText(activationCode, "activation")}
             downloadHref={`/api/tickets/code-pdf?code=${activationCode}`}
             downloadLabel="Télécharger le PDF"
           />
@@ -120,7 +150,7 @@ export const PaymentRunner = ({ kind, id, appReturnUrl, initialIdempotencyKey }:
             icon={<FileText className="w-4 h-4" />}
             code={passCode}
             copied={copied === "pass"}
-            onCopy={() => copyText(passCode, "pass")}
+            onCopy={() => void copyText(passCode, "pass")}
             downloadHref={`/api/events/ticket-pdf?eventId=${id}`}
             downloadLabel="Télécharger le reçu"
           />

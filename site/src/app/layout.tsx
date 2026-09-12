@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const sora = Sora({ subsets: ["latin"], variable: "--font-display", weight: ["400", "600", "700", "800"] });
 
 export const metadata: Metadata = {
-  title: "EduQuest — Réussis tes examens",
-  description: "Cours structurés, exercices corrigés, concours motivants — la plateforme éducative n°1 au Togo.",
+  title: "RuachEdu — Ta réussite, ton combat",
+  description: "Cours structurés, exercices corrigés, QCM, examens blancs — la plateforme éducative qui te prépare aux examens.",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -31,7 +31,16 @@ export const listContests = async () => {
     .eq("is_visible", true)
     .order("starts_at", { ascending: true })
     .returns<ContestRow[]>();
-  return data ?? [];
+  return (data ?? []).filter((item) => !!item.id && !!item.title).map((item) => ({
+    ...item,
+    title: String(item.title || "").trim(),
+    venue: item.venue ? String(item.venue) : null,
+    logo_url: item.logo_url ? String(item.logo_url) : null,
+    fee_full: Number(item.fee_full || 0),
+    fee_half: Number(item.fee_half || 0),
+    fee_free: Number(item.fee_free || 0),
+    fee_campaign_free: Number(item.fee_campaign_free || 0),
+  }));
 };
 
 export const listMyContestEntries = async () => {
@@ -40,5 +49,10 @@ export const listMyContestEntries = async () => {
     .from("contest_entries")
     .select("contest_id,status,attendance_fee,qr_code")
     .returns<ContestEntry[]>();
-  return data ?? [];
+  return (data ?? []).filter((item) => !!item.contest_id).map((item) => ({
+    ...item,
+    status: String(item.status || "pending"),
+    attendance_fee: Number(item.attendance_fee || 0),
+    qr_code: item.qr_code ? String(item.qr_code) : null,
+  }));
 };

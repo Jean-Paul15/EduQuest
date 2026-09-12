@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:eduquest/features/gamification/data/revision_tracker.dart';
 import 'package:eduquest/shared/security/sensitive_scope.dart';
 import 'package:eduquest/shared/ui/media/network_media_player.dart';
@@ -34,7 +35,7 @@ class _AppMediaPlayerPageState extends State<AppMediaPlayerPage> {
 
   @override
   void dispose() {
-    _tracker.stop(_openedAt);
+    unawaited(_tracker.stop(_openedAt));
     super.dispose();
   }
 

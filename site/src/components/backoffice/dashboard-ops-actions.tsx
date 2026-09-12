@@ -27,9 +27,14 @@ export const DashboardOpsActions = () => {
 
   const queueDraft = async () => {
     if (!draftId) return setMessage("Aucune campagne en brouillon.");
-    const r = await supabase.rpc("queue_notification_campaign", { p_campaign_id: draftId });
-    setMessage(r.error ? r.error.message : (r.data?.message || "Campagne programmée."));
-    if (!r.error) await load();
+    const res = await fetch("/api/backoffice/notification-campaigns/queue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ campaignId: draftId }),
+    });
+    const out = (await res.json()) as { message?: string };
+    setMessage(out.message || (res.ok ? "Campagne programmée." : "Erreur."));
+    if (res.ok) await load();
   };
 
   const rebuildRewards = async () => {

@@ -91,3 +91,25 @@ migrate_working_dir/
 *.md
 !README.md
 !**/README.md
+
+# Curriculum scrape : corpus MEPSTA regenerable via `node scripts/curriculum-scrape/main.mjs`.
+# Deja importe dans Supabase ; trop volumineux pour l'historique Git (~190 Mo).
+/curriculum/
+/COURS/
+node_modules/
+
+# graphify : index regenerable via `graphify update .`, pas versionne.
+/graphify-out/
+
+# clé service (local only)
+secret.txt
+
+# Build artifacts divers
+scripts/__pycache__/
+*.aux
+*.out
+*.toc
+.playwright-mcp/
+
+# Dossier de scratch (fichiers de test/regression jetables, jamais versionnes)
+/scratchpad/

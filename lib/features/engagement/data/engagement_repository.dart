@@ -5,15 +5,31 @@ import 'package:eduquest/features/engagement/domain/event_pass.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:eduquest/shared/realtime/cache_signal.dart';
 
 class EngagementRepository {
   final _local = LocalJsonCache();
   static final Map<String, List<EngagementItem>> _listMem = {};
   static final Map<String, EngagementDetail> _detailMem = {};
 
+
   static void clearMemory() {
     _listMem.clear();
     _detailMem.clear();
+  }
+
+  /// Purge ciblee RAM pour l'invalidation temps reel.
+  static void evictKeys(CacheTargets t) {
+    for (final k in t.exact) {
+      _listMem.remove(k);
+    }
+    for (final p in t.prefixes) {
+      _listMem.removeWhere((k, _) => k.startsWith(p));
+    }
+  }
+
+  static void clearListMemory(String key) {
+    _listMem.remove(key);
   }
 
   Future<void> clearSurveysCache() async {
@@ -53,8 +69,7 @@ class EngagementRepository {
   Future<List<EngagementItem>> listEvents({bool forceRefresh = false}) async {
     const key = 'hub:events';
     const table = 'events';
-    const select =
-        'id,title,starts_at,created_at,venue,meeting_url';
+    const select = 'id,title,starts_at,created_at,venue,meeting_url';
     EngagementItem map(Map e) {
       final venue = e['venue']?.toString() ?? '';
       final hasVenue = venue.trim().isNotEmpty;
@@ -97,20 +112,21 @@ class EngagementRepository {
     }
     final mem = _listMem[key];
     if (mem != null) {
-      if (Env.hasSupabase) unawaited(_refreshSurveys(key));
       return mem;
     }
     final local = await _fromLocal(key);
     if (local.isNotEmpty) _listMem[key] = local;
     if (!Env.hasSupabase) return local;
     if (local.isNotEmpty) {
-      unawaited(_refreshSurveys(key));
       return local;
     }
     return (await _refreshSurveys(key)) ?? local;
   }
 
-  Future<EngagementDetail> contestDetail(String id) async => _detail(
+  Future<EngagementDetail> contestDetail(
+    String id, {
+    bool forceRefresh = false,
+  }) async => _detail(
     'contests',
     id,
     '*',
@@ -136,8 +152,12 @@ class EngagementRepository {
       requireWhatsapp: r['require_whatsapp'] as bool?,
     ),
     'Concours indisponible',
+    forceRefresh: forceRefresh,
   );
-  Future<EngagementDetail> eventDetail(String id) async => _detail(
+  Future<EngagementDetail> eventDetail(
+    String id, {
+    bool forceRefresh = false,
+  }) async => _detail(
     'events',
     id,
     '*',
@@ -161,6 +181,7 @@ class EngagementRepository {
       freeForFull: r['free_for_full'] as bool?,
     ),
     'Événement indisponible',
+    forceRefresh: forceRefresh,
   );
   Future<Map<String, dynamic>> joinContest(String id) async {
     if (!Env.hasSupabase) {
@@ -191,24 +212,55 @@ class EngagementRepository {
     }
   }
 
-  Future<String> cancelContest(String id) async {
-    if (!Env.hasSupabase) return 'Supabase non configuré.';
+  Future<Map<String, dynamic>> cancelContest(String id) async {
+    if (!Env.hasSupabase) {
+      return {'success': false, 'message': 'Supabase non configuré.'};
+    }
     try {
       final res = await Supabase.instance.client.rpc(
-        'cancel_contest_application',
+        'cancel_contest_registration',
         params: {'p_contest_id': id},
       );
-      return Map<String, dynamic>.from(res as Map)['message']?.toString() ??
-          'Postulation annulée.';
+      return Map<String, dynamic>.from(res as Map);
     } catch (_) {
-      return 'Impossible d’exécuter l’opération pour le moment.';
+      return {
+        'success': false,
+        'message': 'Impossible d’exécuter l’opération pour le moment.',
+      };
     }
   }
 
-  Future<Map<String, dynamic>?> myContestEntry(String contestId) async {
-    if (!Env.hasSupabase) return null;
+  Future<Map<String, dynamic>?> myContestEntry(
+    String contestId, {
+    bool forceRefresh = false,
+  }) async {
     final uid = Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) return null;
+    final key = 'contest:entry:$uid:$contestId';
+    final local = await _fromLocalSingle(key);
+    if (forceRefresh && Env.hasSupabase) {
+      return await _refreshContestEntry(
+            key: key,
+            uid: uid,
+            contestId: contestId,
+          ) ??
+          local;
+    }
+    if (local != null) return local;
+    if (!Env.hasSupabase) return local;
+    return await _refreshContestEntry(
+          key: key,
+          uid: uid,
+          contestId: contestId,
+        ) ??
+        local;
+  }
+
+  Future<Map<String, dynamic>?> _refreshContestEntry({
+    required String key,
+    required String uid,
+    required String contestId,
+  }) async {
     try {
       final row = await Supabase.instance.client
           .from('contest_entries')
@@ -216,9 +268,15 @@ class EngagementRepository {
           .eq('contest_id', contestId)
           .eq('profile_id', uid)
           .maybeSingle();
-      return row == null ? null : Map<String, dynamic>.from(row);
+      final out = row == null ? null : Map<String, dynamic>.from(row);
+      await _writeSingle(key, out);
+      return out;
     } catch (_) {
-      for (final cols in const ['attendance_fee,qr_code', 'attendance_fee', 'id']) {
+      for (final cols in const [
+        'attendance_fee,qr_code',
+        'attendance_fee',
+        'id',
+      ]) {
         try {
           final row = await Supabase.instance.client
               .from('contest_entries')
@@ -230,8 +288,10 @@ class EngagementRepository {
           final out = Map<String, dynamic>.from(row);
           final hasQr = (out['qr_code']?.toString().isNotEmpty ?? false);
           final fee = (out['attendance_fee'] as num?)?.toDouble() ?? 0;
-          out['status'] =
-              hasQr ? 'applied' : (fee > 0 ? 'pending_payment' : 'applied');
+          out['status'] = hasQr
+              ? 'applied'
+              : (fee > 0 ? 'pending_payment' : 'applied');
+          await _writeSingle(key, out);
           return out;
         } catch (_) {}
       }
@@ -257,10 +317,29 @@ class EngagementRepository {
     }
   }
 
-  Future<List<EventPass>> myEventPasses(String eventId) async {
-    if (!Env.hasSupabase) return const [];
+  Future<List<EventPass>> myEventPasses(
+    String eventId, {
+    bool forceRefresh = false,
+  }) async {
     final uid = Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) return const [];
+    final key = 'event:passes:$uid:$eventId';
+    final local = await _fromLocalPasses(key);
+    if (forceRefresh && Env.hasSupabase) {
+      return await _refreshEventPasses(key: key, uid: uid, eventId: eventId) ??
+          local;
+    }
+    if (local.isNotEmpty) return local;
+    if (!Env.hasSupabase) return local;
+    return await _refreshEventPasses(key: key, uid: uid, eventId: eventId) ??
+        local;
+  }
+
+  Future<List<EventPass>?> _refreshEventPasses({
+    required String key,
+    required String uid,
+    required String eventId,
+  }) async {
     try {
       final rows = await Supabase.instance.client
           .from('event_registrations')
@@ -268,7 +347,7 @@ class EngagementRepository {
           .eq('event_id', eventId)
           .eq('profile_id', uid)
           .order('created_at', ascending: false);
-      return (rows as List)
+      final out = (rows as List)
           .map(
             (e) => EventPass(
               passCode: '${e['pass_code'] ?? ''}',
@@ -280,15 +359,56 @@ class EngagementRepository {
           )
           .where((e) => e.passCode.isNotEmpty)
           .toList();
+      await _local.writeList(
+        key,
+        out
+            .map(
+              (e) => {
+                'pass_code': e.passCode,
+                'created_at': e.createdAt.toIso8601String(),
+                'attendance_fee': e.attendanceFee,
+                'status': e.status,
+              },
+            )
+            .toList(),
+      );
+      return out;
     } catch (_) {
-      return const [];
+      return null;
     }
   }
 
-  Future<Map<String, dynamic>?> myEventRegistration(String eventId) async {
-    if (!Env.hasSupabase) return null;
+  Future<Map<String, dynamic>?> myEventRegistration(
+    String eventId, {
+    bool forceRefresh = false,
+  }) async {
     final uid = Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) return null;
+    final key = 'event:registration:$uid:$eventId';
+    final local = await _fromLocalSingle(key);
+    if (forceRefresh && Env.hasSupabase) {
+      return await _refreshEventRegistration(
+            key: key,
+            uid: uid,
+            eventId: eventId,
+          ) ??
+          local;
+    }
+    if (local != null) return local;
+    if (!Env.hasSupabase) return local;
+    return await _refreshEventRegistration(
+          key: key,
+          uid: uid,
+          eventId: eventId,
+        ) ??
+        local;
+  }
+
+  Future<Map<String, dynamic>?> _refreshEventRegistration({
+    required String key,
+    required String uid,
+    required String eventId,
+  }) async {
     try {
       final row = await Supabase.instance.client
           .from('event_registrations')
@@ -296,7 +416,9 @@ class EngagementRepository {
           .eq('event_id', eventId)
           .eq('profile_id', uid)
           .maybeSingle();
-      return row == null ? null : Map<String, dynamic>.from(row);
+      final out = row == null ? null : Map<String, dynamic>.from(row);
+      await _writeSingle(key, out);
+      return out;
     } catch (_) {
       try {
         final row = await Supabase.instance.client
@@ -309,8 +431,10 @@ class EngagementRepository {
         final out = Map<String, dynamic>.from(row);
         final hasPass = (out['pass_code']?.toString().isNotEmpty ?? false);
         final fee = (out['attendance_fee'] as num?)?.toDouble() ?? 0;
-        out['status'] =
-            hasPass ? 'applied' : (fee > 0 ? 'pending_payment' : 'applied');
+        out['status'] = hasPass
+            ? 'applied'
+            : (fee > 0 ? 'pending_payment' : 'applied');
+        await _writeSingle(key, out);
         return out;
       } catch (_) {
         return null;
@@ -327,20 +451,12 @@ class EngagementRepository {
   }) async {
     final mem = _listMem[key];
     if (mem != null) {
-      if (Env.hasSupabase) {
-        unawaited(
-          _refresh(key: key, table: table, select: select, map: map, q: q),
-        );
-      }
       return mem;
     }
     final local = await _fromLocal(key);
     if (local.isNotEmpty) _listMem[key] = local;
     if (!Env.hasSupabase) return local;
     if (local.isNotEmpty) {
-      unawaited(
-        _refresh(key: key, table: table, select: select, map: map, q: q),
-      );
       return local;
     }
     final remote = await _refresh(
@@ -412,21 +528,69 @@ class EngagementRepository {
     String id,
     String select,
     EngagementDetail Function(Map row) ok,
-    String fallbackTitle,
-  ) async {
+    String fallbackTitle, {
+    bool forceRefresh = false,
+  }) async {
     final memKey = '$table:$id';
+    final local = await _fromLocalDetail(memKey);
+    if (forceRefresh && Env.hasSupabase) {
+      return await _refreshDetail(
+            memKey: memKey,
+            table: table,
+            id: id,
+            select: select,
+            ok: ok,
+          ) ??
+          local ??
+          EngagementDetail(
+            id: id,
+            title: fallbackTitle,
+            description: 'Impossible de charger le détail actuellement.',
+            requiredTicketType: null,
+            startsAt: DateTime.now(),
+          );
+    }
     final mem = _detailMem[memKey];
     if (mem != null) return mem;
+    if (local != null) {
+      _detailMem[memKey] = local;
+      if (Env.hasSupabase) {
+        unawaited(
+          _refreshDetail(
+            memKey: memKey,
+            table: table,
+            id: id,
+            select: select,
+            ok: ok,
+          ),
+        );
+      }
+      return local;
+    }
+    if (!Env.hasSupabase) {
+      return EngagementDetail(
+        id: id,
+        title: fallbackTitle,
+        description: 'Impossible de charger le détail actuellement.',
+        requiredTicketType: null,
+        startsAt: DateTime.now(),
+      );
+    }
     try {
-      final row = await Supabase.instance.client
-          .from(table)
-          .select(select)
-          .eq('id', id)
-          .eq('is_visible', true)
-          .single();
-      final value = ok(Map<String, dynamic>.from(row as Map));
-      _detailMem[memKey] = value;
-      return value;
+      return await _refreshDetail(
+            memKey: memKey,
+            table: table,
+            id: id,
+            select: select,
+            ok: ok,
+          ) ??
+          EngagementDetail(
+            id: id,
+            title: fallbackTitle,
+            description: 'Impossible de charger le détail actuellement.',
+            requiredTicketType: null,
+            startsAt: DateTime.now(),
+          );
     } catch (_) {
       return EngagementDetail(
         id: id,
@@ -437,6 +601,110 @@ class EngagementRepository {
       );
     }
   }
+
+  Future<EngagementDetail?> _refreshDetail({
+    required String memKey,
+    required String table,
+    required String id,
+    required String select,
+    required EngagementDetail Function(Map row) ok,
+  }) async {
+    try {
+      final row = await Supabase.instance.client
+          .from(table)
+          .select(select)
+          .eq('id', id)
+          .eq('is_visible', true)
+          .single();
+      final value = ok(Map<String, dynamic>.from(row as Map));
+      _detailMem[memKey] = value;
+      await _writeSingle(_detailKey(memKey), _detailToMap(value));
+      return value;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<EngagementDetail?> _fromLocalDetail(String memKey) async {
+    final row = await _fromLocalSingle(_detailKey(memKey));
+    return row == null ? null : _detailFromMap(row);
+  }
+
+  String _detailKey(String memKey) => 'engagement:detail:$memKey';
+
+  Future<Map<String, dynamic>?> _fromLocalSingle(String key) async {
+    final rows = await _local.readList(key);
+    if (rows == null || rows.isEmpty) return null;
+    return Map<String, dynamic>.from(rows.first);
+  }
+
+  Future<void> _writeSingle(String key, Map<String, dynamic>? value) async {
+    if (value == null) return;
+    await _local.writeList(key, [value]);
+  }
+
+  Future<List<EventPass>> _fromLocalPasses(String key) async {
+    final rows = await _local.readList(key);
+    if (rows == null) return const [];
+    return rows
+        .map(
+          (e) => EventPass(
+            passCode: '${e['pass_code'] ?? ''}',
+            createdAt:
+                DateTime.tryParse('${e['created_at']}') ?? DateTime.now(),
+            attendanceFee: (e['attendance_fee'] as num?)?.toDouble(),
+            status: e['status']?.toString(),
+          ),
+        )
+        .where((e) => e.passCode.isNotEmpty)
+        .toList();
+  }
+
+  Map<String, dynamic> _detailToMap(EngagementDetail detail) => {
+    'id': detail.id,
+    'title': detail.title,
+    'description': detail.description,
+    'required_ticket_type': detail.requiredTicketType,
+    'starts_at': detail.startsAt.toIso8601String(),
+    'ends_at': detail.endsAt?.toIso8601String(),
+    'venue': detail.venue,
+    'external_url': detail.externalUrl,
+    'meeting_url': detail.meetingUrl,
+    'logo_url': detail.logoUrl,
+    'is_in_person': detail.isInPerson,
+    'location_lat': detail.locationLat,
+    'location_lng': detail.locationLng,
+    'pricing_mode': detail.pricingMode,
+    'fee_full': detail.feeFull,
+    'fee_half': detail.feeHalf,
+    'fee_free': detail.feeFree,
+    'fee_campaign_free': detail.feeCampaignFree,
+    'free_for_full': detail.freeForFull,
+    'require_whatsapp': detail.requireWhatsapp,
+  };
+
+  EngagementDetail _detailFromMap(Map<String, dynamic> row) => EngagementDetail(
+    id: '${row['id']}',
+    title: '${row['title']}',
+    description: '${row['description'] ?? ''}',
+    requiredTicketType: row['required_ticket_type']?.toString(),
+    startsAt: DateTime.tryParse('${row['starts_at']}') ?? DateTime.now(),
+    endsAt: DateTime.tryParse('${row['ends_at'] ?? ''}'),
+    venue: row['venue']?.toString(),
+    externalUrl: row['external_url']?.toString(),
+    meetingUrl: row['meeting_url']?.toString(),
+    logoUrl: row['logo_url']?.toString(),
+    isInPerson: row['is_in_person'] as bool?,
+    locationLat: (row['location_lat'] as num?)?.toDouble(),
+    locationLng: (row['location_lng'] as num?)?.toDouble(),
+    pricingMode: row['pricing_mode']?.toString(),
+    feeFull: (row['fee_full'] as num?)?.toDouble(),
+    feeHalf: (row['fee_half'] as num?)?.toDouble(),
+    feeFree: (row['fee_free'] as num?)?.toDouble(),
+    feeCampaignFree: (row['fee_campaign_free'] as num?)?.toDouble(),
+    freeForFull: row['free_for_full'] as bool?,
+    requireWhatsapp: row['require_whatsapp'] as bool?,
+  );
 
   Future<List<EngagementItem>?> _refreshSurveys(String key) async {
     try {

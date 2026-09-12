@@ -14,9 +14,14 @@ class HomeSnapshotCache {
     return HomeSnapshot(
       displayName: '${m['displayName'] ?? 'Étudiant'}',
       access: AccessState(
-        tier: '${m['tier'] ?? 'FREE'}',
+        tier: '${m['tier'] ?? 'FREE_LIGHT'}',
         hasAccess: m['hasAccess'] as bool? ?? true,
         expiresAt: DateTime.tryParse('${m['expiresAt'] ?? ''}'),
+        source: '${m['source'] ?? 'cache'}',
+        freeOfferCode: '${m['freeOfferCode'] ?? 'FREE_LIGHT'}',
+        scope: Map<String, dynamic>.from(
+          (m['scope'] as Map?) ?? const <String, dynamic>{},
+        ),
       ),
       gamification: GamificationState(
         xp: m['xp'] as int? ?? 0,
@@ -29,6 +34,7 @@ class HomeSnapshotCache {
           .map(
             (q) => DailyQuest(
               id: '${q['id']}',
+              code: '${q['code'] ?? q['id']}',
               label: '${q['label']}',
               xpReward: q['xpReward'] as int? ?? 0,
               completedToday: q['completedToday'] as bool? ?? false,
@@ -44,6 +50,9 @@ class HomeSnapshotCache {
       'tier': s.access.tier,
       'hasAccess': s.access.hasAccess,
       'expiresAt': s.access.expiresAt?.toIso8601String(),
+      'source': s.access.source,
+      'freeOfferCode': s.access.freeOfferCode,
+      'scope': s.access.scope,
       'xp': s.gamification.xp,
       'level': s.gamification.level,
       'streakDays': s.gamification.streakDays,
@@ -52,6 +61,7 @@ class HomeSnapshotCache {
           .map(
             (q) => {
               'id': q.id,
+              'code': q.code,
               'label': q.label,
               'xpReward': q.xpReward,
               'completedToday': q.completedToday,

@@ -4,6 +4,9 @@ type AccessState = {
   tier: string;
   has_access: boolean;
   expires_at: string | null;
+  source?: string | null;
+  free_offer_code?: string | null;
+  scope?: Record<string, unknown> | null;
 };
 
 type ProfileRow = {

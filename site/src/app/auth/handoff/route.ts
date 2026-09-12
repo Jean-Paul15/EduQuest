@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { recordServerEvent } from "@/lib/analytics/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { env } from "@/lib/env";
 
@@ -22,8 +23,12 @@ export async function GET(request: Request) {
   const token = url.searchParams.get("token");
   let siteBase = normalizeBase(url.origin) || normalizeBase(env.siteUrl) || "";
   const fallbackErrorUrl = new URL("/login?error=handoff", siteBase);
+  await recordServerEvent({ name: "app_handoff_attempted", category: "session", payload: { hasToken: !!token } });
 
-  if (!token) return NextResponse.redirect(fallbackErrorUrl);
+  if (!token) {
+    await recordServerEvent({ name: "app_handoff_failed", category: "session", payload: { reason: "missing_token" } });
+    return NextResponse.redirect(fallbackErrorUrl);
+  }
 
   try {
     const admin = createSupabaseAdminClient();
@@ -46,7 +51,10 @@ export async function GET(request: Request) {
       p_token: token,
     });
 
-    if (error || !data?.email) return NextResponse.redirect(errorUrl);
+    if (error || !data?.email) {
+      await recordServerEvent({ name: "app_handoff_failed", category: "session", payload: { reason: "consume_failed" } });
+      return NextResponse.redirect(errorUrl);
+    }
 
     const rawPath = String(data.next_path || "/dashboard");
     const nextPath =
@@ -60,14 +68,17 @@ export async function GET(request: Request) {
     });
 
     const hashedToken = link.data?.properties?.hashed_token;
-    if (link.error || !hashedToken) return NextResponse.redirect(errorUrl);
+    if (link.error || !hashedToken) {
+      await recordServerEvent({ name: "app_handoff_failed", category: "session", payload: { reason: "magic_link_failed" } });
+      return NextResponse.redirect(errorUrl);
+    }
 
     const cookieStore = await cookies();
     const pending: PendingCookie[] = [];
 
     const supabase = createServerClient(
       env.supabaseUrl,
-      env.supabaseAnonKey,
+      env.supabasePublishableKey,
       {
         cookies: {
           getAll() {
@@ -85,14 +96,19 @@ export async function GET(request: Request) {
       type: "email",
     });
 
-    if (otpError) return NextResponse.redirect(errorUrl);
+    if (otpError) {
+      await recordServerEvent({ name: "app_handoff_failed", category: "session", payload: { reason: "otp_failed" } });
+      return NextResponse.redirect(errorUrl);
+    }
 
     const response = NextResponse.redirect(new URL(nextPath, siteBase));
+    await recordServerEvent({ name: "app_handoff_succeeded", category: "session", payload: { nextPath } });
     for (const { name, value, options } of pending) {
       response.cookies.set(name, value, options as never);
     }
     return response;
   } catch {
+    await recordServerEvent({ name: "app_handoff_failed", category: "session", payload: { reason: "unexpected_error" } });
     return NextResponse.redirect(fallbackErrorUrl);
   }
 }

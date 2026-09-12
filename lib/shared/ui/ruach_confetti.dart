@@ -51,11 +51,17 @@ class _ConfettiOverlayState extends State<ConfettiOverlay> with SingleTickerProv
     return Stack(
       children: [
         widget.child,
-        AnimatedBuilder(
-          animation: _ctrl,
-          builder: (_, __) => CustomPaint(
-            painter: ConfettiPainter(_ctrl.value, List.unmodifiable(_particles)),
-            size: Size.infinite,
+        // IgnorePointer : purement decoratif, ne doit jamais intercepter le
+        // moindre toucher -- sans lui, ce calque plein ecran (Size.infinite)
+        // bloquait tout scroll et tout bouton de l'ecran en dessous, meme
+        // une fois l'animation de confettis terminee.
+        IgnorePointer(
+          child: AnimatedBuilder(
+            animation: _ctrl,
+            builder: (_, __) => CustomPaint(
+              painter: ConfettiPainter(_ctrl.value, List.unmodifiable(_particles)),
+              size: Size.infinite,
+            ),
           ),
         ),
       ],

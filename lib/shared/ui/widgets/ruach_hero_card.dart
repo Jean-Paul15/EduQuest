@@ -17,13 +17,14 @@ class RuachHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 220,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(RuachRadius.xl),
-          color: RuachColors.ink300,
+          color: isDark ? RuachColors.ink300 : RuachColors.cream200,
           image: imageUrl != null
               ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover)
               : null,
@@ -38,7 +39,10 @@ class RuachHeroCard extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [RuachColors.transparent, RuachColors.ink100],
+                    colors: [
+                      RuachColors.transparent,
+                      isDark ? RuachColors.ink100 : RuachColors.cream200,
+                    ],
                   ),
                 ),
               ),

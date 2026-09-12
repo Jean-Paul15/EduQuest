@@ -1,112 +1,152 @@
-import 'dart:async';
-import 'package:eduquest/features/surveys/data/survey_repository.dart';
-import 'package:eduquest/features/surveys/domain/survey_question.dart';
+import 'package:eduquest/features/auth/data/auth_repository.dart';
 import 'package:eduquest/shared/config/env.dart';
-import 'package:eduquest/shared/data/cache_policy.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
+import 'package:eduquest/shared/network/network_probe.dart';
+import 'package:ruach_quiz_engine/ruach_quiz_engine.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../domain/academic_year.dart';
+import '../domain/orientation_constraints.dart';
+import '../domain/orientation_recommendation.dart';
+import '../domain/recommended_field.dart';
+import '../domain/riasec_profile.dart';
+import 'orientation_recommendation_mapper.dart';
+
+class OrientationUnavailable implements Exception {
+  const OrientationUnavailable(this.message);
+  final String message;
+}
+
 class OrientationRepository {
-  final _surveys = SurveyRepository();
+  static const _slug = 'scientific-postbac';
+  static const _draftKey = 'orientation:scientific:draft';
+  static const _resultKey = 'orientation:scientific:result';
+
+  final _auth = AuthRepository();
   final _local = LocalJsonCache();
-  static (String, List<SurveyQuestion>)? _mem;
+  final _sb = Supabase.instance.client;
+  QuizDefinition? _memo;
+  String? _activeVersion;
 
-  Future<(String, List<SurveyQuestion>)?> activeQuestionnaire() async {
-    final mem = _mem;
-    if (mem != null) {
-      if (Env.hasSupabase &&
-          !await _local.isFresh(
-            'orientation:active',
-            CachePolicy.orientationQuestionnaire,
-          )) {
-        unawaited(_refresh());
-      }
-      return mem;
+  String? get activeVersion => _activeVersion;
+
+  Future<QuizDefinition> activeQuestionnaire() async {
+    if (_memo != null) return _memo!;
+    if (!Env.hasSupabase) {
+      throw const OrientationUnavailable(
+        'Le module orientation n’est pas configuré.',
+      );
     }
-    final local = await _fromLocal();
-    if (local != null) {
-      _mem = local;
-      if (Env.hasSupabase &&
-          !await _local.isFresh(
-            'orientation:active',
-            CachePolicy.orientationQuestionnaire,
-          )) {
-        unawaited(_refresh());
-      }
-      return local;
+    if (!await NetworkProbe.hasConnection()) {
+      throw const OrientationUnavailable(
+        'L’orientation n’est pas disponible hors ligne.',
+      );
     }
-    if (!Env.hasSupabase) return null;
-    return await _refresh();
+    final row = await _sb
+        .from('orientation_questionnaires')
+        .select('version,qdl_json')
+        .eq('slug', _slug)
+        .eq('is_active', true)
+        .maybeSingle();
+    if (row == null) {
+      throw const OrientationUnavailable(
+        'Aucun questionnaire actif n’a été publié.',
+      );
+    }
+    _activeVersion = row['version']?.toString();
+    _memo = const QdlParser().parseFull(
+      Map<String, dynamic>.from(row['qdl_json'] as Map),
+    );
+    return _memo!;
   }
 
-  Future<(String, List<SurveyQuestion>)?> _refresh() async {
+  Future<QuizSessionSnapshot?> loadDraft() async =>
+      QuizSessionSnapshot.fromRows(await _local.readList(_draftKey));
+
+  Future<void> saveDraft(QuizSessionSnapshot snapshot) async =>
+      _local.writeList(_draftKey, [snapshot.toMap()]);
+
+  Future<void> clearDraft() => _local.removeByPrefix(_draftKey);
+
+  /// Classement déterministe des familles de filières (source de vérité).
+  Future<List<RecommendedField>> matchFields({
+    required RiasecProfile profile,
+    required OrientationConstraints constraints,
+    required String seriesCode,
+    String? academicYear,
+  }) async {
+    final rows = await _sb.rpc(
+      'orientation_match_fields',
+      params: {
+        'p_riasec': profile.toJson(),
+        'p_constraints': constraints.toJson(),
+        'p_series': seriesCode,
+        'p_year': academicYear ?? currentAcademicYear(),
+      },
+    );
+    return (rows as List)
+        .map((r) => RecommendedField.fromRpcRow(Map<String, dynamic>.from(r)))
+        .toList(growable: false);
+  }
+
+  /// Analyse IA (narration + citations RAG) par-dessus le classement déterministe.
+  /// En cas d’échec réseau, renvoie une recommandation déterministe locale plutôt
+  /// qu’une erreur nue.
+  Future<OrientationRecommendation> analyzeCompleted({
+    required QuizSessionSnapshot snapshot,
+    required RiasecProfile profile,
+    required OrientationConstraints constraints,
+    required List<RecommendedField> fields,
+    required String seriesCode,
+    required String questionnaireVersion,
+    Map<String, dynamic>? learner,
+    String? academicYear,
+  }) async {
+    final uid = _auth.currentUser?.id;
+    if (!Env.hasSupabase || uid == null) {
+      throw const OrientationUnavailable('Une session active est requise.');
+    }
     try {
-      final now = DateTime.now().toUtc().toIso8601String();
-      final row = await Supabase.instance.client
-          .from('surveys')
-          .select('id,title')
-          .ilike('title', '%orientation%')
-          .lte('starts_at', now)
-          .gte('ends_at', now)
-          .order('starts_at')
-          .limit(1)
-          .maybeSingle();
-      final id = row?['id']?.toString();
-      if (id == null) return null;
-      final q = await _surveys.questions(id);
-      await _local.writeList('orientation:active', [
-        {
-          'id': id,
-          'questions': q
-              .map(
-                (e) => {
-                  'id': e.id,
-                  'prompt': e.prompt,
-                  'type': e.type,
-                  'options': e.options,
-                },
-              )
-              .toList(),
+      final token = _sb.auth.currentSession?.accessToken;
+      final res = await _sb.functions.invoke(
+        'ai-orientation-analyze',
+        headers: token == null ? null : {'Authorization': 'Bearer $token'},
+        body: {
+          'snapshot': snapshot.toMap(),
+          'riasec': profile.toJson(),
+          'constraints': constraints.toJson(),
+          'fields': [for (final f in fields) f.fieldCode],
+          'learner': learner,
+          'seriesCode': seriesCode,
+          'academicYear': academicYear ?? currentAcademicYear(),
+          'questionnaireVersion': questionnaireVersion,
         },
-      ]);
-      _mem = (id, q);
-      return (id, q);
+      );
+      final json = Map<String, dynamic>.from(res.data as Map);
+      final reco = Map<String, dynamic>.from(
+        (json['recommendation'] as Map?) ?? json,
+      );
+      final result = OrientationRecommendationMapper.fromEdgeJson(
+        reco,
+        profile: profile,
+        constraints: constraints,
+        fields: fields,
+      );
+      await _local.writeList(_resultKey, [reco]);
+      await clearDraft();
+      return result;
     } catch (_) {
-      return null;
+      return OrientationRecommendationMapper.deterministic(
+        profile: profile,
+        constraints: constraints,
+        fields: fields,
+      );
     }
   }
 
-  Future<String> submitAnswer({
-    required String questionId,
-    required String questionType,
-    required String answer,
-  }) {
-    final opt = questionType == 'mcq' ? answer : null;
-    final txt = questionType == 'text' ? answer : answer;
-    return _surveys.submit(questionId: questionId, text: txt, option: opt);
-  }
-
-  Future<(String, List<SurveyQuestion>)?> _fromLocal() async {
-    final rows = await _local.readList('orientation:active');
-    if (rows == null || rows.isEmpty) return null;
-    final x = rows.first;
-    final id = '${x['id'] ?? ''}';
-    final q = ((x['questions'] as List?) ?? const [])
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .map((e) {
-          final opts =
-              (e['options'] as List?)?.map((v) => '$v').toList() ??
-              const <String>[];
-          return SurveyQuestion(
-            id: '${e['id']}',
-            prompt: '${e['prompt']}',
-            type: '${e['type']}',
-            options: opts,
-          );
-        })
-        .toList();
-    final out = id.isEmpty ? null : (id, q);
-    if (out != null) _mem = out;
-    return out;
+  /// Dernier bilan mis en cache (consultation hors-ligne).
+  Future<Map<String, dynamic>?> cachedResultJson() async {
+    final rows = await _local.readList(_resultKey) ?? const [];
+    return rows.isEmpty ? null : Map<String, dynamic>.from(rows.first);
   }
 }

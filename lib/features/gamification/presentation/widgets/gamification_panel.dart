@@ -8,7 +8,7 @@ import 'package:eduquest/shared/ui/widgets/ruach_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class GamificationPanel extends StatelessWidget {
+class GamificationPanel extends StatefulWidget {
   const GamificationPanel({
     super.key,
     required this.state,
@@ -21,10 +21,29 @@ class GamificationPanel extends StatelessWidget {
   final Future<void> Function() onCheckin;
 
   @override
+  State<GamificationPanel> createState() => _GamificationPanelState();
+}
+
+class _GamificationPanelState extends State<GamificationPanel> {
+  bool _checkingIn = false;
+
+  Future<void> _handleCheckin() async {
+    if (_checkingIn) return;
+    setState(() => _checkingIn = true);
+    try {
+      await widget.onCheckin();
+    } finally {
+      if (mounted) setState(() => _checkingIn = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
+    final state = widget.state;
+    final quests = widget.quests;
     return GlassContainer(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: RuachSpace.s3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,10 +51,10 @@ class GamificationPanel extends StatelessWidget {
             children: [
               Text(
                 'Niv. ${state.level}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
-                  color: RuachColors.cream900,
+                  color: s.onSurface,
                 ),
               ),
               const Spacer(),
@@ -49,47 +68,48 @@ class GamificationPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: RuachSpace.s2),
-          RuachProgressBar(value: state.levelProgress),
           const SizedBox(height: RuachSpace.s3),
+          RuachProgressBar(value: state.levelProgress),
+          const SizedBox(height: RuachSpace.s4),
           Row(
             children: [
               Icon(
                 PhosphorIconsRegular.fire,
-                size: 16,
+                size: 20,
                 color: RuachColors.gold600,
               ),
               const SizedBox(width: RuachSpace.s1),
               Text(
                 '${state.streakDays}j',
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
-                  color: RuachColors.cream900,
+                  color: s.onSurface,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: RuachSpace.s3),
               Text(
                 'Record: ${state.bestStreak}j',
-                style: const TextStyle(
-                  color: RuachColors.cream500,
+                style: TextStyle(
+                  color: s.onSurfaceVariant,
                   fontSize: 13,
                 ),
               ),
             ],
           ),
           if (quests.isNotEmpty) ...[
-            const SizedBox(height: RuachSpace.s3),
+            const SizedBox(height: RuachSpace.s4),
             Wrap(
               spacing: RuachSpace.s2,
               runSpacing: RuachSpace.s2,
               children: quests.map((q) => QuestBadge(quest: q)).toList(),
             ),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: RuachSpace.s4),
           RuachButton(
             label: 'Check-in quotidien',
-            onPressed: onCheckin,
+            loading: _checkingIn,
+            onPressed: _handleCheckin,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_tap_scale.dart';
 import 'package:flutter/material.dart';
 
 class LearningTabChip extends StatelessWidget {
@@ -14,17 +15,22 @@ class LearningTabChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final s = Theme.of(context).colorScheme;
+    return TapScale(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: RuachMotion.tap,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         decoration: BoxDecoration(
-          color: selected ? RuachColors.gold500 : RuachColors.white,
+          color: selected
+              ? RuachColors.gold500
+              : s.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(RuachRadius.full),
           border: Border.all(
-            color: selected ? RuachColors.gold500 : RuachColors.cream200,
+            color: selected ? RuachColors.gold500 : s.outlineVariant,
           ),
+          boxShadow: selected ? RuachShadows.buttonGlow : RuachShadows.none,
         ),
         alignment: Alignment.center,
         child: Text(
@@ -32,7 +38,7 @@ class LearningTabChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: selected ? RuachColors.white : RuachColors.cream500,
+            color: selected ? RuachColors.white : s.onSurfaceVariant,
           ),
         ),
       ),

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Loader2, CheckCircle2, AlertCircle, Copy, Download,
   ArrowRight, User, Mail, Phone, FileText,
 } from "lucide-react";
+import { trackSiteEvent } from "@/lib/analytics/client";
 import { useIdempotentPost } from "@/lib/security/use-idempotent-post";
+import { appendAppReturnParams } from "@/lib/app-return";
+import { copyToClipboard } from "@/lib/clipboard";
 
 type Props = { eventId: string; appReturnUrl: string };
 
@@ -21,26 +24,71 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
   const { busy, message, run } = useIdempotentPost();
   const [ticketCode, setTicketCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const success = !!ticketCode;
   const isError = !busy && !success && message.length > 0;
+  const trimmed = {
+    firstName: form.firstName.trim(),
+    lastName: form.lastName.trim(),
+    email: form.email.trim(),
+    phone: form.phone.trim(),
+  };
+  const returnUrl = ticketCode
+    ? appendAppReturnParams(appReturnUrl, {
+        payment_status: "ok",
+        kind: "event",
+        pass_code: ticketCode,
+      })
+    : appReturnUrl;
+
+  useEffect(() => {
+    if (!ticketCode) return;
+    const timeout = window.setTimeout(() => {
+      window.location.assign(returnUrl);
+    }, 900);
+    return () => window.clearTimeout(timeout);
+  }, [returnUrl, ticketCode]);
+
+  const validate = () => {
+    if (!trimmed.firstName || !trimmed.lastName || !trimmed.email || !trimmed.phone) {
+      return "Renseignez tous les champs avant de continuer.";
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed.email)) {
+      return "L’adresse email semble invalide.";
+    }
+    if (trimmed.phone.length < 8) {
+      return "Le numéro de téléphone semble incomplet.";
+    }
+    return null;
+  };
 
   const submit = async () => {
+    const nextValidationError = validate();
+    setValidationError(nextValidationError);
+    if (nextValidationError) return;
+    void trackSiteEvent({ name: "event_public_buy_submitted", category: "site", payload: { eventId } });
     const { data } = await run<{ message?: string; ticketCode?: string }>({
       scope: "events-public-buy",
       keyId: eventId,
       url: "/api/events/public-buy",
-      payload: { eventId, ...form },
+      payload: { eventId, ...trimmed },
       successMessage: "Paiement validé !",
       errorMessage: "Impossible de finaliser l’achat. Vérifiez vos informations.",
     });
     if (data?.ticketCode) setTicketCode(String(data.ticketCode));
   };
 
-  const copyCode = () => {
+  const copyCode = async () => {
     if (!ticketCode) return;
-    navigator.clipboard.writeText(ticketCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await copyToClipboard(ticketCode);
+      setCopied(true);
+      setCopyError(null);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopyError("Copie impossible sur cet appareil.");
+    }
   };
 
   return (
@@ -63,6 +111,13 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
               </div>
             ))}
           </div>
+
+          {validationError && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-amber-100 bg-amber-50 p-3">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <p className="text-sm text-amber-800">{validationError}</p>
+            </div>
+          )}
 
           <button
             type="button"
@@ -95,7 +150,16 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
             </div>
             <p className="text-lg font-bold text-slate-900">Ticket généré</p>
             <p className="text-sm text-slate-500">{message}</p>
+            <p className="text-xs font-medium text-slate-400" aria-live="polite">
+              Retour vers l&apos;application en cours…
+            </p>
           </div>
+          {copyError && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-amber-100 bg-amber-50 p-3">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <p className="text-sm text-amber-800">{copyError}</p>
+            </div>
+          )}
           <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-3">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5" /> Code ticket
@@ -104,7 +168,7 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
               <code className="flex-1 rounded-lg bg-white border border-slate-200 px-3 py-2.5 text-base font-mono font-bold text-slate-900 select-all text-center tracking-wider">
                 {ticketCode}
               </code>
-              <button type="button" onClick={copyCode} className="shrink-0 rounded-lg border border-slate-200 bg-white p-2.5 text-slate-500 transition hover:bg-slate-100 active:scale-95" aria-label="Copier">
+              <button type="button" onClick={() => void copyCode()} className="shrink-0 rounded-lg border border-slate-200 bg-white p-2.5 text-slate-500 transition hover:bg-slate-100 active:scale-95" aria-label="Copier">
                 {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
@@ -116,7 +180,7 @@ export const PublicEventBuyForm = ({ eventId, appReturnUrl }: Props) => {
       )}
 
       {/* Return */}
-      <a href={appReturnUrl} className="btn-secondary w-full justify-center">
+      <a href={returnUrl} className="btn-secondary w-full justify-center">
         Ouvrir l&apos;application <ArrowRight className="w-4 h-4" />
       </a>
     </div>

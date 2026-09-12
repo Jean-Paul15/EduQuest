@@ -20,11 +20,12 @@ class SurveyQuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = question;
+    final s = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(RuachSpace.s3),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: s.outlineVariant),
         borderRadius: BorderRadius.circular(RuachRadius.lg),
       ),
       child: Column(
@@ -32,21 +33,21 @@ class SurveyQuestionCard extends StatelessWidget {
         children: [
           Text(
             q.prompt,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w700,
-              color: RuachColors.cream900,
+              color: s.onSurface,
             ),
           ),
           const SizedBox(height: RuachSpace.s2),
-          if (q.type == 'mcq') _mcqChips(context),
+          if (q.type == 'mcq') _mcqChips(context, s),
           if (q.type == 'text') _textField(),
           const SizedBox(height: RuachSpace.s1),
-          _answerStatus(),
+          _answerStatus(s),
         ],
       ),
     );
   }
-  Widget _mcqChips(BuildContext context) {
+  Widget _mcqChips(BuildContext context, ColorScheme s) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Wrap(
       spacing: 8,
@@ -60,12 +61,12 @@ class SurveyQuestionCard extends StatelessWidget {
           selectedColor: RuachColors.gold500,
           backgroundColor: dark ? RuachColors.ink300 : RuachColors.cream50,
           side: BorderSide(
-            color: selected ? RuachColors.gold500 : RuachColors.cream200,
+            color: selected ? RuachColors.gold500 : s.outlineVariant,
           ),
           labelStyle: TextStyle(
             color: selected
                 ? RuachColors.white
-                : Theme.of(context).colorScheme.onSurface,
+                : s.onSurface,
             fontWeight: FontWeight.w600,
           ),
           onSelected: (_) => onChoiceSelected(o),
@@ -77,9 +78,9 @@ class SurveyQuestionCard extends StatelessWidget {
     controller: controller,
     minLines: 2,
     maxLines: 4,
-    decoration: const InputDecoration(hintText: 'Ta reponse...'),
+    decoration: const InputDecoration(hintText: 'Ta réponse...'),
   );
-  Widget _answerStatus() {
+  Widget _answerStatus(ColorScheme s) {
     return Row(
       children: [
         Icon(
@@ -87,12 +88,12 @@ class SurveyQuestionCard extends StatelessWidget {
               ? PhosphorIconsRegular.checkCircle
               : PhosphorIconsRegular.circle,
           size: 16,
-          color: answered ? RuachColors.success600 : RuachColors.cream700,
+          color: answered ? RuachColors.success600 : s.onSurfaceVariant,
         ),
         const SizedBox(width: 6),
         Text(
           answered ? 'Répondu' : 'À compléter',
-          style: const TextStyle(fontSize: 12, color: RuachColors.cream500),
+          style: TextStyle(fontSize: 12, color: s.onSurfaceVariant),
         ),
       ],
     );

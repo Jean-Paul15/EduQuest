@@ -1,0 +1,17 @@
+{
+  "name": "curriculum-scrape",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Aspiration structuree du curriculum lycee depuis ecole.gouv.tg (Moodle) vers curriculum/.",
+  "bin": { "curriculum-scrape": "./main.mjs" },
+  "scripts": {
+    "discover": "node main.mjs --discover",
+    "scrape": "node main.mjs",
+    "seed": "node main.mjs --seed"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

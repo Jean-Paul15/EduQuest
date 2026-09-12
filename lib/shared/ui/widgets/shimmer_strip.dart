@@ -14,7 +14,7 @@ class ShimmerStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = RuachColors.cream200.withValues(alpha: .65);
+    final base = Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: .65);
     return LayoutBuilder(
       builder: (_, c) {
         final w = width ?? c.maxWidth;

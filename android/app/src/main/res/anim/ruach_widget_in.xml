@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fondu pur, aucune translation : une face ne peut jamais rester décalée
+     hors du cadre si le ViewFlipper s'arrête en cours d'animation. -->
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="420"
+    android:fromAlpha="0.0"
+    android:interpolator="@android:anim/decelerate_interpolator"
+    android:toAlpha="1.0" />

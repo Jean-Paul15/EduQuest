@@ -24,19 +24,19 @@ class MyCodeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(RuachRadius.lg),
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: s.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Text(
+              Text(
                 'Mon code',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
-                  color: RuachColors.cream900,
+                  color: s.onSurface,
                 ),
               ),
               const Spacer(),
@@ -67,8 +67,8 @@ class MyCodeCard extends StatelessWidget {
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: myCode.isEmpty
-                  ? RuachColors.cream700
-                  : RuachColors.cream900,
+                  ? s.onSurfaceVariant
+                  : s.onSurface,
               letterSpacing: myCode.isEmpty ? 0 : 1.5,
             ),
           ),

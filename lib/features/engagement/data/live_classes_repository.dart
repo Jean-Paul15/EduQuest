@@ -1,49 +1,63 @@
 import 'dart:async';
 import 'package:eduquest/features/engagement/domain/live_class_item.dart';
+import 'package:eduquest/features/learning/data/learning_scope_repository.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:eduquest/shared/realtime/cache_signal.dart';
 
 class LiveClassesRepository {
+  final _scopeRepo = LearningScopeRepository();
   final _local = LocalJsonCache();
-  static const _key = 'hub:lives';
-  static List<LiveClassItem>? _mem;
+  static final Map<String, List<LiveClassItem>> _mem = {};
+
 
   static void clearMemory() {
-    _mem = null;
+    _mem.clear();
+  }
+
+  /// Purge ciblee RAM pour l'invalidation temps reel.
+  static void evictKeys(CacheTargets t) {
+    for (final k in t.exact) {
+      _mem.remove(k);
+    }
+    for (final p in t.prefixes) {
+      _mem.removeWhere((k, _) => k.startsWith(p));
+    }
   }
 
   Future<List<LiveClassItem>> list({bool forceRefresh = false}) async {
+    final scope = await _scopeRepo.current();
+    if (scope == null || !scope.hasSeries) return const [];
+    final cacheKey = 'hub:lives:${scope.levelId}:${scope.seriesId}';
     if (forceRefresh && Env.hasSupabase) {
-      final fresh = await _refresh();
+      final fresh = await _refresh(scope.levelId, scope.seriesId!, cacheKey);
       if (fresh != null) return fresh;
     }
-    final mem = _mem;
+    final mem = _mem[cacheKey];
     if (mem != null) {
-      if (Env.hasSupabase) {
-        unawaited(_refresh());
-      }
       return mem;
     }
-    final local = await _fromLocal();
-    if (local.isNotEmpty) _mem = local;
+    final local = await _fromLocal(cacheKey);
+    if (local.isNotEmpty) _mem[cacheKey] = local;
     if (!Env.hasSupabase) return local;
     if (local.isNotEmpty) {
-      unawaited(_refresh());
       return local;
     }
-    final remote = await _refresh();
+    final remote = await _refresh(scope.levelId, scope.seriesId!, cacheKey);
     return remote ?? local;
   }
 
-  Future<List<LiveClassItem>?> _refresh() async {
+  Future<List<LiveClassItem>?> _refresh(
+    String levelId,
+    String seriesId,
+    String cacheKey,
+  ) async {
     try {
-      final rows = await Supabase.instance.client
-          .from('live_classes')
-          .select('id,title,starts_at,ends_at,zoom_link')
-          .eq('is_visible', true)
-          .gte('ends_at', DateTime.now().toUtc().toIso8601String())
-          .order('starts_at');
+      final rows = await Supabase.instance.client.rpc(
+        'list_live_classes',
+        params: {'p_level_id': levelId, 'p_series_id': seriesId},
+      );
       final out = (rows as List)
           .map(
             (e) => LiveClassItem(
@@ -57,9 +71,9 @@ class LiveClassesRepository {
           )
           .where((e) => e.zoomLink.isNotEmpty)
           .toList();
-      _mem = out;
+      _mem[cacheKey] = out;
       await _local.writeList(
-        _key,
+        cacheKey,
         out
             .map(
               (e) => {
@@ -78,8 +92,8 @@ class LiveClassesRepository {
     }
   }
 
-  Future<List<LiveClassItem>> _fromLocal() async {
-    final rows = await _local.readList(_key);
+  Future<List<LiveClassItem>> _fromLocal(String cacheKey) async {
+    final rows = await _local.readList(cacheKey);
     if (rows == null) return const [];
     return rows
         .map(

@@ -1,4 +1,3 @@
-import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
 
 class LoginOrDivider extends StatelessWidget {
@@ -6,6 +5,7 @@ class LoginOrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
     return Row(
       children: [
         const Expanded(child: Divider()),
@@ -13,8 +13,8 @@ class LoginOrDivider extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             'ou',
-            style: const TextStyle(
-              color: RuachColors.cream700,
+            style: TextStyle(
+              color: s.onSurfaceVariant,
               fontSize: 13,
             ),
           ),

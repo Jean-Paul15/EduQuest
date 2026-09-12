@@ -6,18 +6,32 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class MarketplaceItemDetailPage extends StatelessWidget {
+class MarketplaceItemDetailPage extends StatefulWidget {
   const MarketplaceItemDetailPage({super.key, required this.item});
   final MarketplaceItem item;
+  @override
+  State<MarketplaceItemDetailPage> createState() => _MarketplaceItemDetailPageState();
+}
+
+class _MarketplaceItemDetailPageState extends State<MarketplaceItemDetailPage> {
+  bool _opening = false;
+
   Future<void> _open() async {
-    await launchUrl(Uri.parse(item.url), mode: LaunchMode.externalApplication);
+    if (_opening) return;
+    setState(() => _opening = true);
+    try {
+      await launchUrl(Uri.parse(widget.item.url), mode: LaunchMode.externalApplication);
+    } finally {
+      if (mounted) setState(() => _opening = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
+    final item = widget.item;
     return Scaffold(
-      appBar: const RuachAppBar(title: 'Detail'),
+      appBar: const RuachAppBar(title: 'Detail', showBack: true),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -37,10 +51,10 @@ class MarketplaceItemDetailPage extends StatelessWidget {
           ],
           Text(
             item.title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: RuachColors.cream900,
+              color: s.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -68,9 +82,9 @@ class MarketplaceItemDetailPage extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   item.priceLabel!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: RuachColors.cream900,
+                    color: s.onSurface,
                   ),
                 ),
               ],
@@ -81,6 +95,7 @@ class MarketplaceItemDetailPage extends StatelessWidget {
             width: double.infinity,
             child: RuachButton(
               label: 'Acheter sur le site',
+              loading: _opening,
               onPressed: _open,
               icon: PhosphorIconsRegular.arrowSquareOut,
             ),

@@ -36,7 +36,7 @@ class _AuthGateWidgetState extends State<AuthGateWidget> {
   final _offlineGate = OfflineSessionGate();
   bool _offlineNoticeOpen = false;
 
-  Future<void> _showOfflineDialog() async {
+  Future<void> _showOfflineDialog(bool missingCache) async {
     if (_offlineNoticeOpen || !mounted) return;
     final online = await NetworkProbe.hasConnection();
     if (online || !mounted) return;
@@ -47,9 +47,15 @@ class _AuthGateWidgetState extends State<AuthGateWidget> {
       showCupertinoDialog<void>(
         context: context,
         builder: (ctx) => CupertinoAlertDialog(
-          title: const Text('Connexion requise une première fois'),
-          content: const Text(
-            'Ouvre l\'application une première fois avec Internet, puis tu pourras continuer plus facilement hors connexion.',
+          title: Text(
+            missingCache
+                ? 'Préparation hors ligne incomplète'
+                : 'Connexion requise une première fois',
+          ),
+          content: Text(
+            missingCache
+                ? 'Reconnecte-toi avec Internet pour préparer les données locales essentielles avant d\'ouvrir l\'application hors connexion.'
+                : 'Ouvre l\'application une première fois avec Internet, puis tu pourras continuer plus facilement hors connexion.',
           ),
           actions: [
             CupertinoDialogAction(

@@ -49,16 +49,18 @@
             android:value="2" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_stat_eduquest" />
+            android:resource="@drawable/ic_stat_ruachedu" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="eduquest_alerts" />
+            android:value="ruachedu_alerts" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/eduquest_notification_accent" />
+            android:resource="@color/ruachedu_notification_accent" />
         <receiver
             android:name=".EduQuestHomeWidgetProvider"
-            android:exported="false">
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/home_widget_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

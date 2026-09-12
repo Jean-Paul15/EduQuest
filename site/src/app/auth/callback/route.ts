@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { recordServerEvent } from "@/lib/analytics/server";
 import { env } from "@/lib/env";
 
 type PendingCookie = {
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
 
   const supabase = createServerClient(
     env.supabaseUrl,
-    env.supabaseAnonKey,
+    env.supabasePublishableKey,
     {
       cookies: {
         getAll() {
@@ -38,6 +39,10 @@ export async function GET(request: Request) {
   if (code) await supabase.auth.exchangeCodeForSession(code);
   if (tokenHash && type) {
     await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (auth.user) {
+    await recordServerEvent({ name: "login_success", profileId: auth.user.id, category: "auth", payload: { provider: code ? "oauth" : "magiclink" } });
   }
 
   const response = NextResponse.redirect(new URL(next, url.origin));

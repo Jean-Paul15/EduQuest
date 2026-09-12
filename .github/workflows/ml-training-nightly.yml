@@ -1,0 +1,37 @@
+name: ML training (fallback worker — désactivé tant qu'il n'y a pas de données)
+
+# Ce workflow est le plan de secours documenté dans
+# RUACHEDU_AI_AUTOMATION_VISION.md : il ne sert que si un futur modèle
+# (ex. classifieur de risque de décrochage) a besoin d'un entraînement
+# itératif qui dépasse le budget de 2 secondes de temps CPU des Supabase
+# Edge Functions. Tant qu'aucun script n'existe dans scripts/ml/, ce
+# workflow ne fait rien d'utile — il est prêt à être activé, pas actif.
+#
+# Secrets GitHub à configurer avant activation (Settings → Secrets → Actions) :
+#   SUPABASE_URL              — https://<project-ref>.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY — clé service_role (jamais la clé anon/publique)
+#
+# Pour activer réellement ce job : décommenter le `schedule:` ci-dessous et
+# implémenter la logique dans scripts/ml/train_dropout_risk.py (actuellement
+# un squelette, voir ce fichier pour le détail de ce qui manque).
+
+on:
+  workflow_dispatch: {} # déclenchement manuel uniquement pour l'instant
+  # schedule:
+  #   - cron: '0 3 * * *' # tous les jours à 3h UTC, une fois activé
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r scripts/ml/requirements.txt
+      - name: Run training script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/ml/train_dropout_risk.py

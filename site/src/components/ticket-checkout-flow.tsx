@@ -1,13 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Loader2, CheckCircle2, AlertCircle, Copy, Download,
   Ticket, ArrowRight, Sparkles, ShieldCheck,
 } from "lucide-react";
+import { trackSiteEvent } from "@/lib/analytics/client";
 import { useIdempotentPost } from "@/lib/security/use-idempotent-post";
 import type { TicketCheckoutOption } from "@/lib/data/tickets";
 import { cn } from "@/lib/utils";
+import { appendAppReturnParams } from "@/lib/app-return";
+import { copyToClipboard } from "@/lib/clipboard";
 
 type Props = { options: TicketCheckoutOption[]; appReturnUrl: string };
 
@@ -16,12 +19,30 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
   const [selected, setSelected] = useState(options[0]?.product_id || "");
   const [code, setCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
   const current = useMemo(() => options.find((x) => x.product_id === selected) || null, [options, selected]);
   const success = !!code;
   const isError = !busy && !success && message.length > 0;
+  const returnUrl = code
+    ? appendAppReturnParams(appReturnUrl, {
+        payment_status: "ok",
+        kind: "ticket",
+        activation_code: code,
+      })
+    : appReturnUrl;
+
+  useEffect(() => {
+    if (!code) return;
+    const timeout = window.setTimeout(() => {
+      window.location.assign(returnUrl);
+    }, 900);
+    return () => window.clearTimeout(timeout);
+  }, [code, returnUrl]);
 
   const pay = async () => {
     if (!current) return;
+    void trackSiteEvent({ name: "checkout_started", category: "payment", payload: { kind: "ticket", productId: current.product_id, total: current.total_price } });
+    void trackSiteEvent({ name: "payment_redirected", category: "payment", payload: { kind: "ticket", productId: current.product_id } });
     const { data, response } = await run<{ activationCode?: string }>({
       scope: "payments-complete",
       keyId: `ticket:${current.product_id}`,
@@ -33,15 +54,26 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
     if (response?.ok && data?.activationCode) setCode(String(data.activationCode));
   };
 
-  const copyCode = () => {
+  const copyCode = async () => {
     if (!code) return;
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await copyToClipboard(code);
+      setCopied(true);
+      setCopyError(null);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopyError("Copie impossible sur cet appareil.");
+    }
   };
 
   return (
     <div className="space-y-4">
+      {!success && !current && (
+        <section className="rounded-2xl border border-amber-100 bg-amber-50 p-5 text-sm text-amber-800">
+          Aucune formule de ticket exploitable n&apos;est disponible pour le moment.
+        </section>
+      )}
+
       {/* Ticket selection */}
       {!success && (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
@@ -134,6 +166,13 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
             </div>
           )}
 
+          {copyError && (
+            <div className="flex items-start gap-2.5 rounded-xl border border-amber-100 bg-amber-50 p-3">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <p className="text-sm text-amber-800">{copyError}</p>
+            </div>
+          )}
+
           <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400">
             <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Sécurisé</span>
             <span className="w-0.5 h-0.5 bg-slate-300 rounded-full" />
@@ -151,6 +190,9 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
             </div>
             <p className="text-lg font-bold text-slate-900">Paiement confirmé</p>
             <p className="text-sm text-slate-500">{message}</p>
+            <p className="text-xs font-medium text-slate-400" aria-live="polite">
+              Retour vers l&apos;application en cours…
+            </p>
           </div>
 
           <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-3">
@@ -161,7 +203,7 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
               <code className="flex-1 rounded-lg bg-white border border-slate-200 px-3 py-2.5 text-base font-mono font-bold text-slate-900 select-all text-center tracking-wider">
                 {code}
               </code>
-              <button type="button" onClick={copyCode} className="shrink-0 rounded-lg border border-slate-200 bg-white p-2.5 text-slate-500 transition hover:bg-slate-100 active:scale-95" aria-label="Copier">
+              <button type="button" onClick={() => void copyCode()} className="shrink-0 rounded-lg border border-slate-200 bg-white p-2.5 text-slate-500 transition hover:bg-slate-100 active:scale-95" aria-label="Copier">
                 {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
@@ -173,7 +215,7 @@ export const TicketCheckoutFlow = ({ options, appReturnUrl }: Props) => {
       )}
 
       {/* Return */}
-      <a href={appReturnUrl} className="btn-secondary w-full justify-center">
+      <a href={returnUrl} className="btn-secondary w-full justify-center">
         Retourner dans l&apos;application <ArrowRight className="w-4 h-4" />
       </a>
     </div>

@@ -12,6 +12,7 @@ import 'package:eduquest/shared/sync/scope_refresh_bus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ClassSelectionRepository {
+  static const _defaultCountryCode = 'TG';
   final _cache = ClassSelectionLocalCache();
   final _local = LocalJsonCache();
 
@@ -40,20 +41,15 @@ class ClassSelectionRepository {
   Future<List<LevelOption>> activeLevels() async {
     final local = await _cache.levels();
     if (!Env.hasSupabase) return local;
-    final uid = Supabase.instance.client.auth.currentUser?.id;
-    if (uid == null) return local;
     try {
-      final p = await Supabase.instance.client
-          .from('profiles')
-          .select('country_id')
-          .eq('id', uid)
-          .maybeSingle();
+      final countryId = await _activeCountryId();
+      if (countryId == null) return local;
       final rows = await Supabase.instance.client
           .from('education_levels')
           .select('id,code,label')
-          .eq('country_id', p?['country_id'])
+          .eq('country_id', countryId)
           .eq('is_active', true)
-          .order('sort_order');
+          .order('sort_order', ascending: true);
       final out = (rows as List)
           .map(
             (e) => LevelOption(
@@ -70,6 +66,32 @@ class ClassSelectionRepository {
     }
   }
 
+  Future<String?> _activeCountryId() async {
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid != null) {
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('country_id')
+          .eq('id', uid)
+          .maybeSingle();
+      final countryId = profile?['country_id']?.toString();
+      if (countryId != null && countryId.isNotEmpty) return countryId;
+    }
+    final tg = await Supabase.instance.client
+        .from('countries')
+        .select('id')
+        .eq('code', _defaultCountryCode)
+        .maybeSingle();
+    if (tg?['id'] != null) return '${tg!['id']}';
+    final first = await Supabase.instance.client
+        .from('countries')
+        .select('id')
+        .order('code', ascending: true)
+        .limit(1)
+        .maybeSingle();
+    return first?['id']?.toString();
+  }
+
   Future<List<SeriesOption>> activeSeries(String levelId) async {
     final local = await _cache.series(levelId);
     if (!Env.hasSupabase) return local;
@@ -79,7 +101,7 @@ class ClassSelectionRepository {
           .select('id,code,label')
           .eq('education_level_id', levelId)
           .eq('is_active', true)
-          .order('code');
+          .order('code', ascending: true);
       final out = (rows as List)
           .map(
             (e) => SeriesOption(
@@ -96,6 +118,24 @@ class ClassSelectionRepository {
     }
   }
 
+  Future<String> saveProfileSelection(String levelId, String? seriesId) async {
+    if (!Env.hasSupabase) return 'Supabase non configuré.';
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) return 'Utilisateur non connecté.';
+    final validation = await _validateSelection(levelId, seriesId);
+    if (validation != null) return validation;
+    await Supabase.instance.client
+        .from('profiles')
+        .update({
+          'education_level_id': levelId,
+          'series_id': seriesId,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', uid);
+    await _afterSelectionSaved(levelId, seriesId);
+    return 'Classe mise à jour.';
+  }
+
   Future<String> change(String levelId, String? seriesId) async {
     if (!Env.hasSupabase) return 'Supabase non configuré.';
     final res = await Supabase.instance.client.rpc(
@@ -106,11 +146,38 @@ class ClassSelectionRepository {
     final ok = out['success'] == true;
     final msg = '${out['message'] ?? 'Classe mise à jour.'}';
     if (!ok) return msg;
+    await _afterSelectionSaved(levelId, seriesId);
+    return msg;
+  }
+
+  Future<void> saveLocalSelection(String levelId, String? seriesId) async {
+    await _afterSelectionSaved(levelId, seriesId);
+  }
+
+  Future<String?> _validateSelection(String levelId, String? seriesId) async {
+    final level = await Supabase.instance.client
+        .from('education_levels')
+        .select('id')
+        .eq('id', levelId)
+        .eq('is_active', true)
+        .maybeSingle();
+    if (level == null) return 'Classe inactive.';
+    if (seriesId == null || seriesId.isEmpty) return null;
+    final series = await Supabase.instance.client
+        .from('series')
+        .select('id')
+        .eq('id', seriesId)
+        .eq('education_level_id', levelId)
+        .eq('is_active', true)
+        .maybeSingle();
+    return series == null ? 'Série invalide pour cette classe.' : null;
+  }
+
+  Future<void> _afterSelectionSaved(String levelId, String? seriesId) async {
     await _cache.saveCurrent({'levelId': levelId, 'seriesId': seriesId});
     await _syncProfileCache(levelId, seriesId);
     await _clearScopedCaches();
     ScopeRefreshBus.bump();
-    return msg;
   }
 
   Future<void> _clearScopedCaches() async {

@@ -5,7 +5,7 @@ import { env } from "@/lib/env";
 export const updateSession = async (request: NextRequest) => {
   const response = NextResponse.next({ request });
 
-  const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+  const supabase = createServerClient(env.supabaseUrl, env.supabasePublishableKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();

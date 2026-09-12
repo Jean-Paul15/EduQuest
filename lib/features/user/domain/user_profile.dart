@@ -1,6 +1,7 @@
 class UserProfile {
   const UserProfile({
     required this.displayName,
+    required this.email,
     required this.countryCode,
     required this.levelCode,
     required this.serieCode,
@@ -8,6 +9,7 @@ class UserProfile {
   });
 
   final String displayName;
+  final String email;
   final String countryCode;
   final String levelCode;
   final String serieCode;

@@ -7,10 +7,12 @@ class ApplyCodeCard extends StatelessWidget {
   const ApplyCodeCard({
     super.key,
     required this.codeCtrl,
+    required this.loading,
     required this.onApply,
   });
 
   final TextEditingController codeCtrl;
+  final bool loading;
   final VoidCallback onApply;
 
   @override
@@ -20,7 +22,7 @@ class ApplyCodeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(RuachRadius.lg),
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         children: [
@@ -33,6 +35,7 @@ class ApplyCodeCard extends StatelessWidget {
             width: double.infinity,
             child: RuachButton(
               label: 'Appliquer',
+              loading: loading,
               onPressed: onApply,
               icon: PhosphorIconsRegular.gift,
             ),

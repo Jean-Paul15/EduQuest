@@ -1,22 +1,61 @@
 import 'dart:async';
-import 'package:eduquest/features/videos/data/video_scope.dart';
 import 'package:eduquest/features/videos/domain/chapter_video.dart';
 import 'package:eduquest/shared/config/env.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
+import 'package:eduquest/shared/data/storage_url_resolver.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:eduquest/shared/realtime/cache_signal.dart';
 
 class VideoRepository {
+  VideoRepository();
+
   final _local = LocalJsonCache();
+  static final Map<String, List<ChapterVideo>> _mem = {};
+
+
+  static void clearMemory() => _mem.clear();
+
+  List<ChapterVideo>? peek(String levelCode, String serieCode) =>
+      _mem[_key(levelCode, serieCode)];
+
+  Future<bool> hasCache(String levelCode, String serieCode) async {
+    if (_mem.containsKey(_key(levelCode, serieCode))) return true;
+    return _local.hasKey(_key(levelCode, serieCode));
+  }
+
+  /// Purge ciblee RAM pour l'invalidation temps reel.
+  static void evictKeys(CacheTargets t) {
+    for (final k in t.exact) {
+      _mem.remove(k);
+    }
+    for (final p in t.prefixes) {
+      _mem.removeWhere((k, _) => k.startsWith(p));
+    }
+  }
 
   Future<List<ChapterVideo>> byLevelAndSerie({
     required String levelCode,
     required String serieCode,
+    bool forceRefresh = false,
   }) async {
-    final key = 'videos:$levelCode:$serieCode';
+    final key = _key(levelCode, serieCode);
+    final mem = _mem[key];
+    if (mem != null && !forceRefresh) {
+      return mem;
+    }
     final local = await _fromLocal(key);
-    if (!Env.hasSupabase) return local;
+    if (local.isNotEmpty) _mem[key] = local;
+    if (!Env.hasSupabase || forceRefresh) {
+      return forceRefresh
+          ? (await _refresh(
+                  levelCode: levelCode,
+                  serieCode: serieCode,
+                  key: key,
+                )) ??
+                local
+          : local;
+    }
     if (local.isNotEmpty) {
-      unawaited(_refresh(levelCode: levelCode, serieCode: serieCode, key: key));
       return local;
     }
     return (await _refresh(
@@ -49,38 +88,36 @@ class VideoRepository {
     required String key,
   }) async {
     try {
-      final rows = await Supabase.instance.client
-          .from('resources')
-          .select('id,title,type,external_url,storage_path,access_scope')
-          .inFilter('type', ['video', 'youtube'])
-          .eq('published', true);
-      final out = (rows as List)
-          .map((e) => Map<String, dynamic>.from(e as Map))
-          .where((e) {
-            final scope = Map<String, dynamic>.from(
-              (e['access_scope'] as Map?) ?? {},
-            );
-            return VideoScope.isVisible(
-              scope: scope,
-              levelCode: levelCode,
-              serieCode: serieCode,
-            );
-          })
-          .map((e) {
-            final scope = Map<String, dynamic>.from(
-              (e['access_scope'] as Map?) ?? {},
-            );
-            final url = '${e['external_url'] ?? e['storage_path'] ?? ''}';
-            return ChapterVideo(
-              id: '${e['id']}',
-              chapter: '${scope['chapter'] ?? 'Chapitre'}',
-              title: '${e['title']}',
-              url: url,
-              sharedAcrossLevels: VideoScope.isShared(scope),
-            );
-          })
-          .where((v) => v.url.isNotEmpty)
-          .toList();
+      final rows = await Supabase.instance.client.rpc(
+        'list_my_series_resources',
+        params: {
+          'p_types': ['video', 'youtube'],
+        },
+      );
+      final out =
+          (rows as List)
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .map((e) {
+                final url = '${e['external_url'] ?? resolveContentUrl(e['storage_path']?.toString()) ?? ''}';
+                return ChapterVideo(
+                  id: '${e['id']}',
+                  chapter: '${e['chapter_title'] ?? 'Chapitre'}',
+                  title: '${e['title']}',
+                  url: url,
+                  sharedAcrossLevels: e['shared_across_series'] == true,
+                );
+              })
+              .where((v) => v.url.isNotEmpty)
+              .toList()
+            ..sort((a, b) {
+              final chapter = a.chapter.toLowerCase().compareTo(
+                b.chapter.toLowerCase(),
+              );
+              return chapter != 0
+                  ? chapter
+                  : a.title.toLowerCase().compareTo(b.title.toLowerCase());
+            });
+      _mem[key] = out;
       await _local.writeList(
         key,
         out
@@ -100,4 +137,7 @@ class VideoRepository {
       return null;
     }
   }
+
+  String _key(String levelCode, String serieCode) =>
+      'videos:$levelCode:$serieCode';
 }

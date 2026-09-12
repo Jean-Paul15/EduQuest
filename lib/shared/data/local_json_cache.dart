@@ -97,13 +97,6 @@ class LocalJsonCache {
       for (final k in p.getKeys().where((k) => k.startsWith(prefix)).toList()) {
         await p.remove(k);
       }
-      for (final k
-          in p
-              .getKeys()
-              .where((k) => k.startsWith(prefix) && k.endsWith('::ts'))
-              .toList()) {
-        await p.remove(k);
-      }
     } catch (_) {}
   }
 
@@ -112,4 +105,9 @@ class LocalJsonCache {
       await removeByPrefix(prefix);
     }
   }
+
+  /// Vide entièrement le cache JSON local (toutes les clés, tous les
+  /// domaines) -- action "vider le cache" explicite de l'utilisateur. Un
+  /// préfixe vide matche toute clé dans les trois couches de stockage.
+  Future<void> clearAll() => removeByPrefix('');
 }

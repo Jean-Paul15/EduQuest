@@ -28,33 +28,39 @@ class MarketplaceItemCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(RuachRadius.lg),
-          border: Border.all(color: RuachColors.cream200),
+          border: Border.all(color: s.outlineVariant),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(RuachRadius.md),
-              child: SizedBox(
-                height: 110,
-                width: double.infinity,
-                child: item.imageUrl != null && item.imageUrl!.isNotEmpty
-                    ? Image.network(item.imageUrl!, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _iconBox(icon, s))
-                    : _iconBox(icon, s),
+            // Expanded plutôt qu'une hauteur fixe : absorbe l'espace restant
+            // une fois les éléments réellement fixes (titre, prix, ligne
+            // type/bouton) placés -- garantit que la carte ne déborde jamais
+            // de la hauteur fixée par la grille, quelle que soit la longueur
+            // du titre.
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(RuachRadius.md),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                      ? Image.network(item.imageUrl!, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _iconBox(icon, s))
+                      : _iconBox(icon, s),
+                ),
               ),
             ),
             const SizedBox(height: 10),
             Text(item.title, maxLines: 2, overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w600,
-                  fontSize: 14, color: RuachColors.cream900)),
-            const Spacer(),
+              style: TextStyle(fontWeight: FontWeight.w600,
+                  fontSize: 14, color: s.onSurface)),
+            const SizedBox(height: 8),
             if (item.priceLabel != null)
-              Text(item.priceLabel!, style: const TextStyle(
-                  color: RuachColors.cream500, fontSize: 12)),
+              Text(item.priceLabel!, style: TextStyle(
+                  color: s.onSurfaceVariant, fontSize: 12)),
             Row(children: [
               Expanded(child: Text(item.type.toUpperCase(),
-                  style: const TextStyle(color: RuachColors.cream700,
+                  style: TextStyle(color: s.onSurfaceVariant,
                       fontSize: 11))),
               IconButton(onPressed: onBuy,
                 icon: Icon(PhosphorIconsRegular.arrowSquareOut,

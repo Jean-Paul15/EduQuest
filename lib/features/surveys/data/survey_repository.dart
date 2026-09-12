@@ -94,7 +94,7 @@ class SurveyRepository {
           .from('survey_questions')
           .select('id,prompt,question_type,options,position')
           .eq('survey_id', surveyId)
-          .order('position');
+          .order('position', ascending: true);
       final out = (rows as List).map((e) {
         final opts =
             (e['options'] as List?)?.map((x) => '$x').toList() ??

@@ -37,10 +37,10 @@ class UpdateRequiredPage extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: RuachColors.cream900,
+                color: s.onSurface,
               ),
             ),
             const SizedBox(height: RuachSpace.s6),

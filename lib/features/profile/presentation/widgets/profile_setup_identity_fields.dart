@@ -1,4 +1,6 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_input.dart';
+import 'package:eduquest/shared/ui/widgets/togo_phone_input.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -8,45 +10,44 @@ class ProfileSetupIdentityFields extends StatelessWidget {
     required this.nameCtrl,
     required this.phoneCtrl,
     required this.countryCode,
+    this.showName = true,
+    this.showPhone = true,
   });
   final TextEditingController nameCtrl;
   final TextEditingController phoneCtrl;
   final String countryCode;
+  final bool showName;
+  final bool showPhone;
 
   @override
   Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Nom complet',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: RuachColors.cream900,
+        if (showName) ...[
+          Text(
+            'Nom complet',
+            style: TextStyle(fontWeight: FontWeight.w600, color: s.onSurface),
           ),
-        ),
-        const SizedBox(height: RuachSpace.s2),
-        TextField(
-          controller: nameCtrl,
-          decoration: InputDecoration(
-            hintText: 'Ex: Kossi Kodjo',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(RuachRadius.md),
-            ),
+          const SizedBox(height: RuachSpace.s2),
+          RuachInput(
+            controller: nameCtrl,
+            hint: 'Ex: Kossi Kodjo',
+            prefixIcon: const Icon(PhosphorIconsRegular.user, size: 18),
           ),
-        ),
-        const SizedBox(height: RuachSpace.s3),
-        TextField(
-          controller: phoneCtrl,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(
-            hintText: countryCode == 'TG' ? 'Ex: 90123456' : 'Numéro',
-            prefixIcon: const Icon(PhosphorIconsRegular.phone, size: 18),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(RuachRadius.md),
-            ),
-          ),
-        ),
+        ],
+        if (showName && showPhone) const SizedBox(height: RuachSpace.s3),
+        if (showPhone)
+          countryCode == 'TG'
+              ? TogoPhoneInput(controller: phoneCtrl, label: 'Téléphone')
+              : RuachInput(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  hint: 'Numéro',
+                  label: 'Téléphone',
+                  prefixIcon: const Icon(PhosphorIconsRegular.phone, size: 18),
+                ),
       ],
     );
   }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Piste chaude sombre, remplissage gold300 -> gold500 (RuachColors) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="999dp" />
+            <solid android:color="#3D2E13" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape android:shape="rectangle">
+                <corners android:radius="999dp" />
+                <gradient
+                    android:angle="0"
+                    android:startColor="#E8C88A"
+                    android:endColor="#C89A5A" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

@@ -26,7 +26,7 @@ class IntroPageIndicator extends StatelessWidget {
           decoration: BoxDecoration(
             color: i == currentIndex
                 ? primaryColor
-                : RuachColors.cream700.withValues(alpha: .3),
+                : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: .3),
             borderRadius: BorderRadius.circular(3),
           ),
         ),

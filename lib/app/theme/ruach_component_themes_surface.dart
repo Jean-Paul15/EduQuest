@@ -10,7 +10,7 @@ class RuachSurfaceThemes {
     final isDark = brightness == Brightness.dark;
     return InputDecorationTheme(
       filled: true,
-      fillColor: isDark ? RuachColors.ink400 : RuachColors.cream100,
+      fillColor: isDark ? RuachColors.ink500 : RuachColors.cream100,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: RuachSpace.s4,
         vertical: RuachSpace.s4,
@@ -22,7 +22,7 @@ class RuachSurfaceThemes {
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(RuachRadius.md),
         borderSide: BorderSide(
-          color: isDark ? RuachColors.ink500 : RuachColors.cream200,
+          color: isDark ? RuachColors.ink600 : RuachColors.cream200,
           width: 1,
         ),
       ),

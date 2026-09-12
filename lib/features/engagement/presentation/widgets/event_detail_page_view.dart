@@ -64,7 +64,7 @@ class EventDetailPageView extends StatelessWidget {
             onMeeting: openMeeting,
             onMaps: openMaps,
           ),
-          EventDetailFeeInfo(detail: detail, colorScheme: colorScheme),
+          EventDetailFeeInfo(detail: detail),
           if (canPay) ...[
             const SizedBox(height: RuachSpace.s3),
             EventPendingPaymentCard(pendingFee: pendingFee),

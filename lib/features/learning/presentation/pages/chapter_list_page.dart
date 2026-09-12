@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:eduquest/features/learning/data/learning_catalog_repository.dart';
+import 'package:eduquest/features/learning/data/learning_scope_repository.dart';
 import 'package:eduquest/features/learning/domain/learning_chapter.dart';
 import 'package:eduquest/features/learning/domain/learning_section.dart';
 import 'package:eduquest/features/learning/presentation/pages/chapter_navigation.dart';
@@ -7,8 +8,11 @@ import 'package:eduquest/features/learning/presentation/pages/widgets/chapter_li
 import 'package:eduquest/features/notifications/data/notification_service.dart';
 import 'package:eduquest/shared/network/network_probe.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
-import 'package:eduquest/shared/ui/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:eduquest/shared/realtime/realtime_refreshable.dart';
+
+typedef ChapterListLoader =
+    Future<({List<LearningChapter> items, bool seriesBlocked})> Function();
 class ChapterListPage extends StatefulWidget {
   const ChapterListPage({
     super.key,
@@ -16,21 +20,30 @@ class ChapterListPage extends StatefulWidget {
     required this.subjectLabel,
     required this.section,
     this.initialChapters,
+    this.loader,
   });
   final String subjectId;
   final String subjectLabel;
   final LearningSection section;
   final List<LearningChapter>? initialChapters;
+  final ChapterListLoader? loader;
   @override
   State<ChapterListPage> createState() => _ChapterListPageState();
 }
-class _ChapterListPageState extends State<ChapterListPage> with AutomaticKeepAliveClientMixin {
+class _ChapterListPageState extends State<ChapterListPage> with AutomaticKeepAliveClientMixin, RealtimeRefreshable<ChapterListPage> {
+  @override
+  List<String> get realtimeNamespaces => const ['learn'];
+
+  @override
+  Future<void> reloadFromRealtime() => _load(background: true);
+
   final _repo = LearningCatalogRepository();
   final _notif = NotificationService();
   List<LearningChapter> _items = const [];
   bool _loading = true;
   String? _openingId;
   bool _offlineWarned = false;
+  bool _seriesBlocked = false;
   bool _trySeed(List<LearningChapter>? p) {
     if (p == null || p.isEmpty) return false;
     _items = p;
@@ -46,11 +59,30 @@ class _ChapterListPageState extends State<ChapterListPage> with AutomaticKeepAli
     _load();
   }
   Future<void> _load({bool background = false}) async {
+    if (widget.loader != null) {
+      final state = await widget.loader!();
+      if (!mounted) return;
+      setState(() {
+        _items = state.items;
+        _loading = false;
+        _seriesBlocked = state.seriesBlocked;
+      });
+      return;
+    }
+    final scope = await LearningScopeRepository().current();
     if (mounted && !background && _items.isEmpty) setState(() => _loading = true);
-    final hadCache = await _repo.hasChaptersCache(widget.subjectId);
-    final data = await _repo.chaptersBySubject(widget.subjectId);
+    final results = await Future.wait<dynamic>([
+      _repo.hasChaptersCache(widget.subjectId),
+      _repo.chaptersBySubject(widget.subjectId),
+    ]);
+    final hadCache = results[0] as bool;
+    final data = results[1] as List<LearningChapter>;
     if (!mounted) return;
-    setState(() { _items = data; _loading = false; });
+    setState(() {
+      _items = data;
+      _loading = false;
+      _seriesBlocked = (scope?.seriesId?.isEmpty ?? true) || scope?.seriesId == null;
+    });
     if (data.isEmpty) {
       await _warnIfOfflineBootstrap(
         hadCache: hadCache,
@@ -63,7 +95,8 @@ class _ChapterListPageState extends State<ChapterListPage> with AutomaticKeepAli
     required String label,
   }) async {
     if (_offlineWarned || hadCache) return;
-    if (await NetworkProbe.hasConnection() || !mounted) return;
+    final online = await NetworkProbe.hasConnection();
+    if (online || !mounted) return;
     _offlineWarned = true;
     unawaited(_notif.sendOfflineContentWarning(label));
     await showOfflineBootstrapAlert(context, contentLabel: label);
@@ -71,19 +104,16 @@ class _ChapterListPageState extends State<ChapterListPage> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    if (_items.isEmpty) {
-      return const EmptyState(
-        title: 'Aucun chapitre',
-        subtitle: 'Aucun chapitre disponible.',
-      );
-    }
     return ChapterListBody(
       subjectLabel: widget.subjectLabel,
+      loading: _loading,
       items: _items,
       openingId: _openingId,
+      emptyTitle: _seriesBlocked ? 'Série requise' : null,
+      emptySubtitle: _seriesBlocked
+          ? 'Le contenu de ${widget.subjectLabel} sera visible dès qu’une série active sera liée à ta classe.'
+          : null,
+      onRefresh: _load,
       onChapterTap: (c) => ChapterNavigator.open(
         context: context,
         chapter: c,

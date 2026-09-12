@@ -25,8 +25,8 @@ class NetworkProbe {
   static Map<String, String>? _headers() {
     if (!Env.hasSupabase) return null;
     return {
-      'apikey': Env.supabaseAnonKey,
-      'Authorization': 'Bearer ${Env.supabaseAnonKey}',
+      'apikey': Env.supabasePublishableKey,
+      'Authorization': 'Bearer ${Env.supabasePublishableKey}',
     };
   }
 }

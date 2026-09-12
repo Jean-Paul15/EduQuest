@@ -35,12 +35,12 @@ class ActionTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(RuachSpace.s2),
               decoration: BoxDecoration(
                 color: s.primary.withValues(alpha: .08),
                 borderRadius: BorderRadius.circular(RuachRadius.sm),
               ),
-              child: Icon(icon, color: s.primary, size: 20),
+              child: Icon(icon, color: s.primary, size: 24),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -49,16 +49,16 @@ class ActionTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
-                      color: RuachColors.cream900,
+                      color: s.onSurface,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: RuachColors.cream500,
+                    style: TextStyle(
+                      color: s.onSurfaceVariant,
                       fontSize: 13,
                     ),
                   ),
@@ -68,8 +68,8 @@ class ActionTile extends StatelessWidget {
             if (onAction == null)
               Icon(
                 PhosphorIconsRegular.caretRight,
-                color: RuachColors.cream700,
-                size: 20,
+                color: s.onSurfaceVariant,
+                size: 24,
               ),
             if (onAction != null)
               RuachOutlineButton(

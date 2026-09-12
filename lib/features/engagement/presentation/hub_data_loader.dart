@@ -2,11 +2,19 @@ import 'package:eduquest/features/app_config/data/app_config_repository.dart';
 import 'package:eduquest/features/engagement/data/engagement_repository.dart';
 import 'package:eduquest/features/engagement/data/live_classes_repository.dart';
 import 'package:eduquest/features/leaderboard/data/leaderboard_repository.dart';
+import 'package:eduquest/features/marketplace/data/marketplace_repository.dart';
 import 'package:eduquest/features/notifications/data/user_notifications_repository.dart';
+import 'package:eduquest/shared/data/local_json_cache.dart';
 
-Future<Map<String, bool>> safeHubFlags(AppConfigRepository repo) async {
+const _hubSnapshotKey = 'hub:snapshot:v1';
+final _hubLocal = LocalJsonCache();
+
+Future<Map<String, bool>> safeHubFlags(
+  AppConfigRepository repo, {
+  bool forceRefresh = false,
+}) async {
   try {
-    return await repo.loadHubModules();
+    return await repo.loadHubModules(forceRefresh: forceRefresh);
   } catch (_) {
     return {
       'live': true,
@@ -22,40 +30,67 @@ Future<Map<String, bool>> safeHubFlags(AppConfigRepository repo) async {
   }
 }
 
+Future<Map<String, dynamic>?> readHubSnapshot() async {
+  final rows = await _hubLocal.readList(_hubSnapshotKey);
+  if (rows == null || rows.isEmpty) return null;
+  return Map<String, dynamic>.from(rows.first);
+}
+
+Future<void> writeHubSnapshot({
+  required Map<String, bool> flags,
+  required Map<String, int> counts,
+}) async {
+  await _hubLocal.writeList(_hubSnapshotKey, [
+    {
+      'flags': flags,
+      'counts': counts,
+    },
+  ]);
+}
+
 Future<Map<String, int>> loadHubCounts(
   LiveClassesRepository lives,
   EngagementRepository engagement,
   LeaderboardRepository leaderboard,
   UserNotificationsRepository notifications,
+  MarketplaceRepository marketplace,
 ) async {
-  final out = <String, int>{
-    'live': 0,
-    'contests': 0,
-    'events': 0,
-    'surveys': 0,
-    'leaderboard': 0,
-    'notifications': 0,
+  // Chaque repository gère déjà son propre TTL (isFresh) -- plus de
+  // forceRefresh systématique ici, qui court-circuitait le cache à chaque
+  // ouverture du hub même avec une connexion disponible.
+  final values = await Future.wait<int>([
+    _safeCount(() => lives.list()),
+    _safeCount(() => engagement.listContests()),
+    _safeCount(() => engagement.listEvents()),
+    _safeCount(() => engagement.listSurveys()),
+    _safeCount(() => leaderboard.weekly()),
+    _safeInt(() => notifications.unreadCount()),
+    _safeCount(() => marketplace.search()),
+  ]);
+  final out = {
+    'live': values[0],
+    'contests': values[1],
+    'events': values[2],
+    'surveys': values[3],
+    'leaderboard': values[4],
+    'notifications': values[5],
+    'market': values[6],
   };
-  try {
-    out['live'] = (await lives.list(forceRefresh: true)).length;
-  } catch (_) {}
-  try {
-    out['contests'] =
-        (await engagement.listContests(forceRefresh: true)).length;
-  } catch (_) {}
-  try {
-    out['events'] = (await engagement.listEvents(forceRefresh: true)).length;
-  } catch (_) {}
-  try {
-    out['surveys'] =
-        (await engagement.listSurveys(forceRefresh: true)).length;
-  } catch (_) {}
-  try {
-    out['leaderboard'] = (await leaderboard.weekly()).length;
-  } catch (_) {}
-  try {
-    out['notifications'] =
-        (await notifications.list()).where((e) => e.readAt == null).length;
-  } catch (_) {}
   return out;
+}
+
+Future<int> _safeCount(Future<List<dynamic>> Function() loader) async {
+  try {
+    return (await loader()).length;
+  } catch (_) {
+    return 0;
+  }
+}
+
+Future<int> _safeInt(Future<int> Function() loader) async {
+  try {
+    return await loader();
+  } catch (_) {
+    return 0;
+  }
 }

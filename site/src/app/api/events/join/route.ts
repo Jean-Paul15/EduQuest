@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordServerEvent } from "@/lib/analytics/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { claimIdempotency, storeIdempotencyResult } from "@/lib/security/idempotency";
 
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return NextResponse.json({ message: "Session requise." }, { status: 401 });
   const key = body.idempotencyKey ?? request.headers.get("x-idempotency-key");
+  await recordServerEvent({ name: "event_join_requested", profileId: auth.user.id, category: "site", payload: { eventId: body.eventId } });
   const claim = await claimIdempotency(
     "api:events:join",
     key,
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
 
   if (error) {
     const out = { message: error.message };
+    await recordServerEvent({ name: "event_join_failed", profileId: auth.user.id, category: "site", payload: { eventId: body.eventId, reason: error.message } });
     await storeIdempotencyResult(claim.rowId, 400, out);
     return NextResponse.json(out, { status: 400 });
   }
@@ -50,6 +53,7 @@ export async function POST(request: Request) {
     paymentUrl: data?.requires_payment ? data?.payment_url : null,
     feeDue: data?.fee_due ?? 0,
   };
+  await recordServerEvent({ name: "event_join_succeeded", profileId: auth.user.id, category: "site", payload: { eventId: body.eventId, feeDue: out.feeDue } });
   await storeIdempotencyResult(claim.rowId, 200, out);
   return NextResponse.json(out);
 }

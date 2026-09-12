@@ -23,8 +23,8 @@ class AppRoutes {
   static const chapterQuizList = 'chapter-quiz-list';
   static const chapterResourceList = 'chapter-resource-list';
   static const resourceLearning = 'resource-learning';
-  static const qcmOverview = 'qcm-overview';
   static const qcmAttempt = 'qcm-attempt';
+  static const quizIntro = 'quiz-intro';
   static const examList = 'exam-list';
   static const examDetail = 'exam-detail';
   static const pdfLessons = 'pdf-lessons';
@@ -48,6 +48,7 @@ class AppRoutes {
   static const tickets = 'tickets';
   static const notifications = 'notifications';
   static const legal = 'legal';
+  static const myData = 'my-data';
   static const protectedLesson = 'protected-lesson';
   static const profileSetup = 'profile-setup';
   static const mediaPlayer = 'media-player';
@@ -62,7 +63,6 @@ class AppRoutes {
   static const pathEvent = ':eventId';
   static const pathContest = ':contestId';
   static const pathResource = ':resourceId';
-  static const pathQcm = ':qcmId';
   static const pathQuiz = ':quizId';
   static const pathItem = ':itemId';
   static const pathSurvey = ':surveyId';

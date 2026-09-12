@@ -11,7 +11,7 @@ type PushDisplay = {
   silent: boolean; priority: number;
 };
 const base: PushDisplay = {
-  android_channel_id: "eduquest_alerts", android_sound: "default", ios_sound: "default",
+  android_channel_id: "ruachedu_alerts", android_sound: "default", ios_sound: "default",
   ios_interruption_level: "active", ios_relevance_score: 0.9, ttl: 86400, silent: false, priority: 10,
 };
 

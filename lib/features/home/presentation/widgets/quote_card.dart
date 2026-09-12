@@ -1,3 +1,4 @@
+import 'package:eduquest/features/home/domain/motivational_quote.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/shared/ui/glass_container.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class QuoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return GlassContainer(
-      margin: const EdgeInsets.only(top: 8),
+      margin: const EdgeInsets.only(top: RuachSpace.s2),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       blur: 18,
       child: _content(dark),
@@ -43,9 +44,7 @@ class QuoteCard extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'La réussite, c\'est d\'abord et surtout '
-          'd\'être au travail quand les autres '
-          'vont à la pêche.',
+          kMotivationalQuote,
           style: GoogleFonts.fraunces(
             fontSize: 15,
             fontStyle: FontStyle.italic,
@@ -56,12 +55,12 @@ class QuoteCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _authorRow(),
+        _authorRow(dark),
       ],
     );
   }
 
-  Widget _authorRow() {
+  Widget _authorRow(bool dark) {
     return Row(
       children: [
         Container(
@@ -74,12 +73,12 @@ class QuoteCard extends StatelessWidget {
         ),
         const Spacer(),
         Text(
-          '— Philippe Bouvard',
+          '— $kMotivationalQuoteAuthor',
           style: GoogleFonts.plusJakartaSans(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             fontStyle: FontStyle.italic,
-            color: RuachColors.cream700,
+            color: dark ? RuachColors.cream500 : RuachColors.cream700,
             letterSpacing: 0.3,
           ),
         ),

@@ -33,7 +33,19 @@ export const listEvents = async () => {
     .eq("is_visible", true)
     .order("starts_at", { ascending: true })
     .returns<EventRow[]>();
-  return data ?? [];
+  return (data ?? []).filter((item) => !!item.id && !!item.title).map((item) => ({
+    ...item,
+    title: String(item.title || "").trim(),
+    event_type: String(item.event_type || "event"),
+    venue: item.venue ? String(item.venue) : null,
+    logo_url: item.logo_url ? String(item.logo_url) : null,
+    meeting_url: item.meeting_url ? String(item.meeting_url) : null,
+    public_fee: Number(item.public_fee || 0),
+    fee_full: Number(item.fee_full || 0),
+    fee_half: Number(item.fee_half || 0),
+    fee_free: Number(item.fee_free || 0),
+    fee_campaign_free: Number(item.fee_campaign_free || 0),
+  }));
 };
 
 export const listMyEventRegistrations = async () => {
@@ -42,5 +54,10 @@ export const listMyEventRegistrations = async () => {
     .from("event_registrations")
     .select("event_id,status,attendance_fee,pass_code")
     .returns<EventRegistration[]>();
-  return data ?? [];
+  return (data ?? []).filter((item) => !!item.event_id).map((item) => ({
+    ...item,
+    status: String(item.status || "pending"),
+    attendance_fee: Number(item.attendance_fee || 0),
+    pass_code: item.pass_code ? String(item.pass_code) : null,
+  }));
 };

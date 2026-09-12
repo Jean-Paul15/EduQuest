@@ -17,14 +17,20 @@ class RuachColors {
   static const gold800 = Color(0xFF543C12);
   static const gold900 = Color(0xFF2E1E04);
 
-  // ── Ink family (dark surfaces) ──
+  // ── Ink family (dark surfaces) ── ton chaud (brun-noir), assorti au Gold —
+  // ink200-600 étaient des bleus marine (ex. ink300 0xFF162240), en rupture
+  // avec l'identité Gold/Ink/Cream : tout le mode sombre en héritait une
+  // teinte froide "bleu nuit" au lieu du noir chaud attendu. Rampe refaite
+  // dans la même famille chromatique que gold900 (0xFF2E1E04), luminosité
+  // croissante — mêmes usages/mêmes rôles qu'avant (surfaces, bordures,
+  // overlays), seule la teinte change.
   static const ink50 = Color(0xFF0F0A04);
   static const ink100 = Color(0xFF1A0A00);
-  static const ink200 = Color(0xFF12161E);
-  static const ink300 = Color(0xFF162240);
-  static const ink400 = Color(0xFF1E2F52);
-  static const ink500 = Color(0xFF2A3D66);
-  static const ink600 = Color(0xFF3A5080);
+  static const ink200 = Color(0xFF201607);
+  static const ink300 = Color(0xFF2B1E0D);
+  static const ink400 = Color(0xFF372813);
+  static const ink500 = Color(0xFF46341A);
+  static const ink600 = Color(0xFF5C4522);
 
   // ── Cream family (light surfaces) ──
   static const cream50 = Color(0xFFFDFAF5);

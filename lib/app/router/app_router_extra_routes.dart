@@ -5,6 +5,7 @@ import 'package:eduquest/features/legal/presentation/legal_document_page.dart';
 import 'package:eduquest/features/marketplace/presentation/marketplace_page.dart';
 import 'package:eduquest/features/notifications/presentation/user_notifications_page.dart';
 import 'package:eduquest/features/orientation/presentation/orientation_page.dart';
+import 'package:eduquest/features/privacy/presentation/pages/my_data_page.dart';
 import 'package:eduquest/features/referral/presentation/referral_page.dart';
 import 'package:eduquest/features/tickets/presentation/pages/tickets_page.dart';
 import 'package:eduquest/features/videos/presentation/videos_page.dart';
@@ -59,6 +60,7 @@ List<RouteBase> buildExtraRoutes() {
     GoRoute(path: 'referral', name: AppRoutes.referral, pageBuilder: (_, __) => slidePage(child: const ReferralPage())),
     GoRoute(path: 'orientation', name: AppRoutes.orientation, pageBuilder: (_, __) => slidePage(child: const OrientationPage())),
     GoRoute(path: 'videos', name: AppRoutes.videos, pageBuilder: (_, __) => slidePage(child: const VideosPage())),
+    GoRoute(path: 'my-data', name: AppRoutes.myData, pageBuilder: (_, __) => slidePage(child: const MyDataPage())),
     GoRoute(
       path: 'legal/:docType',
       name: AppRoutes.legal,

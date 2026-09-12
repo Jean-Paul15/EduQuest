@@ -9,12 +9,18 @@ bool _reduceMotion(BuildContext context) {
 }
 
 /// Staggered fade-in + slide-up builder for list items.
-Widget staggerItem({required int index, required Widget child, Duration? baseDelay}) {
-  return _StaggerItem(index: index, baseDelay: baseDelay ?? RuachMotion.staggerDelay, child: child);
+///
+/// [key] doit être le même que celui du [child] quand cet item vit dans une
+/// liste dont le contenu peut changer de forme entre deux rebuilds (ex.
+/// squelette de chargement -> données réelles) : sans clé partagée,
+/// l'enveloppe (`_StaggerItem`) et son enfant peuvent se faire réassocier
+/// incorrectement lors de la réconciliation de la sliver list.
+Widget staggerItem({Key? key, required int index, required Widget child, Duration? baseDelay}) {
+  return _StaggerItem(key: key, index: index, baseDelay: baseDelay ?? RuachMotion.staggerDelay, child: child);
 }
 
 class _StaggerItem extends StatefulWidget {
-  const _StaggerItem({required this.index, required this.child, required this.baseDelay});
+  const _StaggerItem({super.key, required this.index, required this.child, required this.baseDelay});
   final int index;
   final Widget child;
   final Duration baseDelay;
@@ -30,11 +36,9 @@ class _StaggerItemState extends State<_StaggerItem> with SingleTickerProviderSta
   @override
   void initState() {
     super.initState();
-    final reduce = _reduceMotion(context) == true;
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: reduce ? Duration.zero : RuachMotion.appear,
-    );
+    // Duree par defaut ; ajustee dans didChangeDependencies une fois
+    // MediaQuery lisible en toute securite (voir plus bas).
+    _ctrl = AnimationController(vsync: this, duration: RuachMotion.appear);
     _opacity = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _ctrl, curve: RuachCurves.appear),
     );
@@ -44,6 +48,17 @@ class _StaggerItemState extends State<_StaggerItem> with SingleTickerProviderSta
     Future.delayed(widget.baseDelay * widget.index, () {
       if (mounted) _ctrl.forward();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // MediaQuery.of(context) est interdit dans initState (l'Element n'est
+    // pas encore monte) -- l'appeler la-bas pouvait laisser le montage d'un
+    // item de liste inachieve et corrompre l'arbre de la sliver list au
+    // rebuild suivant (cascade "Duplicate GlobalKey" / "child == _child").
+    // didChangeDependencies est le point sur, avant le premier frame peint.
+    if (_reduceMotion(context)) _ctrl.duration = Duration.zero;
   }
 
   @override

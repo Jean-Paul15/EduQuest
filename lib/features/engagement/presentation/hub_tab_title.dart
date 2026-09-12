@@ -18,10 +18,10 @@ class HubTabTitle extends StatelessWidget {
         Text(tab.label, style: TextStyle(color: textColor)),
         const SizedBox(width: 6),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: RuachSpace.s2, vertical: 2),
           decoration: BoxDecoration(
             color: RuachColors.gold600,
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(RuachRadius.full),
           ),
           child: Text(
             '${tab.count}',

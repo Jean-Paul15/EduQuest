@@ -1,5 +1,4 @@
 import 'package:eduquest/features/navigation/presentation/widgets/nav_badge_icon.dart';
-import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -20,7 +19,7 @@ class MainNavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).navigationBarTheme.backgroundColor,
-        border: const Border(top: BorderSide(color: RuachColors.cream200, width: 0.5)),
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 0.5)),
       ),
       child: NavigationBar(
         selectedIndex: selectedIndex,
@@ -28,7 +27,7 @@ class MainNavBar extends StatelessWidget {
         onDestinationSelected: onDestinationSelected,
         destinations: [
           NavigationDestination(icon: Semantics(label: 'Accueil', child: const Icon(PhosphorIconsRegular.house)), selectedIcon: Semantics(label: 'Accueil', child: const Icon(PhosphorIconsFill.house)), label: 'Accueil'),
-          NavigationDestination(icon: Semantics(label: 'Fil d\'actualité', child: const Icon(PhosphorIconsRegular.compass)), selectedIcon: Semantics(label: 'Fil d\'actualité', child: const Icon(PhosphorIconsFill.compass)), label: 'Feed'),
+          NavigationDestination(icon: Semantics(label: 'Assistant RuachEdu', child: const Icon(PhosphorIconsRegular.chatCircleDots)), selectedIcon: Semantics(label: 'Assistant RuachEdu', child: const Icon(PhosphorIconsFill.chatCircleDots)), label: 'Assistant'),
           NavigationDestination(icon: Semantics(label: 'Apprendre', child: const Icon(PhosphorIconsRegular.books)), selectedIcon: Semantics(label: 'Apprendre', child: const Icon(PhosphorIconsFill.books)), label: 'Apprendre'),
           NavigationDestination(icon: Semantics(label: 'Hub', child: NavBadgeIcon(icon: PhosphorIconsRegular.squaresFour, count: hubBadge)), selectedIcon: Semantics(label: 'Hub', child: NavBadgeIcon(icon: PhosphorIconsFill.squaresFour, count: hubBadge)), label: 'Hub'),
           NavigationDestination(icon: Semantics(label: 'Profil', child: const Icon(PhosphorIconsRegular.user)), selectedIcon: Semantics(label: 'Profil', child: const Icon(PhosphorIconsFill.user)), label: 'Profil'),

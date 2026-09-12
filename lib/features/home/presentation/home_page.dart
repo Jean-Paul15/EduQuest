@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:eduquest/features/access/data/access_repository.dart';
 import 'package:eduquest/features/app_config/data/app_config_repository.dart';
 import 'package:eduquest/features/gamification/domain/daily_quest.dart';
@@ -35,33 +36,41 @@ class _HomePageState extends State<HomePage> with HomeNavigationMixin {
   final _handoff = WebCheckoutHandoff();
   String _supportUrl = '';
   String _displayName = 'Etudiant';
-  AccessState _access = const AccessState(tier: 'FREE', hasAccess: true, expiresAt: null);
+  AccessState _access = const AccessState(
+    tier: 'FREE_LIGHT',
+    hasAccess: true,
+    expiresAt: null,
+  );
   GamificationState _gam = const GamificationState(xp: 0, level: 1, streakDays: 0, bestStreak: 0);
   List<DailyQuest> _quests = const [];
   bool _loadingHome = true;
   @override
   void initState() {
     super.initState();
-    _config.loadAppLinks(forceRefresh: true).then((links) {
+    unawaited(_bootstrapHome());
+    _config.loadAppLinks().then((links) {
       if (!mounted) return;
-      setState(() {
-        _supportUrl = links['support_url'] ?? '';
-      });
-    });
-    _controller.loadCachedSnapshot().then((s) {
-      if (s != null) applySnapshot(s);
-    });
-    _controller.initialize().then(applySnapshot).catchError((_) {
-      if (!mounted) return;
-      setState(() => _loadingHome = false);
+      setState(() => _supportUrl = links['support_url'] ?? '');
     });
     _controller.startRealtime(() => _controller.refresh().then(applySnapshot));
   }
   @override
   void dispose() {
-    _controller.stopRealtime();
+    _controller.dispose();
     super.dispose();
   }
+
+  Future<void> _bootstrapHome() async {
+    try {
+      final cached = await _controller.loadCachedSnapshot();
+      if (cached != null) applySnapshot(cached);
+      applySnapshot(await _controller.initialize());
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loadingHome = false);
+    }
+  }
+
   @override
   void applySnapshot(HomeSnapshot s) {
     if (!mounted) return;
@@ -72,13 +81,7 @@ class _HomePageState extends State<HomePage> with HomeNavigationMixin {
       _quests = s.quests;
       _loadingHome = false;
     });
-    final (label, value, footer) = widgetFocus(s);
-    _widget.update(
-      title: 'RuachEdu • ${s.displayName}',
-      focusLabel: label,
-      focusValue: value,
-      footer: footer,
-    );
+    _widget.update(widgetPayload(s));
   }
 
   @override

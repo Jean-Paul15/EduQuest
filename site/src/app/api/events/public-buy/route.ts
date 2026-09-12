@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { recordServerEvent } from "@/lib/analytics/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { claimIdempotency, storeIdempotencyResult } from "@/lib/security/idempotency";
 
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ message: "Informations invalides." }, { status: 400 });
 
   const p = parsed.data;
+  await recordServerEvent({ name: "event_public_buy_submitted", category: "site", payload: { eventId: p.eventId } });
   const supabase = await createSupabaseServerClient();
   const key = p.idempotencyKey ?? request.headers.get("x-idempotency-key");
   const claim = await claimIdempotency(
@@ -44,6 +46,7 @@ export async function POST(request: Request) {
 
   if (error) {
     const out = { message: error.message };
+    await recordServerEvent({ name: "event_public_buy_failed", category: "site", payload: { eventId: p.eventId, reason: error.message } });
     await storeIdempotencyResult(claim.rowId, 400, out);
     return NextResponse.json(out, { status: 400 });
   }
@@ -54,6 +57,7 @@ export async function POST(request: Request) {
     qrCode: data?.qr_code,
     amount: Number(data?.amount_paid || 0),
   };
+  await recordServerEvent({ name: "event_public_buy_succeeded", category: "site", payload: { eventId: p.eventId, amount: out.amount } });
   await storeIdempotencyResult(claim.rowId, 200, out);
   return NextResponse.json(out);
 }

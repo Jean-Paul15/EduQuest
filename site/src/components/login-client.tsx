@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import { trackSiteEvent } from "@/lib/analytics/client";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Props = { nextPath: string; error?: string | null };
@@ -24,8 +25,12 @@ export const LoginClient = ({ nextPath, error }: Props) => {
   const oauth = async (provider: "google" | "apple") => {
     setBusy(true);
     setInfo("");
+    void trackSiteEvent({ name: "login_submit", category: "auth", payload: { provider } });
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
     const { error: authError } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo } });
+    if (authError?.message) {
+      void trackSiteEvent({ name: "login_failure", category: "auth", payload: { provider, reason: prettyError(authError.message) } });
+    }
     setInfo(authError?.message ? prettyError(authError.message) : "");
     setBusy(false);
   };
@@ -34,8 +39,15 @@ export const LoginClient = ({ nextPath, error }: Props) => {
     if (!canSubmit) return setInfo("Renseigne un email valide et un mot de passe (6 caractères min).");
     setBusy(true);
     setInfo("");
+    void trackSiteEvent({ name: "login_submit", category: "auth", payload: { provider: "password" } });
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (!authError) window.location.assign(nextPath);
+    if (!authError) {
+      void trackSiteEvent({ name: "login_success", category: "auth", payload: { provider: "password" } });
+      window.location.assign(nextPath);
+    }
+    if (authError?.message) {
+      void trackSiteEvent({ name: "login_failure", category: "auth", payload: { provider: "password", reason: prettyError(authError.message) } });
+    }
     setInfo(authError?.message ? prettyError(authError.message) : "");
     setBusy(false);
   };

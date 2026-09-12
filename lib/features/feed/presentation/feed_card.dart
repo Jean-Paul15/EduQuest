@@ -16,6 +16,7 @@ class FeedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Material(
@@ -28,7 +29,7 @@ class FeedCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(RuachRadius.lg),
-              border: Border.all(color: RuachColors.cream200),
+              border: Border.all(color: s.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,24 +67,24 @@ class FeedCard extends StatelessWidget {
                   item.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: RuachColors.cream900,
+                    color: s.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   '$serie  ·  ${item.subtitle}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: RuachColors.cream500,
+                    color: s.onSurfaceVariant,
                   ),
                 ),
                 const Spacer(),
                 Text(
                   'Découvre, révise et progresse',
-                  style: TextStyle(fontSize: 13, color: RuachColors.cream700),
+                  style: TextStyle(fontSize: 13, color: s.onSurfaceVariant),
                 ),
               ],
             ),

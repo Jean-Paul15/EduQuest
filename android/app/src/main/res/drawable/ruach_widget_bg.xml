@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Carte RuachEdu : cream100->cream50 (~96%), reflet haut, liseré cream200.
+     Tokens RuachColors. Pas de vrai flou : impossible dans un widget Android. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <gradient
+                android:angle="315"
+                android:startColor="#F6F5EFE4"
+                android:endColor="#FAFDFAF5" />
+            <stroke
+                android:width="1dp"
+                android:color="#EDE4D4" />
+        </shape>
+    </item>
+    <item android:height="54dp" android:gravity="top">
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <gradient
+                android:angle="270"
+                android:startColor="#4DFFFFFF"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

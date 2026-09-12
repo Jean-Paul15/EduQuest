@@ -1,8 +1,9 @@
 import 'package:eduquest/features/learning/presentation/pages/chapter_quiz_list_page.dart';
 import 'package:eduquest/features/learning/presentation/pages/chapter_resource_list_page.dart';
 import 'package:eduquest/features/learning/domain/chapter_resource.dart';
-import 'package:eduquest/features/learning/domain/learning_quiz.dart';
-import 'package:eduquest/shared/security/sensitive_scope.dart';
+import 'package:ruach_quiz_engine/ruach_quiz_engine.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_app_bar.dart';
+import 'package:eduquest/shared/ui/widgets/ruach_tab_bar.dart';
 import 'package:flutter/material.dart';
 
 class ChapterCoursePage extends StatelessWidget {
@@ -20,19 +21,17 @@ class ChapterCoursePage extends StatelessWidget {
   final List<ChapterResource>? initialSummaries;
   final List<ChapterResource>? initialExercises;
   final List<ChapterResource>? initialCorrections;
-  final List<LearningQuiz>? initialQuizzes;
+  final List<QuizSummary>? initialQuizzes;
 
   @override
   Widget build(BuildContext context) {
-    return SensitiveScope(
-      child: DefaultTabController(
-        length: 4,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(chapterTitle),
-            bottom: const TabBar(
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+          appBar: RuachAppBar(
+            title: chapterTitle,
+            showBack: true,
+            bottom: const RuachTabBar(
               tabs: [
                 Tab(text: 'Résumé'),
                 Tab(text: 'Exercices'),
@@ -68,7 +67,6 @@ class ChapterCoursePage extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

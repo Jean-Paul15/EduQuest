@@ -8,6 +8,33 @@ import 'package:eduquest/shared/ui/media/youtube_url_parser.dart';
 import 'package:eduquest/shared/ui/offline_bootstrap_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+/// Ouvre une vidéo : bascule vers l'app YouTube pour les vidéos YouTube
+/// (aucune détection fiable d'une vidéo à l'intégration restreinte n'est
+/// possible côté client — l'erreur "video unavailable" vient de l'iframe
+/// YouTube lui-même, pas d'une erreur réseau interceptable), lecteur interne
+/// sinon. Partagé entre l'ouverture d'une ressource de cours et la liste de
+/// vidéos dédiée.
+Future<void> openVideoResource(
+  BuildContext context, {
+  required String title,
+  required String url,
+}) async {
+  final yt = isYoutubeUrl(url);
+  final id = yt ? parseYoutubeId(url) : null;
+  if (id != null) {
+    await launchUrl(
+      Uri.parse('https://youtu.be/$id'),
+      mode: LaunchMode.externalApplication,
+    );
+    return;
+  }
+  if (!context.mounted) return;
+  await context.pushNamed(AppRoutes.mediaPlayer, queryParameters: {
+    'title': title, 'url': url, 'isYoutube': yt.toString(),
+  });
+}
 
 Future<void> openResource(
   BuildContext context,
@@ -24,10 +51,7 @@ Future<void> openResource(
     return;
   }
   if (isVideoMode) {
-    final yt = isYoutubeUrl(r.url);
-    await context.pushNamed(AppRoutes.mediaPlayer, queryParameters: {
-      'title': r.title, 'url': r.url, 'isYoutube': yt.toString(),
-    });
+    await openVideoResource(context, title: r.title, url: r.url);
     return;
   }
   await context.pushNamed(AppRoutes.webView, queryParameters: {

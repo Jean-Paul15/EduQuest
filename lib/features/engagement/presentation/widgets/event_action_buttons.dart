@@ -31,7 +31,8 @@ class EventActionButtons extends StatelessWidget {
             label: applied
                 ? 'Déjà inscrit'
                 : (canPay ? 'Reprendre le paiement' : 'Postuler'),
-            onPressed: (busy || applied) ? null : onApply,
+            loading: busy,
+            onPressed: applied ? null : onApply,
             icon: PhosphorIconsRegular.userCheck,
           ),
         ),

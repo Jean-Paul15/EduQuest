@@ -24,13 +24,24 @@ class RuachInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final fill = isDark ? const Color(0xFF152235) : RuachColors.cream100;
+    final border = isDark ? const Color(0xFF24405E) : RuachColors.cream200;
+    final hintColor = isDark ? RuachColors.cream500 : RuachColors.cream700;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (label != null) ...[
-          Text(label!, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+          Text(
+            label!,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
           const SizedBox(height: RuachSpace.s2),
         ],
         SizedBox(
@@ -43,18 +54,19 @@ class RuachInput extends StatelessWidget {
             style: TextStyle(fontSize: 16, color: isDark ? RuachColors.cream100 : RuachColors.cream900),
             decoration: InputDecoration(
               hintText: hint,
+              hintStyle: TextStyle(color: hintColor, fontSize: 14),
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,
               filled: true,
-              fillColor: isDark ? RuachColors.ink400 : RuachColors.cream100,
+              fillColor: fill,
               contentPadding: const EdgeInsets.symmetric(horizontal: RuachSpace.s4, vertical: RuachSpace.s4),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(RuachRadius.md),
-                borderSide: BorderSide(color: isDark ? RuachColors.ink500 : RuachColors.cream200),
+                borderSide: BorderSide(color: border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(RuachRadius.md),
-                borderSide: BorderSide(color: isDark ? RuachColors.ink500 : RuachColors.cream200),
+                borderSide: BorderSide(color: border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(RuachRadius.md),

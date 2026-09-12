@@ -6,7 +6,7 @@ let client: SupabaseClient | null = null;
 
 export const getSupabaseBrowserClient = () => {
   if (!client) {
-    client = createBrowserClient(env.supabaseUrl, env.supabaseAnonKey);
+    client = createBrowserClient(env.supabaseUrl, env.supabasePublishableKey);
   }
   return client;
 };

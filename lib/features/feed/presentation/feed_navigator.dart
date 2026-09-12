@@ -46,6 +46,30 @@ class FeedNavigator {
         await context.push('/contest/${item.id}');
       case FeedKind.event:
         await context.push('/event/${item.id}');
+      case FeedKind.recommendedChapter:
+        // Pas de deep-link direct vers le chapitre : on ouvre la liste de
+        // chapitres de son sujet, comme pour FeedKind.course.
+        if (item.subjectId.isEmpty) {
+          ModernSnackbar.show(
+            context,
+            'Ce chapitre est indisponible pour le moment.',
+            success: false,
+          );
+          return;
+        }
+        final chapters = await catalog.chaptersBySubject(item.subjectId);
+        if (!context.mounted) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChapterListPage(
+              subjectId: item.subjectId,
+              subjectLabel: item.title,
+              section: LearningSection.courses,
+              initialChapters: chapters,
+            ),
+          ),
+        );
       case FeedKind.unknown:
         ModernSnackbar.show(
           context,

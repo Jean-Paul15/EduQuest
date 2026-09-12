@@ -21,7 +21,7 @@ class CompactPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(RuachRadius.lg),
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: child,
     );

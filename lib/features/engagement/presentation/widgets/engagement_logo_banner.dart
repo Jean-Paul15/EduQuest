@@ -18,7 +18,7 @@ class EngagementLogoBanner extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(RuachRadius.lg),
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: s.outlineVariant),
       ),
       child: AspectRatio(
         aspectRatio: 16 / 9,

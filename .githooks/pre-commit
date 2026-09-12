@@ -41,8 +41,30 @@ done
 
 if [ -n "$darts" ] && command -v flutter >/dev/null 2>&1; then
   echo "[pre-commit] flutter analyze staged dart files..."
+  # Batche par lots de 60 fichiers : au-dela, la ligne de commande depasse
+  # la limite Windows (ARG_MAX via cmd.exe) et flutter.bat echoue silencieusement
+  # avec "La ligne de commande est trop longue.".
   # shellcheck disable=SC2086
-  flutter analyze $darts
+  set -- $darts
+  batch_size=60
+  batch=""
+  count=0
+  status=0
+  for f in "$@"; do
+    batch="$batch $f"
+    count=$((count + 1))
+    if [ "$count" -ge "$batch_size" ]; then
+      # shellcheck disable=SC2086
+      flutter analyze $batch || status=1
+      batch=""
+      count=0
+    fi
+  done
+  if [ -n "$batch" ]; then
+    # shellcheck disable=SC2086
+    flutter analyze $batch || status=1
+  fi
+  [ "$status" -eq 0 ] || exit 1
 else
   echo "[pre-commit] no staged dart files (or flutter missing), skip analyze"
 fi

@@ -1,4 +1,3 @@
-import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -36,18 +35,18 @@ class EmptyState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: RuachColors.cream900,
+              color: scheme.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: RuachColors.cream500,
+            style: TextStyle(
+              color: scheme.onSurfaceVariant,
               fontSize: 14,
             ),
             textAlign: TextAlign.center,

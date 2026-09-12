@@ -1,6 +1,6 @@
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/copy/app_copy.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key, required this.register});
@@ -9,33 +9,26 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = Theme.of(context).colorScheme;
     final tx = Theme.of(context).textTheme;
+    final s = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.all(RuachSpace.s3),
-          decoration: BoxDecoration(
-            color: s.primary.withValues(alpha: .1),
-            borderRadius: BorderRadius.circular(RuachRadius.sm),
-          ),
-          child: Icon(
-            PhosphorIconsRegular.graduationCap,
-            color: s.primary,
-            size: 24,
-          ),
+        Image.asset(
+          'assets/images/ruachedu-logo-512.png',
+          width: 64,
+          height: 64,
         ),
         const SizedBox(height: RuachSpace.s5),
         Text(
-          register ? 'Creer un compte' : 'Bon retour',
+          register ? AppCopy.createAccount : 'Bon retour',
           style: tx.headlineLarge,
         ),
         const SizedBox(height: RuachSpace.s1),
         Text(
-          'Acces securise RuachEdu',
-          style: tx.titleMedium?.copyWith(color: RuachColors.cream500),
+          'Accès sécurisé RuachEdu',
+          style: tx.titleMedium?.copyWith(color: s.onSurfaceVariant),
         ),
         const SizedBox(height: RuachSpace.s8),
       ],

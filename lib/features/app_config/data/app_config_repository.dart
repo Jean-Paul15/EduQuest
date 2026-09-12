@@ -10,6 +10,14 @@ class AppConfigRepository {
   final _local = LocalJsonCache();
   static final Map<String, Map<String, dynamic>> _mem = {};
 
+  static void clearMemory([String? key]) {
+    if (key == null) {
+      _mem.clear();
+      return;
+    }
+    _mem.remove(key);
+  }
+
   Future<AuthOptions> loadAuthOptions() async {
     final value = await _value('auth_options');
     return AuthOptions(
@@ -30,8 +38,10 @@ class AppConfigRepository {
     );
   }
 
-  Future<Map<String, bool>> loadHubModules() async {
-    final value = await _value('hub_modules');
+  Future<Map<String, bool>> loadHubModules({bool forceRefresh = false}) async {
+    final value = forceRefresh
+        ? (await _refreshValue('hub_modules') ?? await _value('hub_modules'))
+        : await _value('hub_modules');
     return {
       'live': value['live'] as bool? ?? true,
       'contests': value['contests'] as bool? ?? true,

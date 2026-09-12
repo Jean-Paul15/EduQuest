@@ -50,8 +50,11 @@ export const listMyTickets = async () => {
 export const listTicketCheckoutOptions = async () => {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.rpc("list_ticket_checkout_options");
-  const options = ((data || []) as TicketCheckoutOption[]).map((x) => ({
+  const options = ((data || []) as TicketCheckoutOption[])
+    .filter((x) => !!x?.product_id && !!x?.product_code)
+    .map((x) => ({
     ...x,
+    product_code: String(x.product_code || "").trim(),
     base_price: Number(x.base_price || 0),
     fees: Number(x.fees || 0),
     total_price: Number(x.total_price || 0),

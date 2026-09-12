@@ -16,7 +16,7 @@ class ContestDetailAppliedCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(RuachRadius.lg),
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +48,7 @@ class ContestDetailPendingPaymentCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(RuachRadius.lg),
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,6 +56,26 @@ class ContestDetailPendingPaymentCard extends StatelessWidget {
           const Text('Statut: paiement en attente', style: TextStyle(color: RuachColors.gold600)),
           Text('Montant à payer: ${fee?.toStringAsFixed(0) ?? '0'} FCFA'),
         ],
+      ),
+    );
+  }
+}
+
+class ContestDetailCancelledCard extends StatelessWidget {
+  const ContestDetailCancelledCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(RuachSpace.s3),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(RuachRadius.lg),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: const Text(
+        'Statut: participation annulée. Tu peux repostuler si le concours est toujours ouvert.',
+        style: TextStyle(color: RuachColors.warning400),
       ),
     );
   }

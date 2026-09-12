@@ -9,7 +9,7 @@ const presets: Record<string, Record<string, unknown>> = {
   open_week: {
     hub_modules: { live: true, contests: true, events: true, surveys: true, notifications: true, referral: true, market: true, leaderboard: true, orientation: true },
     learning_access: { courses: "FREE", exams: "FREE", epreuves: "FREE", mockExams: "FREE", videos: "FREE", youtube: "FREE" },
-    learning_security: { capture_allowed: true, keep_awake: true },
+    learning_security: { capture_allowed: false, keep_awake: true },
     feed_modules: { courses: true, contests: true, events: true, courses_limit: 12, contests_limit: 8, events_limit: 8 },
   },
   strict_secure: {

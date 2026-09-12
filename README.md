@@ -14,10 +14,21 @@ flutter run -d chrome
 1. Copier `.env.example` en `.env`.
 2. Renseigner:
    - `SUPABASE_URL`
-   - `SUPABASE_ANON_KEY`
+   - `SUPABASE_PUBLISHABLE_KEYS`
    - `SUPABASE_OAUTH_REDIRECT_URL`
    - `ONESIGNAL_APP_ID`
-3. Auth activee: Google + Apple uniquement (pas OTP/email/mdp).
+3. Les secrets IA (`OPENAI_API_KEY`, `DEEPSEEK_API_KEY`) restent dans Supabase Vault.
+4. Crashlytics utilise `lib/firebase_options.dart` genere via `flutterfire configure`.
+5. Auth activee: Google + Apple uniquement (pas OTP/email/mdp).
+
+## Push OneSignal
+
+- SDK Flutter initialise avant `runApp()` via `NotificationService`.
+- SDK Flutter: `onesignal_flutter` `5.3.5` (track stable officiel).
+- App ID configure: `a233937a-3480-429f-882a-02288cacb92b`.
+- Android push reel: ajouter `android/app/google-services.json`.
+- iOS push: entitlement `aps-environment` versionne + `remote-notification` deja declare.
+- iOS push reel: verifier la signature Apple/Xcode et charger la cle APNs dans OneSignal.
 
 ## Documentation projet
 

@@ -10,7 +10,11 @@ class LeaderboardRepository {
     final local = await _fromLocalWeekly() ?? const <Map<String, dynamic>>[];
     if (!Env.hasSupabase) return local;
     if (local.isNotEmpty) {
-      unawaited(_refreshWeekly());
+      final fresh = await _local.isFresh(
+        'leaderboard:weekly',
+        const Duration(minutes: 30),
+      );
+      if (!fresh) unawaited(_refreshWeekly());
       return local;
     }
     return await _refreshWeekly() ?? local;
@@ -20,7 +24,11 @@ class LeaderboardRepository {
     final local = await _fromLocalPolicy();
     if (!Env.hasSupabase) return local ?? _defaultPolicy();
     if (local != null) {
-      unawaited(_refreshPolicy());
+      final fresh = await _local.isFresh(
+        'leaderboard:policy',
+        const Duration(hours: 6),
+      );
+      if (!fresh) unawaited(_refreshPolicy());
       return local;
     }
     return await _refreshPolicy() ?? _defaultPolicy();
@@ -28,7 +36,6 @@ class LeaderboardRepository {
 
   Future<List<Map<String, dynamic>>?> _refreshWeekly() async {
     try {
-      await Supabase.instance.client.rpc('build_weekly_leaderboard');
       final row = await Supabase.instance.client
           .from('weekly_leaderboards')
           .select('ranking')

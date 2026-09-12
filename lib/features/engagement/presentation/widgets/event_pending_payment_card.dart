@@ -12,7 +12,7 @@ class EventPendingPaymentCard extends StatelessWidget {
       padding: const EdgeInsets.all(RuachSpace.s3),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border.all(color: RuachColors.cream200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(RuachRadius.lg),
       ),
       child: Column(

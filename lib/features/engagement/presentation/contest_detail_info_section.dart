@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:eduquest/features/engagement/domain/engagement_detail.dart';
+import 'package:eduquest/features/engagement/presentation/widgets/engagement_info_row.dart';
 import 'package:eduquest/features/engagement/presentation/widgets/engagement_logo_banner.dart';
-import 'package:eduquest/features/engagement/presentation/contest_detail_info_row.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
+import 'package:eduquest/shared/ui/format/engagement_date_format.dart';
+import 'package:eduquest/shared/ui/widgets/compact_markdown.dart';
 
 class ContestDetailInfoSection extends StatelessWidget {
   const ContestDetailInfoSection({super.key, required this.detail, required this.onOpenMaps});
@@ -14,24 +15,22 @@ class ContestDetailInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
     final d = detail;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         EngagementLogoBanner(url: d.logoUrl, tag: 'concours'),
-        Text(
-          d.title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: RuachColors.cream900),
-        ),
+        Text(d.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: s.onSurface)),
         const SizedBox(height: RuachSpace.s3),
-        ContestDetailInfoRow(icon: PhosphorIconsRegular.calendar, text: 'Debut: ${d.startsAt.toLocal()}'),
+        EngagementInfoRow(icon: PhosphorIconsRegular.calendar, text: 'Début : ${formatEngagementDate(d.startsAt)}'),
         if (d.endsAt != null)
-          ContestDetailInfoRow(icon: PhosphorIconsRegular.calendar, text: 'Fin: ${d.endsAt!.toLocal()}'),
-        ContestDetailInfoRow(
+          EngagementInfoRow(icon: PhosphorIconsRegular.calendar, text: 'Fin : ${formatEngagementDate(d.endsAt!)}'),
+        EngagementInfoRow(
           icon: d.isInPerson == true ? PhosphorIconsRegular.mapPin : PhosphorIconsRegular.globe,
           text: d.isInPerson == true ? 'Présentiel' : 'En ligne',
         ),
-        if ((d.venue ?? '').isNotEmpty) ContestDetailInfoRow(icon: PhosphorIconsRegular.mapPin, text: d.venue!),
+        if ((d.venue ?? '').isNotEmpty) EngagementInfoRow(icon: PhosphorIconsRegular.mapPin, text: d.venue!),
         if ((d.venue ?? '').isNotEmpty || d.locationLat != null)
           Padding(
             padding: const EdgeInsets.only(bottom: RuachSpace.s2),
@@ -44,22 +43,22 @@ class ContestDetailInfoSection extends StatelessWidget {
               ),
             ),
           ),
-        ContestDetailInfoRow(
+        EngagementInfoRow(
           icon: PhosphorIconsRegular.currencyDollar,
           text: 'Participation ouverte • tarif selon ton ticket',
         ),
-        ContestDetailInfoRow(
+        EngagementInfoRow(
           icon: PhosphorIconsRegular.coins,
           text: 'FULL: ${d.freeForFull == true ? 'Gratuit' : '${d.feeFull?.toStringAsFixed(0) ?? '0'} FCFA'} • HALF: ${d.feeHalf?.toStringAsFixed(0) ?? '0'} FCFA • FREE: ${d.feeFree?.toStringAsFixed(0) ?? '0'} FCFA • CAMPAGNE: ${(d.feeCampaignFree ?? d.feeFree ?? 0).toStringAsFixed(0)} FCFA',
         ),
         const SizedBox(height: RuachSpace.s4),
-        MarkdownBody(data: d.description),
+        CompactMarkdown(data: d.description),
         if (d.requireWhatsapp == true)
-          const Padding(
-            padding: EdgeInsets.only(top: RuachSpace.s4),
+          Padding(
+            padding: const EdgeInsets.only(top: RuachSpace.s4),
             child: Text(
               'Le numéro WhatsApp du profil est requis pour postuler.',
-              style: TextStyle(color: RuachColors.cream500),
+              style: TextStyle(color: s.onSurfaceVariant),
             ),
           ),
       ],

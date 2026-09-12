@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="eduquest_notification_accent">#FF2F80ED</color>
+    <color name="ruachedu_notification_accent">#FF2F80ED</color>
+
+    <!-- Widget écran d'accueil — thème clair. Tokens RuachColors :
+         cream900 / cream700 / gold600 / gold700. La variante sombre est dans
+         values-night/colors.xml ; le lanceur résout texte ET fond par le même
+         chemin, donc jamais de désynchro clair/sombre. -->
+    <color name="ruach_w_ink">#2A2218</color>
+    <color name="ruach_w_muted">#5C5040</color>
+    <color name="ruach_w_gold">#A07838</color>
+    <color name="ruach_w_streak">#7A5A24</color>
 </resources>

@@ -1,0 +1,17 @@
+const criticalScenarios = [
+  'boot:first-launch',
+  'boot:signed-out',
+  'boot:signed-in-profile-complete',
+  'boot:main-nav-back-confirm',
+  'auth:login-success',
+  'auth:register-email-confirmation-pending',
+  'profile:gate-only-missing-fields',
+  'learning:subjects-and-chapters',
+  'learning:quiz-launch',
+  'assistant:ask-and-open-source',
+  'assistant:error-state',
+  'orientation:complete-online',
+  'orientation:unavailable',
+  'notifications:list-and-open',
+  'profile:update-phone-and-class',
+];

@@ -2,6 +2,7 @@ import 'package:eduquest/features/app_config/data/app_config_repository.dart';
 import 'package:eduquest/features/app_config/domain/auth_options.dart';
 import 'package:eduquest/features/auth/data/auth_repository.dart';
 import 'package:eduquest/features/auth/presentation/login_layout.dart';
+import 'package:eduquest/features/auth/presentation/register_steps_page.dart';
 import 'package:eduquest/shared/ui/widgets/ruach_snackbar.dart';
 import 'package:eduquest/shared/ui/user_error_message.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +18,8 @@ class _LoginPageState extends State<LoginPage> {
   final _config = AppConfigRepository();
   final _email = TextEditingController();
   final _pass = TextEditingController();
-  final _confirm = TextEditingController();
   AuthOptions _options = const AuthOptions(google: true, apple: true, emailPassword: true);
-  bool _register = false;
-  bool _obscure = true;
+  bool _obscure = true, _loading = false;
 
   @override
   void initState() {
@@ -32,11 +31,12 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _email.dispose();
     _pass.dispose();
-    _confirm.dispose();
     super.dispose();
   }
 
   Future<void> _run(Future<void> Function() action, String ok) async {
+    if (_loading) return;
+    setState(() => _loading = true);
     try {
       await action();
       if (!mounted) return;
@@ -44,21 +44,26 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       if (!mounted) return;
       RuachSnackbar.error(context, userErrorMessage(e));
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
   void _onSubmit() {
     final email = _email.text.trim();
     final pass = _pass.text;
-    if (_register && pass != _confirm.text) {
-      RuachSnackbar.error(context, 'Les mots de passe ne correspondent pas.');
+    if (email.isEmpty || !email.contains('@')) {
+      RuachSnackbar.error(context, 'Entre une adresse email valide.');
       return;
     }
-    if (_register) {
-      _run(() => widget.repository.signUpWithEmail(email, pass), 'Compte cree. Verifie ton email.');
+    if (pass.isEmpty) {
+      RuachSnackbar.error(context, 'Entre ton mot de passe.');
       return;
     }
-    _run(() => widget.repository.signInWithEmail(email, pass), 'Connexion reussie.');
+    _run(
+      () => widget.repository.signInWithEmail(email, pass),
+      'Connexion réussie.',
+    );
   }
 
   void _forgotPassword() {
@@ -67,24 +72,40 @@ class _LoginPageState extends State<LoginPage> {
       RuachSnackbar.error(context, 'Renseigne ton email d\'abord.');
       return;
     }
-    _run(() => widget.repository.resetPassword(email), 'Lien de reinitialisation envoye.');
+    _run(
+      () => widget.repository.resetPassword(email),
+      'Lien de réinitialisation envoyé.',
+    );
+  }
+
+  void _goRegister() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RegisterStepsPage(repository: widget.repository),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return LoginLayout(
-      register: _register,
+      register: false,
       options: _options,
       email: _email,
       pass: _pass,
-      confirm: _register ? _confirm : null,
+      confirm: null,
       obscure: _obscure,
+      obscureConfirm: false,
+      loading: _loading,
       onToggleObscure: () => setState(() => _obscure = !_obscure),
+      onToggleConfirmObscure: () {},
       onSubmit: _onSubmit,
       onForgotPassword: _forgotPassword,
-      onToggleRegister: () => setState(() => _register = !_register),
-      onGoogleTap: () => _run(widget.repository.signInWithGoogle, 'Redirection Google...'),
-      onAppleTap: () => _run(widget.repository.signInWithApple, 'Redirection Apple...'),
+      onToggleRegister: _goRegister,
+      onGoogleTap: () =>
+          _run(widget.repository.signInWithGoogle, 'Redirection Google...'),
+      onAppleTap: () =>
+          _run(widget.repository.signInWithApple, 'Redirection Apple...'),
     );
   }
 }

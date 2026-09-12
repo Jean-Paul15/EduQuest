@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -9,9 +10,14 @@ class LocalReminderService {
   final _plugin = FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
+    if (kIsWeb) return;
     const init = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-      iOS: DarwinInitializationSettings(),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      ),
     );
     await _plugin.initialize(init);
     final android = _plugin
@@ -20,17 +26,13 @@ class LocalReminderService {
         >();
     await android?.createNotificationChannel(
       const AndroidNotificationChannel(
-        'eduquest_alerts',
+        'ruachedu_alerts',
         'RuachEdu Alerts',
         description: 'Notifications importantes RuachEdu',
         importance: Importance.max,
         playSound: true,
       ),
     );
-    await android?.requestNotificationsPermission();
-    try {
-      await (android as dynamic).requestExactAlarmsPermission();
-    } catch (_) {}
     tz.initializeTimeZones();
     try {
       final name = await FlutterTimezone.getLocalTimezone();
@@ -44,7 +46,9 @@ class LocalReminderService {
     required int minute,
     required String displayName,
   }) async {
+    if (kIsWeb) return;
     if (!enabled) return cancelDaily();
+    await _requestExactAlarmPermission();
     await _plugin.cancel(_id);
     final now = tz.TZDateTime.now(tz.local);
     var next = tz.TZDateTime(
@@ -89,9 +93,13 @@ class LocalReminderService {
     }
   }
 
-  Future<void> cancelDaily() async => _plugin.cancel(_id);
+  Future<void> cancelDaily() async {
+    if (kIsWeb) return;
+    await _plugin.cancel(_id);
+  }
 
   Future<void> showPreview(String displayName) async {
+    if (kIsWeb) return;
     await _plugin.show(
       _previewId,
       'RuachEdu • Test rappel',
@@ -114,6 +122,7 @@ class LocalReminderService {
     required String body,
     int id = 9403,
   }) async {
+    if (kIsWeb) return;
     await _plugin.show(
       id,
       title,
@@ -129,5 +138,16 @@ class LocalReminderService {
         iOS: DarwinNotificationDetails(),
       ),
     );
+  }
+
+  Future<void> _requestExactAlarmPermission() async {
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (android == null) return;
+    try {
+      await (android as dynamic).requestExactAlarmsPermission();
+    } catch (_) {}
   }
 }

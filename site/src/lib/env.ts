@@ -9,21 +9,52 @@ const req = (name: string, value?: string) => {
 };
 
 const isServer = typeof window === "undefined";
+const pickFirstKey = (raw?: string) => {
+  const value = clean(raw);
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    const queue = [parsed];
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (typeof current === "string" && current.trim()) return current.trim();
+      if (Array.isArray(current)) queue.push(...current);
+      if (current && typeof current === "object") {
+        const data = current as Record<string, unknown>;
+        ["default", "web", "site", "client", "primary"].forEach((key) => {
+          if (key in data) queue.unshift(data[key]);
+        });
+        Object.values(data).forEach((item) => queue.push(item));
+      }
+    }
+  } catch {
+    return value;
+  }
+  return undefined;
+};
 
 const nextPublicSupabaseUrl = clean(process.env.NEXT_PUBLIC_SUPABASE_URL);
-const nextPublicSupabaseAnonKey = clean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+const nextPublicPublishableKey =
+  pickFirstKey(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEYS);
 
 const serverSupabaseUrl = isServer ? clean(process.env.SUPABASE_URL) : undefined;
-const serverSupabaseAnonKey = isServer ? clean(process.env.SUPABASE_ANON_KEY) : undefined;
-const serverServiceRole = isServer ? clean(process.env.SUPABASE_SERVICE_ROLE_KEY) : undefined;
+const serverPublishableKey = isServer
+  ? pickFirstKey(process.env.SUPABASE_PUBLISHABLE_KEYS)
+  : undefined;
+const serverSecretKey = isServer
+  ? pickFirstKey(process.env.SUPABASE_SECRET_KEYS)
+  : undefined;
 
 export const env = {
   supabaseUrl: req("NEXT_PUBLIC_SUPABASE_URL", nextPublicSupabaseUrl ?? serverSupabaseUrl),
-  supabaseAnonKey: req("NEXT_PUBLIC_SUPABASE_ANON_KEY", nextPublicSupabaseAnonKey ?? serverSupabaseAnonKey),
-  siteUrl: clean(process.env.NEXT_PUBLIC_SITE_URL) ?? "http://localhost:3000",
-  serviceRoleKey: serverServiceRole,
-  appDeepLink: clean(process.env.NEXT_PUBLIC_APP_DEEP_LINK) ?? "eduquest://home",
-  supportEmail: clean(process.env.NEXT_PUBLIC_SUPPORT_EMAIL) ?? "support@eduquest.app",
+  supabasePublishableKey: req(
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEYS",
+    nextPublicPublishableKey ?? serverPublishableKey,
+  ),
+  siteUrl: clean(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://edu.ruachnova.com",
+  supabaseSecretKey: serverSecretKey,
+  appDeepLink: clean(process.env.NEXT_PUBLIC_APP_DEEP_LINK) ?? "ruachedu://home",
+  supportEmail: clean(process.env.NEXT_PUBLIC_SUPPORT_EMAIL) ?? "support@ruachnova.com",
   supportWhatsApp: clean(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP) ?? "https://wa.me/22800000000",
-  ticketShopUrl: clean(process.env.NEXT_PUBLIC_TICKET_SHOP_URL) ?? "https://eduquest.tg/tickets",
+  ticketShopUrl: clean(process.env.NEXT_PUBLIC_TICKET_SHOP_URL) ?? "https://edu.ruachnova.com/tickets",
 };

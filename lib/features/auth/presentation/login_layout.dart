@@ -1,4 +1,5 @@
 import 'package:eduquest/features/app_config/domain/auth_options.dart';
+import 'package:eduquest/features/auth/presentation/auth_back_guard.dart';
 import 'package:eduquest/features/auth/presentation/login_email_form.dart';
 import 'package:eduquest/features/auth/presentation/login_header.dart';
 import 'package:eduquest/features/auth/presentation/login_or_divider.dart';
@@ -15,7 +16,10 @@ class LoginLayout extends StatelessWidget {
     required this.pass,
     required this.confirm,
     required this.obscure,
+    required this.obscureConfirm,
+    required this.loading,
     required this.onToggleObscure,
+    required this.onToggleConfirmObscure,
     required this.onSubmit,
     required this.onForgotPassword,
     required this.onToggleRegister,
@@ -24,12 +28,15 @@ class LoginLayout extends StatelessWidget {
   });
 
   final bool register;
+  final bool loading;
   final AuthOptions options;
   final TextEditingController email;
   final TextEditingController pass;
   final TextEditingController? confirm;
   final bool obscure;
+  final bool obscureConfirm;
   final VoidCallback onToggleObscure;
+  final VoidCallback onToggleConfirmObscure;
   final VoidCallback onSubmit;
   final VoidCallback onForgotPassword;
   final VoidCallback onToggleRegister;
@@ -38,44 +45,50 @@ class LoginLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: RuachSpace.s6),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  LoginHeader(register: register),
-                  if (options.google || options.apple)
-                    LoginSocialButtons(
-                      google: options.google,
-                      apple: options.apple,
-                      onGoogleTap: onGoogleTap,
-                      onAppleTap: onAppleTap,
-                    ),
-                  if (options.emailPassword) ...[
-                    if (options.google || options.apple) ...[
-                      SizedBox(height: RuachSpace.s2),
-                      const LoginOrDivider(),
-                      SizedBox(height: RuachSpace.s4),
+    return AuthBackGuard(
+      child: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: RuachSpace.s6),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LoginHeader(register: register),
+                    if (options.google || options.apple)
+                      LoginSocialButtons(
+                        google: options.google,
+                        apple: options.apple,
+                        loading: loading,
+                        onGoogleTap: onGoogleTap,
+                        onAppleTap: onAppleTap,
+                      ),
+                    if (options.emailPassword) ...[
+                      if (options.google || options.apple) ...[
+                        SizedBox(height: RuachSpace.s2),
+                        const LoginOrDivider(),
+                        SizedBox(height: RuachSpace.s4),
+                      ],
+                      LoginEmailForm(
+                        email: email,
+                        pass: pass,
+                        confirm: confirm,
+                        obscure: obscure,
+                        obscureConfirm: obscureConfirm,
+                        register: register,
+                        loading: loading,
+                        onToggleObscure: onToggleObscure,
+                        onToggleConfirmObscure: onToggleConfirmObscure,
+                        onSubmit: onSubmit,
+                        onForgotPassword: onForgotPassword,
+                        onToggleRegister: onToggleRegister,
+                      ),
                     ],
-                    LoginEmailForm(
-                      email: email,
-                      pass: pass,
-                      confirm: confirm,
-                      obscure: obscure,
-                      register: register,
-                      onToggleObscure: onToggleObscure,
-                      onSubmit: onSubmit,
-                      onForgotPassword: onForgotPassword,
-                      onToggleRegister: onToggleRegister,
-                    ),
                   ],
-                ],
+                ),
               ),
             ),
           ),

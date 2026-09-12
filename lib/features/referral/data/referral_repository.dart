@@ -2,6 +2,38 @@ import 'package:eduquest/shared/config/env.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class ReferralProgressItem {
+  const ReferralProgressItem({
+    required this.name,
+    required this.status,
+    required this.qualified,
+  });
+
+  final String name;
+  final String status;
+  final bool qualified;
+
+  String get statusLabel => switch (status) {
+    'reward_granted' => 'Récompense versée',
+    'referred_ticket_activated' => 'Ticket activé',
+    'referred_active_7d' => 'Actif depuis 7 jours',
+    'referred_profile_completed' => 'Profil complété',
+    _ => 'Compte créé',
+  };
+}
+
+class ReferralSnapshot {
+  const ReferralSnapshot({
+    required this.invitedCount,
+    required this.qualifiedCount,
+    required this.items,
+  });
+
+  final int invitedCount;
+  final int qualifiedCount;
+  final List<ReferralProgressItem> items;
+}
+
 class ReferralRepository {
   final _local = LocalJsonCache();
 
@@ -56,6 +88,40 @@ class ReferralRepository {
       return value;
     } catch (_) {
       return await _fromLocalQualifiedCount() ?? 0;
+    }
+  }
+
+  Future<ReferralSnapshot> loadProgress() async {
+    if (!Env.hasSupabase) {
+      return ReferralSnapshot(
+        invitedCount: await _fromLocalCount() ?? 0,
+        qualifiedCount: await _fromLocalQualifiedCount() ?? 0,
+        items: const [],
+      );
+    }
+    try {
+      final rows = await Supabase.instance.client.rpc('list_referral_progress');
+      final items = (rows as List)
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .map(
+            (row) => ReferralProgressItem(
+              name: row['referred_name']?.toString() ?? 'Compte invité',
+              status: row['status']?.toString() ?? 'referred_account_created',
+              qualified: row['qualified'] == true,
+            ),
+          )
+          .toList(growable: false);
+      return ReferralSnapshot(
+        invitedCount: items.length,
+        qualifiedCount: items.where((item) => item.qualified).length,
+        items: items,
+      );
+    } catch (_) {
+      return ReferralSnapshot(
+        invitedCount: await invitedCount(),
+        qualifiedCount: await qualifiedCount(),
+        items: const [],
+      );
     }
   }
 

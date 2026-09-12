@@ -23,6 +23,11 @@ class RuachColorScheme {
       surfaceContainerLow: RuachColors.cream50,
       surfaceContainer: RuachColors.cream100,
       surfaceContainerHigh: RuachColors.cream200,
+      // Sans cet override, ColorScheme.fromSeed derive ce ton depuis la
+      // palette neutre generee du seed gold -- un gris quasi-blanc, pas
+      // du creme. Reutilise cream200 (dernier ton creme disponible) plutot
+      // que d'introduire un nouveau token.
+      surfaceContainerHighest: RuachColors.cream200,
       onSurface: RuachColors.cream900,
       onSurfaceVariant: RuachColors.cream500,
       outline: RuachColors.cream200,
@@ -44,17 +49,21 @@ class RuachColorScheme {
       onSecondary: RuachColors.ink100,
       secondaryContainer: RuachColors.gold800,
       onSecondaryContainer: RuachColors.gold200,
-      surface: RuachColors.ink200,
+      // Surfaces — progressively lighter for depth
+      surface: RuachColors.ink300,
       surfaceDim: RuachColors.ink200,
-      surfaceBright: RuachColors.ink400,
-      surfaceContainerLowest: RuachColors.ink50,
+      surfaceBright: RuachColors.ink500,
+      surfaceContainerLowest: RuachColors.ink100,
       surfaceContainerLow: RuachColors.ink200,
-      surfaceContainer: RuachColors.ink300,
-      surfaceContainerHigh: RuachColors.ink400,
-      onSurface: RuachColors.cream100,
-      onSurfaceVariant: RuachColors.cream500,
-      outline: RuachColors.ink500,
-      outlineVariant: RuachColors.ink400,
+      surfaceContainer: RuachColors.ink400,
+      surfaceContainerHigh: RuachColors.ink500,
+      surfaceContainerHighest: RuachColors.ink500,
+      // Text — brighter for readability on dark
+      onSurface: RuachColors.cream50,
+      onSurfaceVariant: RuachColors.cream200,
+      // Borders — visible against dark surfaces
+      outline: RuachColors.ink600,
+      outlineVariant: RuachColors.ink500,
       error: RuachColors.error400,
       onError: RuachColors.white,
     );

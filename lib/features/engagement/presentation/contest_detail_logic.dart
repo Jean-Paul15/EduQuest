@@ -1,7 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:eduquest/features/engagement/data/engagement_repository.dart';
 import 'package:eduquest/features/engagement/domain/engagement_detail.dart';
 import 'package:eduquest/features/engagement/presentation/contest_detail_page.dart';
+import 'package:eduquest/features/engagement/presentation/engagement_confirm_dialogs.dart';
 import 'package:eduquest/shared/external/web_checkout_handoff.dart';
 import 'package:eduquest/shared/ui/maps/external_maps_launcher.dart';
 import 'package:eduquest/shared/ui/modern_snackbar.dart';
@@ -18,32 +20,29 @@ mixin ContestDetailLogic on State<ContestDetailPage> {
   Map<String, dynamic>? get entry => _entry;
   bool get busy => _busy;
 
-  Future<void> load() async {
-    setState(() => _busy = true);
-    final d = await _repo.contestDetail(widget.id);
-    final e = await _repo.myContestEntry(widget.id);
+  Future<void> load({bool forceRefresh = false, bool silent = false}) async {
+    if (!silent) setState(() => _busy = true);
+    final values = await Future.wait<dynamic>([
+      _repo.contestDetail(widget.id, forceRefresh: forceRefresh),
+      _repo.myContestEntry(widget.id, forceRefresh: forceRefresh),
+    ]);
     if (!mounted) return;
     setState(() {
-      _detail = d;
-      _entry = e;
+      _detail = values[0] as EngagementDetail;
+      _entry = values[1] as Map<String, dynamic>?;
       _busy = false;
     });
   }
 
   Future<void> join() async {
     if (_busy) return;
-    final ok = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('Confirmer la postulation'),
-        content: const Text('Veux-tu postuler à ce concours maintenant ?'),
-        actions: [
-          CupertinoDialogAction(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
-          CupertinoDialogAction(isDefaultAction: true, onPressed: () => Navigator.pop(ctx, true), child: const Text('Confirmer')),
-        ],
-      ),
+    final ok = await confirmEngagementAction(
+      context,
+      title: 'Confirmer la postulation',
+      message: 'Veux-tu postuler à ce concours maintenant ?',
+      confirmLabel: 'Confirmer',
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     setState(() => _busy = true);
     final out = await _repo.joinContest(widget.id);
     if (!mounted) return;
@@ -54,8 +53,8 @@ mixin ContestDetailLogic on State<ContestDetailPage> {
     final msg = !success
         ? base
         : needsPay
-            ? '$base Montant à régler: ${fee.toStringAsFixed(0)} FCFA.'
-            : 'Inscription prise en compte. Ton billet est disponible.';
+        ? '$base Montant à régler: ${fee.toStringAsFixed(0)} FCFA.'
+        : 'Inscription prise en compte. Ton billet est disponible.';
     ModernSnackbar.show(context, msg, success: success);
     if (success && !needsPay) {
       final code = out['qr_code']?.toString() ?? '';
@@ -66,8 +65,12 @@ mixin ContestDetailLogic on State<ContestDetailPage> {
     if (success && needsPay) {
       if (!mounted) return;
       await handleContestJoinPayment(
-        context: context, handoff: _handoff, contestId: widget.id,
-        fee: fee, isMounted: () => mounted, reload: load,
+        context: context,
+        handoff: _handoff,
+        contestId: widget.id,
+        fee: fee,
+        isMounted: () => mounted,
+        reload: load,
       );
     }
     await load();
@@ -75,17 +78,34 @@ mixin ContestDetailLogic on State<ContestDetailPage> {
 
   Future<void> cancel() async {
     if (_busy) return;
+    final ok = await confirmEngagementAction(
+      context,
+      title: 'Annuler la participation',
+      message: 'Tu pourras repostuler plus tard si le concours est encore ouvert.',
+      confirmLabel: 'Annuler',
+      cancelLabel: 'Garder ma place',
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
     setState(() => _busy = true);
-    final msg = await _repo.cancelContest(widget.id);
+    final out = await _repo.cancelContest(widget.id);
     if (!mounted) return;
-    ModernSnackbar.show(context, msg, success: !msg.contains('Aucune'));
+    ModernSnackbar.show(
+      context,
+      out['message']?.toString() ?? 'Participation annulée.',
+      success: out['success'] == true,
+    );
     await load();
   }
 
   Future<void> openMaps() async {
     final d = _detail;
     if (d == null) return;
-    final ok = await ExternalMapsLauncher.open(venue: d.venue ?? '', lat: d.locationLat, lng: d.locationLng);
+    final ok = await ExternalMapsLauncher.open(
+      venue: d.venue ?? '',
+      lat: d.locationLat,
+      lng: d.locationLng,
+    );
     if (!mounted || ok) return;
     ModernSnackbar.show(context, 'Impossible d\'ouvrir Maps.', success: false);
   }
@@ -94,6 +114,10 @@ mixin ContestDetailLogic on State<ContestDetailPage> {
     final launched = await _handoff.openPayment(kind: 'contest', id: widget.id);
     if (launched) return;
     if (!mounted) return;
-    ModernSnackbar.show(context, 'Le service de paiement est indisponible pour le moment.', success: false);
+    ModernSnackbar.show(
+      context,
+      'Le service de paiement est indisponible pour le moment.',
+      success: false,
+    );
   }
 }

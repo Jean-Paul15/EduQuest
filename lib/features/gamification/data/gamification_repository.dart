@@ -1,17 +1,21 @@
 import 'package:eduquest/features/gamification/domain/daily_quest.dart';
+import 'package:eduquest/features/gamification/domain/gamification_repository_interface.dart';
 import 'package:eduquest/features/gamification/domain/gamification_state.dart';
 import 'package:eduquest/shared/config/env.dart';
+import 'package:eduquest/shared/core/result.dart';
 import 'package:eduquest/shared/data/local_json_cache.dart';
+import 'package:eduquest/shared/sync/service_locator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class GamificationRepository {
+class GamificationRepository implements GamificationRepositoryInterface {
   final _local = LocalJsonCache();
 
-  Future<GamificationState> loadState() async {
+  @override
+  Future<Result<GamificationState>> loadState() async {
     final local = await _fromLocalState();
-    if (!Env.hasSupabase) return local ?? _emptyState();
+    if (!Env.hasSupabase) return success(local ?? _emptyState());
     final uid = Supabase.instance.client.auth.currentUser?.id;
-    if (uid == null) return local ?? _emptyState();
+    if (uid == null) return success(local ?? _emptyState());
     try {
       final row = await Supabase.instance.client
           .from('gamification_profiles')
@@ -34,21 +38,22 @@ class GamificationRepository {
           'bestStreak': out.bestStreak,
         },
       ]);
-      return out;
-    } catch (_) {
-      return local ?? _emptyState();
+      return success(out);
+    } catch (e) {
+      return success(local ?? _emptyState());
     }
   }
 
-  Future<List<DailyQuest>> listDailyQuests() async {
+  @override
+  Future<Result<List<DailyQuest>>> listDailyQuests() async {
     final local = await _fromLocalQuests();
-    if (!Env.hasSupabase) return local;
+    if (!Env.hasSupabase) return success(local);
     final uid = Supabase.instance.client.auth.currentUser?.id;
-    if (uid == null) return local;
+    if (uid == null) return success(local);
     try {
       final quests = await Supabase.instance.client
           .from('daily_quests')
-          .select('id,label,xp_reward')
+          .select('id,code,label,xp_reward')
           .eq('active', true);
       final today = DateTime.now().toUtc().toIso8601String().split('T').first;
       final done = await Supabase.instance.client
@@ -61,6 +66,7 @@ class GamificationRepository {
           .map(
             (e) => DailyQuest(
               id: '${e['id']}',
+              code: '${e['code'] ?? e['id']}',
               label: '${e['label']}',
               xpReward: e['xp_reward'] as int? ?? 0,
               completedToday: doneIds.contains('${e['id']}'),
@@ -73,6 +79,7 @@ class GamificationRepository {
             .map(
               (e) => {
                 'id': e.id,
+                'code': e.code,
                 'label': e.label,
                 'xpReward': e.xpReward,
                 'completedToday': e.completedToday,
@@ -80,34 +87,52 @@ class GamificationRepository {
             )
             .toList(),
       );
-      return out;
+      return success(out);
     } catch (_) {
-      return local;
+      return success(local);
     }
   }
 
-  Future<String> claimDailyCheckin() async {
-    if (!Env.hasSupabase) return 'Check-in simulé (+20 XP).';
+  @override
+  Future<Result<String>> claimDailyCheckin() async {
+    if (!Env.hasSupabase) return success('Check-in simulé (+20 XP).');
     try {
       final result = await Supabase.instance.client.rpc('claim_daily_checkin');
       final map = Map<String, dynamic>.from(result as Map);
-      return '${map['message'] ?? 'Action terminée.'}';
+      return success('${map['message'] ?? 'Action terminée.'}');
     } catch (_) {
-      return 'Erreur check-in. Vérifie la migration 0012.';
+      await ServiceLocator().sync.enqueueAndTryFlush(
+        operation: 'RPC',
+        targetTable: 'claim_daily_checkin',
+        payload: <String, dynamic>{},
+      );
+      return success(
+        'Check-in enregistré. Sera synchronisé dès le retour de connexion.',
+      );
     }
   }
 
-  Future<String> claimQuestByCode(String code) async {
-    if (!Env.hasSupabase) return 'Action locale enregistrée.';
+  @override
+  Future<Result<String>> claimQuestByCode(String code) async {
+    if (!Env.hasSupabase) return success('Action locale enregistrée.');
     try {
       final result = await Supabase.instance.client.rpc(
         'claim_daily_quest',
         params: {'p_code': code},
       );
       final map = Map<String, dynamic>.from(result as Map);
-      return '${map['message'] ?? 'Action enregistrée.'}';
+      await _markQuestCompletedLocally(code);
+      return success('${map['message'] ?? 'Action enregistrée.'}');
     } catch (_) {
-      return 'Action non prise en compte pour le moment.';
+      await ServiceLocator().sync.enqueueAndTryFlush(
+        operation: 'RPC',
+        targetTable: 'claim_daily_quest',
+        payload: {'p_code': code},
+      );
+      await _markQuestCompletedLocally(code);
+      return success(
+        'Action enregistrée. Sera synchronisée dès le retour de connexion.',
+      );
     }
   }
 
@@ -133,11 +158,28 @@ class GamificationRepository {
         .map(
           (e) => DailyQuest(
             id: '${e['id']}',
+            code: '${e['code'] ?? e['id']}',
             label: '${e['label']}',
             xpReward: e['xpReward'] as int? ?? 0,
             completedToday: e['completedToday'] as bool? ?? false,
           ),
         )
         .toList();
+  }
+
+  Future<void> _markQuestCompletedLocally(String code) async {
+    final rows = await _local.readList('gam:quests');
+    if (rows == null || rows.isEmpty) return;
+    var changed = false;
+    final updated = rows.map((e) {
+      final row = Map<String, dynamic>.from(e);
+      final rowCode = '${row['code'] ?? row['id']}';
+      if (rowCode == code && row['completedToday'] != true) {
+        row['completedToday'] = true;
+        changed = true;
+      }
+      return row;
+    }).toList();
+    if (changed) await _local.writeList('gam:quests', updated);
   }
 }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BackofficeInlineFeedback } from "@/components/backoffice/backoffice-inline-feedback";
 
 type Opt = { id: string; label: string };
+type SeriesOpt = { id: string; label: string; education_level_id: string };
 type Mode = "course" | "quiz" | "exam";
 type StatusFilter = "all" | "published" | "draft";
 type Table = "resources" | "quizzes" | "exam_papers";
@@ -41,11 +42,15 @@ export const LearningLibraryManager = () => {
 
   const [countries, setCountries] = useState<Opt[]>([]);
   const [levels, setLevels] = useState<Opt[]>([]);
+  const [seriesOptions, setSeriesOptions] = useState<SeriesOpt[]>([]);
   const [subjects, setSubjects] = useState<Opt[]>([]);
   const [chapters, setChapters] = useState<Opt[]>([]);
 
   const [countryId, setCountryId] = useState("");
   const [levelId, setLevelId] = useState("");
+  const [courseSeriesIds, setCourseSeriesIds] = useState<string[]>([]);
+  const [quizSeriesIds, setQuizSeriesIds] = useState<string[]>([]);
+  const [examSeriesIds, setExamSeriesIds] = useState<string[]>([]);
   const [subjectId, setSubjectId] = useState("");
   const [chapterId, setChapterId] = useState("");
 
@@ -84,9 +89,10 @@ export const LearningLibraryManager = () => {
   const canCreateExam = !!countryId && !!levelId && !!subjectId && (!!ePaper.trim() || !!paperFile);
 
   const load = useCallback(async () => {
-    const [c, l, su, ch, r, q, e] = await Promise.all([
+    const [c, l, se, su, ch, r, q, e] = await Promise.all([
       s.from("countries").select("id,code,name").order("code"),
       s.from("education_levels").select("id,code,label").order("code"),
+      s.from("series").select("id,code,label,education_level_id").eq("is_active", true).order("code"),
       s.from("subjects").select("id,code,label").order("code"),
       s.from("chapters").select("id,title").order("position"),
       s.from("resources").select("id,title,published,external_url,chapter_id").order("id", { ascending: false }).limit(40),
@@ -96,6 +102,7 @@ export const LearningLibraryManager = () => {
 
     setCountries((c.data || []).map((x: { id: string; code: string; name: string }) => ({ id: x.id, label: `${x.code} - ${x.name}` })));
     setLevels((l.data || []).map((x: { id: string; code: string; label: string }) => ({ id: x.id, label: `${x.code} - ${x.label}` })));
+    setSeriesOptions((se.data || []).map((x: { id: string; code: string; label: string; education_level_id: string }) => ({ id: x.id, label: `${x.code} - ${x.label}`, education_level_id: x.education_level_id })));
     setSubjects((su.data || []).map((x: { id: string; code: string; label: string }) => ({ id: x.id, label: `${x.code} - ${x.label}` })));
     setChapters((ch.data || []).map((x: { id: string; title: string }) => ({ id: x.id, label: x.title })));
 
@@ -116,6 +123,25 @@ export const LearningLibraryManager = () => {
     return () => window.clearTimeout(timer);
   }, [load]);
 
+  const levelSeries = useMemo(
+    () => seriesOptions.filter((x) => x.education_level_id === levelId),
+    [levelId, seriesOptions],
+  );
+
+  useEffect(() => {
+    // Reinitialise la selection de series quand le niveau change (pas un etat derive pur).
+    if (!levelSeries.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCourseSeriesIds([]);
+      setQuizSeriesIds([]);
+      setExamSeriesIds([]);
+      return;
+    }
+    setCourseSeriesIds((prev) => prev.filter((id) => levelSeries.some((x) => x.id === id)));
+    setQuizSeriesIds((prev) => prev.filter((id) => levelSeries.some((x) => x.id === id)));
+    setExamSeriesIds((prev) => prev.length ? prev.filter((id) => levelSeries.some((x) => x.id === id)) : levelSeries.map((x) => x.id));
+  }, [levelSeries]);
+
   const upload = async (file: File, prefix: string) => {
     const cleanName = file.name.replace(/\s+/g, "-");
     const path = `${prefix}/${Date.now()}-${cleanName}`;
@@ -135,7 +161,10 @@ export const LearningLibraryManager = () => {
         external_url: url,
         published: true,
         access_scope: {},
-      });
+      }).select("id").single();
+      if (!res.error && res.data?.id && courseSeriesIds.length) {
+        await s.from("resource_series_targets").insert(courseSeriesIds.map((series_id) => ({ resource_id: res.data.id, series_id })));
+      }
       setMsg(res.error ? res.error.message : "Cours ajoute.");
       setTone(res.error ? "error" : "success");
       if (!res.error) {
@@ -150,7 +179,10 @@ export const LearningLibraryManager = () => {
   };
 
   const createQuiz = async () => {
-    const res = await s.from("quizzes").insert({ chapter_id: chapterId, title: qTitle, published: true, access_scope: {} });
+    const res = await s.from("quizzes").insert({ chapter_id: chapterId, title: qTitle, published: true, access_scope: {} }).select("id").single();
+    if (!res.error && res.data?.id && quizSeriesIds.length) {
+      await s.from("quiz_series_targets").insert(quizSeriesIds.map((series_id) => ({ quiz_id: res.data.id, series_id })));
+    }
     setMsg(res.error ? res.error.message : "Quiz ajoute.");
     setTone(res.error ? "error" : "success");
     if (!res.error) {
@@ -173,7 +205,10 @@ export const LearningLibraryManager = () => {
         paper_path: paper,
         correction_path: corr || null,
         access_scope: {},
-      });
+      }).select("id").single();
+      if (!res.error && res.data?.id && examSeriesIds.length) {
+        await s.from("exam_paper_series_targets").insert(examSeriesIds.map((series_id) => ({ exam_paper_id: res.data.id, series_id })));
+      }
       setMsg(res.error ? res.error.message : "Annale ajoutee.");
       setTone(res.error ? "error" : "success");
       if (!res.error) {
@@ -327,9 +362,9 @@ export const LearningLibraryManager = () => {
         <div><p className="mb-1 text-xs text-slate-500">Pays</p><select value={countryId} onChange={(e) => setCountryId(e.target.value)}>{countries.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select></div>
       </div>
 
-      {mode === "course" ? <div className="rounded-xl border p-3"><div className="grid gap-2 md:grid-cols-4"><input value={rTitle} onChange={(e) => setRTitle(e.target.value)} placeholder="Titre cours PDF" /><input value={rUrl} onChange={(e) => setRUrl(e.target.value)} placeholder="URL PDF (optionnel)" /><input type="file" accept="application/pdf" onChange={(e) => setRFile(e.target.files?.[0] || null)} /><Button onClick={createResource} disabled={!canCreateCourse}>Ajouter cours</Button></div></div> : null}
-      {mode === "quiz" ? <div className="rounded-xl border p-3"><div className="grid gap-2 md:grid-cols-3"><input value={qTitle} onChange={(e) => setQTitle(e.target.value)} placeholder="Titre quiz / QCM" /><p className="text-xs text-slate-500 md:self-center">Les questions se gerent dans la section Quiz.</p><Button onClick={createQuiz} disabled={!canCreateQuiz}>Ajouter quiz</Button></div></div> : null}
-      {mode === "exam" ? <div className="rounded-xl border p-3"><div className="grid gap-2 md:grid-cols-7"><input type="number" value={eYear} onChange={(e) => setEYear(Number(e.target.value) || eYear)} placeholder="Annee" /><input value={eSem} onChange={(e) => setESem(e.target.value)} placeholder="Semestre" /><input value={ePaper} onChange={(e) => setEPaper(e.target.value)} placeholder="URL sujet (optionnel)" /><input type="file" accept="application/pdf" onChange={(e) => setPaperFile(e.target.files?.[0] || null)} /><input value={eCorr} onChange={(e) => setECorr(e.target.value)} placeholder="URL corrige (optionnel)" /><input type="file" accept="application/pdf" onChange={(e) => setCorrFile(e.target.files?.[0] || null)} /><Button onClick={createExam} disabled={!canCreateExam}>Ajouter annale</Button></div></div> : null}
+      {mode === "course" ? <div className="rounded-xl border p-3"><div className="grid gap-2 md:grid-cols-4"><input value={rTitle} onChange={(e) => setRTitle(e.target.value)} placeholder="Titre cours PDF" /><input value={rUrl} onChange={(e) => setRUrl(e.target.value)} placeholder="URL PDF (optionnel)" /><input type="file" accept="application/pdf" onChange={(e) => setRFile(e.target.files?.[0] || null)} /><Button onClick={createResource} disabled={!canCreateCourse}>Ajouter cours</Button></div><p className="mt-3 text-xs text-slate-500">Override série optionnel. Laisser vide = héritage du chapitre.</p><div className="mt-2 flex flex-wrap gap-2">{levelSeries.map((serie) => <label key={serie.id} className="flex items-center gap-2 rounded-full border px-3 py-1 text-xs"><input type="checkbox" checked={courseSeriesIds.includes(serie.id)} onChange={() => setCourseSeriesIds((prev) => prev.includes(serie.id) ? prev.filter((id) => id !== serie.id) : [...prev, serie.id])} />{serie.label}</label>)}</div></div> : null}
+      {mode === "quiz" ? <div className="rounded-xl border p-3"><div className="grid gap-2 md:grid-cols-3"><input value={qTitle} onChange={(e) => setQTitle(e.target.value)} placeholder="Titre quiz / QCM" /><p className="text-xs text-slate-500 md:self-center">Les questions se gerent dans la section Quiz.</p><Button onClick={createQuiz} disabled={!canCreateQuiz}>Ajouter quiz</Button></div><p className="mt-3 text-xs text-slate-500">Override série optionnel. Laisser vide = héritage du chapitre.</p><div className="mt-2 flex flex-wrap gap-2">{levelSeries.map((serie) => <label key={serie.id} className="flex items-center gap-2 rounded-full border px-3 py-1 text-xs"><input type="checkbox" checked={quizSeriesIds.includes(serie.id)} onChange={() => setQuizSeriesIds((prev) => prev.includes(serie.id) ? prev.filter((id) => id !== serie.id) : [...prev, serie.id])} />{serie.label}</label>)}</div></div> : null}
+      {mode === "exam" ? <div className="rounded-xl border p-3"><div className="grid gap-2 md:grid-cols-7"><input type="number" value={eYear} onChange={(e) => setEYear(Number(e.target.value) || eYear)} placeholder="Annee" /><input value={eSem} onChange={(e) => setESem(e.target.value)} placeholder="Semestre" /><input value={ePaper} onChange={(e) => setEPaper(e.target.value)} placeholder="URL sujet (optionnel)" /><input type="file" accept="application/pdf" onChange={(e) => setPaperFile(e.target.files?.[0] || null)} /><input value={eCorr} onChange={(e) => setECorr(e.target.value)} placeholder="URL corrige (optionnel)" /><input type="file" accept="application/pdf" onChange={(e) => setCorrFile(e.target.files?.[0] || null)} /><Button onClick={createExam} disabled={!canCreateExam}>Ajouter annale</Button></div><p className="mt-3 text-xs text-slate-500">Au moins une série est recommandée pour garder l’annale visible.</p><div className="mt-2 flex flex-wrap gap-2">{levelSeries.map((serie) => <label key={serie.id} className="flex items-center gap-2 rounded-full border px-3 py-1 text-xs"><input type="checkbox" checked={examSeriesIds.includes(serie.id)} onChange={() => setExamSeriesIds((prev) => prev.includes(serie.id) ? prev.filter((id) => id !== serie.id) : [...prev, serie.id])} />{serie.label}</label>)}</div></div> : null}
 
       <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..." />
 

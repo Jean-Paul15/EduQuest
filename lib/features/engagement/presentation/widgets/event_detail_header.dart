@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:eduquest/shared/ui/design_tokens.dart';
 import 'package:eduquest/features/engagement/domain/engagement_detail.dart';
+import 'package:eduquest/features/engagement/presentation/widgets/engagement_info_row.dart';
 import 'package:eduquest/features/engagement/presentation/widgets/engagement_logo_banner.dart';
-import 'package:eduquest/features/engagement/presentation/widgets/event_info_row.dart';
 
 class EventDetailHeader extends StatelessWidget {
   const EventDetailHeader({
@@ -27,24 +27,16 @@ class EventDetailHeader extends StatelessWidget {
         EngagementLogoBanner(url: detail.logoUrl, tag: 'événement'),
         Text(
           detail.title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: RuachColors.cream900,
-          ),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: colorScheme.onSurface),
         ),
         const SizedBox(height: RuachSpace.s2),
         Text(
           detail.description,
-          style: const TextStyle(color: RuachColors.cream500),
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
         ),
         if (detail.venue?.isNotEmpty == true) ...[
           const SizedBox(height: RuachSpace.s2),
-          EventInfoRow(
-            icon: PhosphorIconsRegular.mapPin,
-            text: detail.venue!,
-            colorScheme: colorScheme,
-          ),
+          EngagementInfoRow(icon: PhosphorIconsRegular.mapPin, text: detail.venue!),
         ],
         if ((detail.meetingUrl ?? '').isNotEmpty) ...[
           const SizedBox(height: RuachSpace.s2),
