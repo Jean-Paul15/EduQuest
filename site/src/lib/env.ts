@@ -33,16 +33,20 @@ const pickFirstKey = (raw?: string) => {
   return undefined;
 };
 
+// Nouvelle convention Supabase : sb_publishable_/sb_secret_ (*_KEYS, JSON).
+// Repli sur les anciens noms (anon/service_role) pour les environnements
+// (ex. Vercel) pas encore migres, sans casser le build.
 const nextPublicSupabaseUrl = clean(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const nextPublicPublishableKey =
-  pickFirstKey(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEYS);
+  pickFirstKey(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEYS) ??
+  clean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 const serverSupabaseUrl = isServer ? clean(process.env.SUPABASE_URL) : undefined;
 const serverPublishableKey = isServer
-  ? pickFirstKey(process.env.SUPABASE_PUBLISHABLE_KEYS)
+  ? pickFirstKey(process.env.SUPABASE_PUBLISHABLE_KEYS) ?? clean(process.env.SUPABASE_ANON_KEY)
   : undefined;
 const serverSecretKey = isServer
-  ? pickFirstKey(process.env.SUPABASE_SECRET_KEYS)
+  ? pickFirstKey(process.env.SUPABASE_SECRET_KEYS) ?? clean(process.env.SUPABASE_SERVICE_ROLE_KEY)
   : undefined;
 
 export const env = {

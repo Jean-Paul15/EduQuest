@@ -41,6 +41,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="ruachedu" />
             </intent-filter>
+            <!-- App Links https://edu.ruachnova.com : verifie via
+                 site/public/.well-known/assetlinks.json (empreinte SHA-256
+                 de la cle de release). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="edu.ruachnova.com" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

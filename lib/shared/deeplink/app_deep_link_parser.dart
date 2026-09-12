@@ -1,9 +1,22 @@
 import 'package:eduquest/shared/deeplink/app_deep_link_command.dart';
 
 class AppDeepLinkParser {
+  static const _universalLinkHost = 'edu.ruachnova.com';
+
   static AppDeepLinkCommand? fromUri(Uri uri) {
-    if (uri.scheme.toLowerCase() != 'ruachedu') return null;
-    if (uri.host.toLowerCase() == 'login-callback') return null;
+    final scheme = uri.scheme.toLowerCase();
+    final isCustomScheme = scheme == 'ruachedu';
+    final isUniversalLink = scheme == 'https' && uri.host.toLowerCase() == _universalLinkHost;
+    if (!isCustomScheme && !isUniversalLink) return null;
+
+    // Sur le scheme custom, la cible est encodee dans le host
+    // (ruachedu://login-callback) ; sur un lien universel, dans le premier
+    // segment de chemin (https://edu.ruachnova.com/login-callback).
+    final target = isCustomScheme
+        ? uri.host.toLowerCase()
+        : (uri.pathSegments.isNotEmpty ? uri.pathSegments.first.toLowerCase() : '');
+    if (target == 'login-callback') return null;
+
     final tab = _tabFromUri(uri);
     final kind = (uri.queryParameters['kind'] ?? '').toLowerCase();
     final entityId = uri.queryParameters['id'] ?? '';

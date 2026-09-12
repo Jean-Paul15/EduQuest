@@ -20,7 +20,7 @@ export const SupportDeleteForm = ({ logged }: Props) => {
       url: "/api/support/delete-request",
       payload,
       successMessage: "Demande envoyée.",
-      errorMessage: "Impossible ’nvoyer la demande.",
+      errorMessage: "Impossible d'envoyer la demande.",
     });
   };
 
